@@ -68,7 +68,7 @@ bool GameCore::CoreRender()
 
 bool GameCore::CorePreRender()
 {
-	float color[4] = { 0.4f, 1.0f, 0.6f, 1.0f };
+	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	
 	_immediateContext->OMSetRenderTargets(1, &_rtv, _dsv);
 	_immediateContext->ClearRenderTargetView(_rtv, color);

@@ -9,7 +9,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//_ASSERT(g_window); 디버깅용 error검출
 	return g_window->MsgProc(hWnd, message, wParam, lParam);
-
 }
 
 Window::Window()
@@ -57,7 +56,7 @@ BOOL Window::InitInstance(const WCHAR* title, UINT width, UINT height)
 	_wndStyle = WS_OVERLAPPEDWINDOW;
 	RECT rc = { 0,0, width, height };
 	AdjustWindowRect(&rc, _wndStyle, FALSE);
-	HWND hWnd = CreateWindowW(L"2232윈도우", title, _wndStyle, 0, 0,
+	HWND hWnd = CreateWindowW(L"window", title, _wndStyle, 0, 0,
 							  rc.right - rc.left, rc.bottom - rc.top,
 							  nullptr, nullptr, _hInstance, nullptr);
 	if (!hWnd) 
@@ -108,8 +107,8 @@ ATOM Window::MyRegisterClass()
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.hInstance = _hInstance;
-	wcex.hbrBackground = CreateSolidBrush(RGB(100, 100, 100));
-	wcex.lpszClassName = L"2232윈도우";
+	wcex.hbrBackground = CreateSolidBrush(RGB(1, 1, 1));
+	wcex.lpszClassName = L"window";
 	wcex.lpfnWndProc = WndProc; 
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	return RegisterClassEx(&wcex);

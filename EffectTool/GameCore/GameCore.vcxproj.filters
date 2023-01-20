@@ -9,34 +9,21 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{3e9bef84-2691-41a1-b13f-bf3f69db1c66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Device">
+      <UniqueIdentifier>{e88fc818-e11f-427a-bc4e-38fa4ead66ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{c3f33325-f2a8-413a-a70b-b4d7142d0fba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{2bb4834c-d334-4a12-9d01-a84131cdc7ea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BaseObject.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CoreMath.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Device.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DxState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GameCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalGameTimer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
@@ -54,42 +41,42 @@
     <ClCompile Include="TextureManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Writer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CoreMath.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseObject.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalGameTimer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Writer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Device.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="DxState.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCore.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CoreMath.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Device.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DxState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalGameTimer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
@@ -110,17 +97,38 @@
     <ClInclude Include="TextureManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Writer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreMath.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseObject.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalGameTimer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Writer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Device.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="DxState.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCore.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -81,7 +81,7 @@ bool RenderTarget::Begin(ID3D11DeviceContext* context)
     ID3D11RenderTargetView* nullRTV = NULL;
     context->OMSetRenderTargets(1, &nullRTV, NULL);
     context->OMSetRenderTargets(1, &_renderTargetView, _dsv);
-    const FLOAT color[] = { 0.5f,0.5f,0.5f,1 };
+    const FLOAT color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     context->ClearRenderTargetView(_renderTargetView, color);
     context->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0, 0);
     context->RSSetViewports(1, &_viewport);

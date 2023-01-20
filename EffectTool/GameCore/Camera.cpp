@@ -30,14 +30,6 @@ void Camera::UpdateProjMatrix(float aspect)
 
 bool Camera::Frame()
 {
-	if (s_input.GetKey(VK_PRIOR) == KEY_DOWN) //page up
-	{
-		_speed += 5.0f;
-	}
-	if (s_input.GetKey(VK_NEXT) == KEY_DOWN) //page down
-	{
-		_speed -= 5.0f;
-	}
 	if (s_input.GetKey('W') == KEY_HOLD)
 	{
 		Vector v = _look * _speed * g_secondPerFrame;
@@ -68,7 +60,7 @@ bool Camera::Frame()
 		Vector v = _up * -10.0f * g_secondPerFrame;
 		_pos = _pos + v;
 	}
-	Vector up = { 0,1,0 };
+	
 	_viewMat = Matrix::LookAtLH(_pos, _target, _up);
 	Update();
 	return true;

@@ -12,8 +12,6 @@ bool Device::Init()
 	return true;
 }
 
-
-
 bool Device::Release()
 {
     if (_device)            _device->Release();
