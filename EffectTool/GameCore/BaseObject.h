@@ -19,18 +19,6 @@ struct Vertex
 	}
 };
 
-struct VertexIW
-{
-	Vector4 i;
-	Vector4 w;
-	VertexIW() {};
-	VertexIW(Vector4 index, Vector4 weight)
-	{
-		i = index;
-		w = weight;
-	}
-};
-
 struct VSConstantData
 {
 	Matrix	worldMat;
@@ -38,11 +26,6 @@ struct VSConstantData
 	Matrix	projMat;
 	Vector4 colour;
 	Vector4 light;
-};
-
-struct VSBoneConstantData
-{
-	Matrix	animMat[255];
 };
 
 class BaseObject
@@ -101,14 +84,3 @@ public:
 	virtual bool	Render();
 	virtual bool	Release();
 };
-
-
-
-
-//public:
-//	float	_yaw = 0.0f;
-//	float	_pitch = 0.0f;
-//	float	_roll = 0.0f;
-//public:
-//	W_STR	_name = L"";
-//	DWORD	_numFaces = 0;

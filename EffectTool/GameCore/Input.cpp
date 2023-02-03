@@ -49,29 +49,23 @@ bool Input::Frame()
     {
         SHORT keyState = GetAsyncKeyState(i);
 
-        if (keyState & 0x8000)
+        if (keyState & 0x8000) // if pressed
         {
             if (_keyStates[i] == KEY_FREE || _keyStates[i] == KEY_UP)
-            {
                 _keyStates[i] = KEY_DOWN;
-            }
             else
-            {
                 _keyStates[i] = KEY_HOLD;
-            }
         }
         else
         {
             if (_keyStates[i] == KEY_DOWN || _keyStates[i] == KEY_HOLD)
-            {
                 _keyStates[i] = KEY_UP;
-            }
             else
-            {
                 _keyStates[i] = KEY_FREE;
-            }
         }
     }
+
+    _mousePosPrev = _mousePos;
     return true;
 }
 

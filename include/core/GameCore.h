@@ -8,6 +8,7 @@
 #include "GlobalGameTimer.h"
 #include "TextureManager.h"
 #include "ShaderManager.h"
+#include "Camera.h"
 
 class GameCore : public Device
 {
@@ -16,6 +17,7 @@ private:
 	Window*			_window		= nullptr;
 public:
 	Writer			_writer;
+	Camera*			_cam;
 public:
 	bool			CoreInit();
 	bool			CoreFrame();
@@ -36,5 +38,7 @@ public:
 	HRESULT			CreateDXResource() override;
 	HRESULT			DeleteDXResource() override;
 	void			ClearD3D11DeviceContext();
+public:
+	void			PrintDebugInfo();
 };
 

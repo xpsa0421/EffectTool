@@ -54,7 +54,6 @@ bool TextureManager::Release()
 	for (auto textureIter : _textures)
 	{
 		Texture* texture = textureIter.second;
-		if (texture) texture->Release();
 		delete texture;
 	}
 	_textures.clear();

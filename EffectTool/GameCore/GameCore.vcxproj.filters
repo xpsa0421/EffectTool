@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Utility">
       <UniqueIdentifier>{3e9bef84-2691-41a1-b13f-bf3f69db1c66}</UniqueIdentifier>
     </Filter>
@@ -21,114 +13,144 @@
     <Filter Include="Math">
       <UniqueIdentifier>{2bb4834c-d334-4a12-9d01-a84131cdc7ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Device\Source">
+      <UniqueIdentifier>{eecc6673-ee3c-4e1d-808c-90515c89ac89}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Device\Header">
+      <UniqueIdentifier>{ca6b2097-5483-48c6-a48e-887747190003}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Utility\Source">
+      <UniqueIdentifier>{8a4459ca-b04a-4b82-b604-97f05997d5bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Header">
+      <UniqueIdentifier>{453369ed-51b8-4112-9b04-fb01f18d4a39}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Object\Header">
+      <UniqueIdentifier>{6ec7c528-8844-474a-aa11-c00a9830cf27}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Object\Source">
+      <UniqueIdentifier>{eec7f5eb-851a-44c1-9bd0-9bf631119177}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="CoreMath.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="BaseObject.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalGameTimer.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Writer.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Device.cpp">
-      <Filter>Device</Filter>
+      <Filter>Device\Source</Filter>
     </ClCompile>
     <ClCompile Include="DxState.cpp">
-      <Filter>Device</Filter>
+      <Filter>Device\Source</Filter>
     </ClCompile>
     <ClCompile Include="GameCore.cpp">
-      <Filter>Device</Filter>
+      <Filter>Device\Source</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
-      <Filter>Device</Filter>
+      <Filter>Device\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalGameTimer.cpp">
+      <Filter>Utility\Source</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>Utility</Filter>
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Writer.cpp">
+      <Filter>Utility\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseObject.cpp">
+      <Filter>Object\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Std.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Frustum.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="CoreMath.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="BaseObject.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalGameTimer.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Writer.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Device.h">
-      <Filter>Device</Filter>
+      <Filter>Device\Header</Filter>
     </ClInclude>
     <ClInclude Include="DxState.h">
-      <Filter>Device</Filter>
+      <Filter>Device\Header</Filter>
     </ClInclude>
     <ClInclude Include="GameCore.h">
-      <Filter>Device</Filter>
+      <Filter>Device\Header</Filter>
     </ClInclude>
     <ClInclude Include="Window.h">
-      <Filter>Device</Filter>
+      <Filter>Device\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalGameTimer.h">
+      <Filter>Utility\Header</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>Utility</Filter>
+      <Filter>Utility\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Utility\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Writer.h">
+      <Filter>Utility\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseObject.h">
+      <Filter>Object\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -30,7 +30,7 @@ bool Writer::Init()
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
-		20,
+		18,
 		L"en-us",
 		&_textFormat);
 	_textContent = L"";

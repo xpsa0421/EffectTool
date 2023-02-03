@@ -177,7 +177,7 @@ bool BaseObject::Create(
 	if (FAILED(CreateIndexBuffer()))			return false;
 	if (!LoadShader(VSFilePath, PSFilePath))	return false;
 	if (FAILED(CreateVertexLayout()))			return false;
-
+	
 	Init();
 	return true;
 }

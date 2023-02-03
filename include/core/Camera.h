@@ -25,11 +25,14 @@ public:
 	float		_pitch;
 	float		_roll;
 public:
-	virtual bool Init();
-	virtual bool Frame();
-	virtual void Update();
-	virtual void CreateViewMatrix(Vector pos, Vector target, Vector up);
-	virtual void CreateProjMatrix(float n, float f, float fov, float aspect);
-	virtual void UpdateProjMatrix(float aspect);
+	virtual bool	Init();
+	virtual bool	Frame();
+	virtual void	UpdateVector();
+	virtual void	UpdateRotation(float roll, float pitch, float yaw);
+	virtual void	CreateViewMatrix(Vector pos, Vector target, Vector up);
+	virtual void	CreateProjMatrix(float n, float f, float fov, float aspect);
+	virtual void	UpdateProjMatrix(float aspect);
+public:
+	Camera();
 };
 
