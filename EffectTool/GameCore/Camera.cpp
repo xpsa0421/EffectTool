@@ -70,12 +70,12 @@ bool Camera::Frame()
 	}
 	if (s_input.GetKey('S') == KEY_HOLD)
 	{
-		Vector v = _look * _speed * g_secondPerFrame;
+		Vector v = _look * -_speed * g_secondPerFrame;
 		_pos += v;
 	}
 	if (s_input.GetKey('A') == KEY_HOLD)
 	{
-		Vector v = _right * _speed * g_secondPerFrame;
+		Vector v = _right * -_speed * g_secondPerFrame;
 		_pos = _pos + v;
 	}
 	if (s_input.GetKey('D') == KEY_HOLD)
@@ -85,7 +85,7 @@ bool Camera::Frame()
 	}
 	if (s_input.GetKey('Q') == KEY_HOLD)
 	{
-		Vector v = _up * _speed * g_secondPerFrame;
+		Vector v = _up * -_speed * g_secondPerFrame;
 		_pos = _pos + v;
 	}
 	if (s_input.GetKey('E') == KEY_HOLD)

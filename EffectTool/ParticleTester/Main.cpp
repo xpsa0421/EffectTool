@@ -68,9 +68,7 @@ void Main::BuildEnvironment()
 
 bool Main::Frame()
 {
-	
-
-    return true;
+	return true;
 }
 
 bool Main::Render()
