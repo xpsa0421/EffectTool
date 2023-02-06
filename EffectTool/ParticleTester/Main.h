@@ -2,6 +2,7 @@
 #include "GameCore.h"
 #include "Camera.h"
 #include "BaseObject.h"
+#include "d3dx11Effect.h"
 
 class Main : public GameCore
 {
