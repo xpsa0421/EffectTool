@@ -12,6 +12,7 @@
 #include <dxgidebug.h>
 #include <codecvt>
 #include <tchar.h>
+#include <wrl.h>
 
 
 //-----------------------------------------------------------------------------
@@ -44,6 +45,11 @@ typedef std::vector<std::basic_string<TCHAR>>	TSTR_VECTOR;
 typedef std::vector<DWORD>						DWORD_VECTOR;
 typedef std::vector<float>						FLOAT_VECTOR;
 
+
+//-----------------------------------------------------------------------------
+// Namespace
+//-----------------------------------------------------------------------------
+using namespace Microsoft::WRL;
 
 //-----------------------------------------------------------------------------
 // Standard classes

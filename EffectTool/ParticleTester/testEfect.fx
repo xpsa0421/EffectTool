@@ -1,41 +1,41 @@
 cbuffer cbPerObject
 {
-	float4x4 gWorldViewProj;
+	float4x4 world_view_proj;
 };
 
 struct VertexIn
 {
-	float3 Pos		:	POSITION;
-	float4 Color	:	COLOR;
+	float3 pos		:	POSITION;
+	float4 color	:	COLOR;
 };
 
 struct VertexOut
 {
-	float4	PosH	:	SV_POSITION;
-	float4	Color	:	COLOR;
+	float4	pos		:	SV_POSITION;
+	float4	color	:	COLOR;
 };
 
 // Vertex shader
-VertexOut VS(VertexIn vIn)
+VertexOut VS(VertexIn v_in)
 {
-	VertexOut vOut;
-	vOut.PosH = mul(float4(vIn.Pos, 1.0f), gWorldViewProj);
-	vOut.Color = vIn.Color;
+	VertexOut v_out;
+	v_out.pos = mul(float4(v_in.pos, 1.0f), world_view_proj);
+	v_out.color = v_in.color;
 	return vOut;
 }
 
 // Pixel shader
-float4 PS(VertexOut pIn) : SV_Target
+float4 PS(VertexOut p_in) : SV_Target
 {
-	return pIn.Color;
+	return p_in.color;
 }
 
 // technique
-technique11 ColorTech
+technique11 Color
 {
 	pass P0
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetPixelShader(CompileShader(ps_5_0, PS()));
-	};
+	}
 };
