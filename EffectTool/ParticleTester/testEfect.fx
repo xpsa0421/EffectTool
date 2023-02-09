@@ -21,7 +21,7 @@ VertexOut VS(VertexIn v_in)
 	VertexOut v_out;
 	v_out.pos = mul(float4(v_in.pos, 1.0f), world_view_proj);
 	v_out.color = v_in.color;
-	return vOut;
+	return v_out;
 }
 
 // Pixel shader

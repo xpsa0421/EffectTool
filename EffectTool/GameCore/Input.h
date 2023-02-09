@@ -1,5 +1,6 @@
 #pragma once
 #include "Std.h"
+
 enum KeyState
 {
 	KEY_FREE = 0,
@@ -13,12 +14,12 @@ class Input : public Singleton<Input>
 private:
 	friend class Singleton<Input>;
 private:
-	bool	_isWndActive;
-	DWORD	_keyStates[256];
+	bool	wnd_active_;
+	DWORD	key_states_[256];
 public:
-	POINT	_mousePos;
-	POINT	_mousePosPrev;
-	POINT	_mouseOffset;
+	POINT	mouse_pos_;
+	POINT	mouse_pos_prev_;
+	POINT	mouse_offset_;
 public:
 	bool	Init();
 	bool	Frame();

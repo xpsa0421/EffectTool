@@ -1,44 +1,62 @@
 #include "Camera.h"
 
 Camera::Camera()
+	:	move_speed_(10.0f),
+		nearZ_(0.0f), 
+		roll_(0.0f), pitch_(0.0f), yaw_(0.0f),
+		pos_(XMFLOAT3(0, 0, 0)),
+		target_(XMFLOAT3(0, 0, 1)),
+		up_(XMFLOAT3(0, 1, 0)),
+		right_(XMFLOAT3(1, 0, 0))
 {
-	Init();
 }
 
-bool Camera::Init()
+void Camera::SetPosition(float x, float y, float z)
 {
-	_roll = _pitch = _yaw = 0.0;
-	return true;
+	pos_ = XMFLOAT3(x, y, z);
 }
 
-void Camera::CreateViewMatrix(Vector pos, Vector target, Vector up)
+void Camera::SetTarget(float x, float y, float z)
 {
-	_pos = pos;
-	_target = target;
-	_up = up;
-	_viewMat = Matrix::LookAtLH(_pos, _target, _up);
-
-	Matrix mInvView = Matrix::Inverse(_viewMat);
-	Vector pZBasis = Vector(mInvView._31, mInvView._32, mInvView._33);
-	float fLen = sqrtf(pZBasis.z * pZBasis.z + pZBasis.x * pZBasis.x);
-
-	_yaw = atan2f(pZBasis.x, pZBasis.z);
-	_pitch = -atan2f(pZBasis.y, fLen);
+	target_ = XMFLOAT3(x, y, z);
 }
 
-void Camera::CreateProjMatrix(float n, float f, float fov, float aspect)
+void Camera::SetWorldUp(float x, float y, float z)
 {
-	_near = n;
-	_far = f;
-	_fov = fov;
-	_aspect = aspect;
-	_projMat = Matrix::PerspectiveFovLH(_fov, _aspect, _near, _far);
+	up_ = XMFLOAT3(x, y, z);
 }
 
-void Camera::UpdateProjMatrix(float aspect)
+void Camera::Move(XMFLOAT3 direction, float distance)
 {
-	_aspect = aspect;
-	_projMat = Matrix::PerspectiveFovLH(_fov, _aspect, _near, _far);
+	XMVECTOR dist_v = XMVectorReplicate(distance);
+	XMVECTOR dir_v = XMLoadFloat3(&direction);
+	XMVECTOR pos_v = XMLoadFloat3(&pos_);
+	XMStoreFloat3(&pos_, XMVectorMultiplyAdd(dist_v, dir_v, pos_v));
+}
+
+void Camera::UpdateViewMatrix()
+{
+	XMMATRIX view_m = XMMatrixLookAtLH(XMLoadFloat3(&pos_), XMLoadFloat3(&target_), XMLoadFloat3(&up_));
+	XMStoreFloat4x4(&view_, view_m);
+
+	XMMATRIX view_inv_m = XMMatrixInverse(nullptr, view_m);
+	XMFLOAT4X4 view_inv;
+	XMStoreFloat4x4(&view_inv, view_inv_m);
+	float fLen = sqrtf(view_inv._33 * view_inv._33 + view_inv._31 * view_inv._31);
+
+	yaw_ = atan2f(view_inv._31, view_inv._33);
+	pitch_ = -atan2f(view_inv._32, fLen);
+}
+
+void Camera::SetLens(float nearZ, float farZ, float fov, float aspect_ratio)
+{
+	nearZ_ = nearZ;
+	farZ_ = farZ;
+	fov_ = fov;
+	aspect_ratio_ = aspect_ratio;
+	
+	XMMATRIX proj_m = XMMatrixPerspectiveFovLH(fov, aspect_ratio, nearZ, farZ);
+	XMStoreFloat4x4(&proj_, proj_m);
 }
 
 bool Camera::Frame()
@@ -46,86 +64,85 @@ bool Camera::Frame()
 	// view direction control
 	if (s_input.GetKey(VK_LBUTTON) == KEY_HOLD)
 	{
-		_yaw += s_input._mouseOffset.x * 0.002f;
-		_pitch += s_input._mouseOffset.y * 0.002f;
+		yaw_ += s_input.mouse_offset_.x * 0.002f;
+		pitch_ += s_input.mouse_offset_.y * 0.002f;
 	}
+	UpdateRotation(roll_, pitch_, yaw_);
 
-	// move speed control
+	// movement speed control
 	if (s_input.GetKey(VK_SPACE) == KEY_HOLD)
 	{
-		_speed += g_secondPerFrame * 100.0f;
-		_speed = min(100.0f, _speed);
+		move_speed_ += g_spf * 100.0f;
+		move_speed_ = min(100.0f, move_speed_);
 	}
 	else
 	{
-		_speed -= g_secondPerFrame * 100.0f;
-		_speed = max(20.0f, _speed);
+		move_speed_ -= g_spf * 100.0f;
+		move_speed_ = max(20.0f, move_speed_);
 	}
 
-	// move direction control
+	// movement control
 	if (s_input.GetKey('W') == KEY_HOLD)
 	{
-		Vector v = _look * _speed * g_secondPerFrame;
-		_pos += v;
+		Move(look_, move_speed_ * g_spf);
 	}
 	if (s_input.GetKey('S') == KEY_HOLD)
 	{
-		Vector v = _look * -_speed * g_secondPerFrame;
-		_pos += v;
+		Move(look_, -move_speed_ * g_spf);
 	}
 	if (s_input.GetKey('A') == KEY_HOLD)
 	{
-		Vector v = _right * -_speed * g_secondPerFrame;
-		_pos = _pos + v;
+		Move(right_, -move_speed_ * g_spf);
 	}
 	if (s_input.GetKey('D') == KEY_HOLD)
 	{
-		Vector v = _right * _speed * g_secondPerFrame;
-		_pos = _pos + v;
+		Move(right_, move_speed_ * g_spf);
 	}
 	if (s_input.GetKey('Q') == KEY_HOLD)
 	{
-		Vector v = _up * -_speed * g_secondPerFrame;
-		_pos = _pos + v;
+		Move(up_, -move_speed_ * g_spf);
 	}
 	if (s_input.GetKey('E') == KEY_HOLD)
 	{
-		Vector v = _up * _speed * g_secondPerFrame;
-		_pos = _pos + v;
+		Move(up_, move_speed_ * g_spf);
 	}
-	
-	UpdateRotation(_roll, _pitch, _yaw);
+
+	UpdateViewMatrix();	
 	return true;
 }
 
 void Camera::UpdateVector()
 {
-	_right.x = _viewMat._11;
-	_right.y = _viewMat._21;
-	_right.z = _viewMat._31;
+	right_.x = view_._11;
+	right_.y = view_._21;
+	right_.z = view_._31;
 
-	_up.x = _viewMat._12;
-	_up.y = _viewMat._22;
-	_up.z = _viewMat._32;
+	up_.x = view_._12;
+	up_.y = view_._22;
+	up_.z = view_._32;
 
-	_look.x = _viewMat._13;
-	_look.y = _viewMat._23;
-	_look.z = _viewMat._33;
+	look_.x = view_._13;
+	look_.y = view_._23;
+	look_.z = view_._33;
 
-	_right	= Vector::Normalise(_right);
-	_up		= Vector::Normalise(_up);
-	_look	= Vector::Normalise(_look);
+	XMVECTOR right_v = XMVector3Normalize(XMLoadFloat3(&right_));
+	XMVECTOR up_v = XMVector3Normalize(XMLoadFloat3(&up_));
+	XMVECTOR look_v = XMVector3Normalize(XMLoadFloat3(&look_));
+
+	XMStoreFloat3(&right_, right_v);
+	XMStoreFloat3(&up_, up_v);
+	XMStoreFloat3(&look_, look_v);
 }
 
 void Camera::UpdateRotation(float roll, float pitch, float yaw)
 {
-	Quaternion rotQuat;
-	Quaternion::RotationRollPitchYaw(&rotQuat, roll, pitch, yaw);
+	XMVECTOR scaling = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+	XMVECTOR rotation_center = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR rotation_q = XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
+	XMVECTOR translation = XMLoadFloat3(&pos_);
 
-	Matrix rotMat;
-	rotMat = Matrix::AffineTransformation(
-		Vector(1.0f, 1.0f, 1.0f), nullptr, &rotQuat, &_pos);
-	_viewMat = Matrix::Inverse(rotMat);
+	XMMATRIX rotation_m = XMMatrixAffineTransformation(scaling, rotation_center, rotation_q, translation);
+	XMStoreFloat4x4(&view_, XMMatrixInverse(nullptr, rotation_m));
 
 	UpdateVector();
 	return;

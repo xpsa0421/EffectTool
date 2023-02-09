@@ -2,7 +2,7 @@
 
 ShaderManager::ShaderManager()
 {
-	_device = nullptr;
+	device_ = nullptr;
 }
 
 ShaderManager::~ShaderManager()
@@ -12,7 +12,7 @@ ShaderManager::~ShaderManager()
 
 void ShaderManager::SetDevice(ID3D11Device* device)
 {
-	_device = device;
+	device_ = device;
 }
 
 VertexShader* ShaderManager::LoadVertexShader(W_STR VSFilePath, W_STR VSFuncName)
@@ -28,7 +28,7 @@ VertexShader* ShaderManager::LoadVertexShader(W_STR VSFilePath, W_STR VSFuncName
 	else
 	{
 		vertexShader = new VertexShader;
-		result = vertexShader->Create(_device, VSFilePath, VSFuncName);
+		result = vertexShader->Create(device_, VSFilePath, VSFuncName);
 		if (SUCCEEDED(result))
 		{
 			_vertexShaders.insert(std::make_pair(VSName, vertexShader));
@@ -59,7 +59,7 @@ PixelShader* ShaderManager::LoadPixelShader(W_STR PSFilePath, W_STR PSFuncName)
 	else
 	{
 		pixelShader = new PixelShader;
-		result = pixelShader->Create(_device, PSFilePath, PSFuncName);
+		result = pixelShader->Create(device_, PSFilePath, PSFuncName);
 		if (SUCCEEDED(result))
 		{
 			_pixelShaders.insert(std::make_pair(PSName, pixelShader));

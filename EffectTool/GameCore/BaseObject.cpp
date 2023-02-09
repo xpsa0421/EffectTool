@@ -72,7 +72,7 @@ HRESULT	BaseObject::CreateConstantBuffer()
 	ZeroMemory(&subRsrcData, sizeof(subRsrcData));
 	subRsrcData.pSysMem = &_constantData;
 
-	HRESULT result = _device->CreateBuffer(
+	HRESULT result = device_->CreateBuffer(
 		&bufferDesc,
 		&subRsrcData,
 		&_constantBuffer
@@ -94,7 +94,7 @@ HRESULT	BaseObject::CreateVertexBuffer()
 	ZeroMemory(&subRsrcData, sizeof(subRsrcData));
 	subRsrcData.pSysMem = &_vertices.at(0);
 
-	HRESULT result = _device->CreateBuffer(
+	HRESULT result = device_->CreateBuffer(
 		&bufferDesc,
 		&subRsrcData,
 		&_vertexBuffer
@@ -116,7 +116,7 @@ HRESULT	BaseObject::CreateIndexBuffer()
 	ZeroMemory(&subRsrcData, sizeof(subRsrcData));
 	subRsrcData.pSysMem = &_indices.at(0);
 
-	HRESULT result = _device->CreateBuffer(
+	HRESULT result = device_->CreateBuffer(
 		&bufferDesc,
 		&subRsrcData,
 		&_indexBuffer
@@ -133,7 +133,7 @@ HRESULT	BaseObject::CreateVertexLayout()
 		{ "TEXTURE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	HRESULT result = _device->CreateInputLayout(
+	HRESULT result = device_->CreateInputLayout(
 		elementDesc,
 		sizeof(elementDesc) / sizeof(elementDesc[0]),
 		_vertexShader->_VSCode->GetBufferPointer(),
@@ -169,8 +169,8 @@ bool BaseObject::Create(
 	ID3D11Device* device, ID3D11DeviceContext* immediateContext,
 	W_STR VSFilePath, W_STR PSFilePath)
 {
-	_device = device;
-	_immediateContext = immediateContext;
+	device_ = device;
+	immediate_context_ = immediateContext;
 
 	if (FAILED(CreateConstantBuffer()))			return false;
 	if (FAILED(CreateVertexBuffer()))			return false;
@@ -188,8 +188,8 @@ bool BaseObject::Create(
 	W_STR VSFilePath, W_STR PSFilePath,
 	W_STR VSFuncName, W_STR PSFuncName, W_STR texFilePath)
 {
-	_device = device;
-	_immediateContext = immediateContext;
+	device_ = device;
+	immediate_context_ = immediateContext;
 
 	if (FAILED(CreateConstantBuffer()))									return false;
 	if (FAILED(CreateVertexBuffer()))									return false;
@@ -210,13 +210,13 @@ void BaseObject::UpdateConstantBuffer()
 	_constantData.worldMat	= Matrix::Transpose(_worldMat);
 	_constantData.viewMat	= Matrix::Transpose(_viewMat); 
 	_constantData.projMat	= Matrix::Transpose(_projMat); 
-	_immediateContext->UpdateSubresource(
+	immediate_context_->UpdateSubresource(
 		_constantBuffer, NULL, nullptr, &_constantData, 0, 0);
 }
 
 void BaseObject::UpdateVertexBuffer()
 {
-	_immediateContext->UpdateSubresource(
+	immediate_context_->UpdateSubresource(
 		_vertexBuffer, NULL, nullptr, &_vertices.at(0), 0, 0);
 }
 
@@ -272,14 +272,14 @@ bool BaseObject::PreRender()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
-	_immediateContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	_immediateContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-	_immediateContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, offset);
-	_immediateContext->IASetInputLayout(_vertexLayout);
-	_immediateContext->VSSetConstantBuffers(0, 1, &_constantBuffer);
-	_immediateContext->VSSetShader(_vertexShader->_shader, NULL, 0);
-	_immediateContext->PSSetShader(_pixelShader->_shader, NULL, 0);
-	_immediateContext->PSSetShaderResources(0, 1, &_textureSRV);
+	immediate_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	immediate_context_->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	immediate_context_->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, offset);
+	immediate_context_->IASetInputLayout(_vertexLayout);
+	immediate_context_->VSSetConstantBuffers(0, 1, &_constantBuffer);
+	immediate_context_->VSSetShader(_vertexShader->_shader, NULL, 0);
+	immediate_context_->PSSetShader(_pixelShader->_shader, NULL, 0);
+	immediate_context_->PSSetShaderResources(0, 1, &_textureSRV);
 
 	return true;
 }
@@ -287,9 +287,9 @@ bool BaseObject::PreRender()
 bool BaseObject::PostRender()
 {
 	if (_indexBuffer == nullptr)
-		_immediateContext->Draw(UINT(_vertices.size()), 0);
+		immediate_context_->Draw(UINT(_vertices.size()), 0);
 	else
-		_immediateContext->DrawIndexed(UINT(_indices.size()), 0, 0);
+		immediate_context_->DrawIndexed(UINT(_indices.size()), 0, 0);
 
 	return true;
 }

@@ -2,7 +2,7 @@
 
 TextureManager::TextureManager()
 {
-	_device		= nullptr;
+	device_		= nullptr;
 	_context	= nullptr;
 }
 
@@ -13,7 +13,7 @@ TextureManager::~TextureManager()
 
 void TextureManager::SetDevice(ID3D11Device* device, ID3D11DeviceContext* context)
 {
-	_device		= device;
+	device_		= device;
 	_context	= context;
 }
 
@@ -29,7 +29,7 @@ Texture* TextureManager::Load(W_STR texFilePath)
 	else
 	{
 		texture = new Texture;
-		result = texture->Create(_device, _context, texFilePath);
+		result = texture->Create(device_, _context, texFilePath);
 		if (SUCCEEDED(result))
 		{
 			_textures.insert(std::make_pair(texFilePath, texture));

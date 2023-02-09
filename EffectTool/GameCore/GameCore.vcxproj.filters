@@ -63,9 +63,6 @@
     <ClCompile Include="TextureManager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Frustum.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="CoreMath.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Frustum.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="CoreMath.h">

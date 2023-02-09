@@ -2,7 +2,7 @@
 
 Input::Input()
 {
-    _isWndActive = true;
+    wnd_active_ = true;
 }
 
 Input::~Input()
@@ -12,15 +12,15 @@ Input::~Input()
 
 DWORD Input::GetKey(DWORD key)
 {
-    return _keyStates[key];
+    return key_states_[key];
 }
 
 bool Input::Init()
 {
-    ZeroMemory(_keyStates, sizeof(DWORD) * 256);
-    GetCursorPos(&_mousePos);
-    ScreenToClient(g_hWnd, &_mousePos);
-    _mousePosPrev = _mousePos;
+    ZeroMemory(key_states_, sizeof(DWORD) * 256);
+    GetCursorPos(&mouse_pos_);
+    ScreenToClient(g_hWnd, &mouse_pos_);
+    mouse_pos_prev_ = mouse_pos_;
     return true;
 }
 
@@ -29,21 +29,21 @@ bool Input::Frame()
     // 프로그램 윈도우가 포커싱 되어있지 않으면 인풋을 받지 않는다
     if (GetForegroundWindow() != g_hWnd)
     {
-        _isWndActive = false;
-        memset(_keyStates, KEY_FREE, sizeof(_keyStates));
+        wnd_active_ = false;
+        memset(key_states_, KEY_FREE, sizeof(key_states_));
         return false;
     }
 
-    GetCursorPos(&_mousePos);
-    ScreenToClient(g_hWnd, &_mousePos);
+    GetCursorPos(&mouse_pos_);
+    ScreenToClient(g_hWnd, &mouse_pos_);
     
     // 윈도우가 이전에도 포커싱 되어있었을 경우에만 마우스 위치 변화값을 계산한다
-    if (_isWndActive == true)
+    if (wnd_active_ == true)
     {
-        _mouseOffset.x = _mousePos.x - _mousePosPrev.x;
-        _mouseOffset.y = _mousePos.y - _mousePosPrev.y;
+        mouse_offset_.x = mouse_pos_.x - mouse_pos_prev_.x;
+        mouse_offset_.y = mouse_pos_.y - mouse_pos_prev_.y;
     }
-    else _isWndActive = true;
+    else wnd_active_ = true;
 
     for (int i = 0; i < 256; i++)
     {
@@ -51,21 +51,21 @@ bool Input::Frame()
 
         if (keyState & 0x8000) // if pressed
         {
-            if (_keyStates[i] == KEY_FREE || _keyStates[i] == KEY_UP)
-                _keyStates[i] = KEY_DOWN;
+            if (key_states_[i] == KEY_FREE || key_states_[i] == KEY_UP)
+                key_states_[i] = KEY_DOWN;
             else
-                _keyStates[i] = KEY_HOLD;
+                key_states_[i] = KEY_HOLD;
         }
         else
         {
-            if (_keyStates[i] == KEY_DOWN || _keyStates[i] == KEY_HOLD)
-                _keyStates[i] = KEY_UP;
+            if (key_states_[i] == KEY_DOWN || key_states_[i] == KEY_HOLD)
+                key_states_[i] = KEY_UP;
             else
-                _keyStates[i] = KEY_FREE;
+                key_states_[i] = KEY_FREE;
         }
     }
 
-    _mousePosPrev = _mousePos;
+    mouse_pos_prev_ = mouse_pos_;
     return true;
 }
 

@@ -2,11 +2,11 @@
 
 HRESULT GameCore::CreateDXResource()
 {
-	_writer.Init();
+	writer_.Init();
 	IDXGISurface1* backBuffer;
-	_swapChain->GetBuffer(0, __uuidof(IDXGISurface1),
+	swapchain_->GetBuffer(0, __uuidof(IDXGISurface1),
 		(void**)&backBuffer);
-	_writer.Set(backBuffer);
+	writer_.Set(backBuffer);
 	backBuffer->Release();
 	return S_OK;
 }
@@ -14,7 +14,7 @@ HRESULT GameCore::CreateDXResource()
 HRESULT GameCore::DeleteDXResource()
 {
 	HRESULT hr;
-	if (FAILED(hr = _writer.DeleteDXResource())) return hr;
+	if (FAILED(hr = writer_.DeleteDXResource())) return hr;
 	return S_OK;
 }
 
@@ -26,15 +26,15 @@ void GameCore::ClearD3D11DeviceContext()
 	ID3D11Buffer* pBuffers[16]			= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	ID3D11SamplerState* pSamplers[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	UINT StrideOffset[16]				= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	_immediateContext->VSSetShaderResources(0, 16, pSRVs);
-	_immediateContext->PSSetShaderResources(0, 16, pSRVs);
+	immediate_context_->VSSetShaderResources(0, 16, pSRVs);
+	immediate_context_->PSSetShaderResources(0, 16, pSRVs);
 }
 bool GameCore::CoreInit()
 {
 	Device::Init();
-	DxState::CreateStates(_device);
-	s_texManager.SetDevice(_device, _immediateContext);
-	s_shaderManager.SetDevice(_device);
+	DxState::CreateStates(device_);
+	s_texManager.SetDevice(device_, immediate_context_);
+	s_shaderManager.SetDevice(device_);
 
 	s_input.Init();
 	s_gameTimer.Init();
@@ -45,16 +45,16 @@ bool GameCore::CoreInit()
 
 bool GameCore::CoreFrame()
 {
-	if (_window->_resizeWindow == true) 
+	if (window_->_resizeWindow == true) 
 	{
-		ResizeWindow(_window->_clientWidth, _window->_clientHeight);
+		ResizeWindow(window_->_clientWidth, window_->_clientHeight);
 	}
 	s_input.Frame();
 	s_gameTimer.Frame();
-	_writer.Frame();
+	writer_.Frame();
 	ClearD3D11DeviceContext();
 
-	if (_cam) _cam->Frame();
+	if (cam_) cam_->Frame();
 
 	return Frame();
 }
@@ -65,12 +65,12 @@ bool GameCore::CoreRender()
 #ifdef _DEBUG
 	if (s_input.GetKey(VK_F1) == KEY_HOLD)
 	{
-		_immediateContext->RSSetState(DxState::g_RSWireFrame);
+		immediate_context_->RSSetState(DxState::g_RSWireFrame);
 	}
 #endif // DEBUG
 	Render();
 #ifdef _DEBUG
-	if (_cam) PrintDebugInfo();
+	if (cam_) PrintDebugInfo();
 #endif // DEBUG
 
 	CorePostRender();
@@ -82,14 +82,14 @@ bool GameCore::CorePreRender()
 {
 	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	
-	_immediateContext->OMSetRenderTargets(1, &_rtv, _dsv);
-	_immediateContext->ClearRenderTargetView(_rtv, color);
-	_immediateContext->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	_immediateContext->PSSetSamplers(0, 1, &DxState::g_SSWrap);
-	_immediateContext->RSSetViewports(1, &_viewport);
-	_immediateContext->RSSetState(DxState::g_RSSolid);
-	_immediateContext->OMSetBlendState(DxState::g_BSAlpha, 0, -1);
-	_immediateContext->OMSetDepthStencilState(DxState::g_DSDepthEnable, 0xff);
+	immediate_context_->OMSetRenderTargets(1, &rtv_, dsv_);
+	immediate_context_->ClearRenderTargetView(rtv_, color);
+	immediate_context_->ClearDepthStencilView(dsv_, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	immediate_context_->PSSetSamplers(0, 1, &DxState::g_SSWrap);
+	immediate_context_->RSSetViewports(1, &viewport_);
+	immediate_context_->RSSetState(DxState::g_RSSolid);
+	immediate_context_->OMSetBlendState(DxState::g_BSAlpha, 0, -1);
+	immediate_context_->OMSetDepthStencilState(DxState::g_DSDepthEnable, 0xff);
 
 	return true;
 }
@@ -97,8 +97,8 @@ bool GameCore::CorePreRender()
 bool GameCore::CorePostRender()
 {
 	s_gameTimer.Render();
-	_writer.Render();
-	_swapChain->Present(0, 0);
+	writer_.Render();
+	swapchain_->Present(0, 0);
 
 	return true;
 }
@@ -108,8 +108,8 @@ bool GameCore::CoreRelease()
 	Release();
 	DxState::Release();
 	Device::Release();
-	_writer.Release();
-	if (_cam) delete _cam;
+	writer_.Release();
+	if (cam_) delete cam_;
 	
 	return true;
 }
@@ -117,15 +117,15 @@ bool GameCore::CoreRelease()
 bool GameCore::Run()
 {
 	CoreInit();
-	while(_isGameRun)
+	while(game_active_)
 	{
-		if (_window->Run() == true)
+		if (window_->Run() == true)
 		{
 			CoreFrame();
 			CoreRender();
 		}
 		else {
-			_isGameRun = false;
+			game_active_ = false;
 		}
 	}
 	CoreRelease();
@@ -134,40 +134,40 @@ bool GameCore::Run()
 
 bool GameCore::SetWindow(HINSTANCE hInstance, const WCHAR* title, UINT width, UINT height)
 {
-	_window = new Window;
-	_window->SetWindow(hInstance, title, width, height);
+	window_ = new Window;
+	window_->SetWindow(hInstance, title, width, height);
 	return true;
 }
 
 void GameCore::ResizeWindow(UINT width, UINT height) 
 {
-	//if (_swapChain == nullptr) {
+	//if (swapchain_ == nullptr) {
 	//	return;
 	//} mfc 사용 시 활성화
 	Device::ResizeWindow(width, height);
-	_window->_resizeWindow = false;
+	window_->_resizeWindow = false;
 }
 
 void GameCore::PrintDebugInfo()
 {
-	W_STR text = mtw("Camera position:\n") + std::to_wstring(_cam->_pos.x) +
-		L"   " + std::to_wstring(_cam->_pos.y) +
-		L"   " + std::to_wstring(_cam->_pos.z);
-	_writer.Draw(10, 30, text);
+	W_STR text = mtw("Camera position:\n") + std::to_wstring(cam_->pos_.x) +
+		L"   " + std::to_wstring(cam_->pos_.y) +
+		L"   " + std::to_wstring(cam_->pos_.z);
+	writer_.Draw(10, 30, text);
 
 	T_STR str;
 	TCHAR pBuffer[256];
 	memset(pBuffer, 0, sizeof(TCHAR) * 256);
-	_stprintf_s(pBuffer, _T("Look:%10.4f,%10.4f,%10.4f \n"), _cam->_look.x, _cam->_look.y, _cam->_look.z);
+	_stprintf_s(pBuffer, _T("Look:%10.4f,%10.4f,%10.4f \n"), cam_->look_.x, cam_->look_.y, cam_->look_.z);
 	str += pBuffer;
 
 	memset(pBuffer, 0, sizeof(TCHAR) * 256);
-	_stprintf_s(pBuffer, _T("Up:%10.4f,%10.4f,%10.4f \n"), _cam->_up.x, _cam->_up.y, _cam->_up.z);
+	_stprintf_s(pBuffer, _T("Up:%10.4f,%10.4f,%10.4f \n"), cam_->up_.x, cam_->up_.y, cam_->up_.z);
 	str += pBuffer;
 
 	memset(pBuffer, 0, sizeof(TCHAR) * 256);
-	_stprintf_s(pBuffer, _T("Right:%10.4f,%10.4f,%10.4f "), _cam->_right.x, _cam->_right.y, _cam->_right.z);
+	_stprintf_s(pBuffer, _T("Right:%10.4f,%10.4f,%10.4f "), cam_->right_.x, cam_->right_.y, cam_->right_.z);
 	str += pBuffer;
 
-	_writer.Draw(g_rectClient.right-320, g_rectClient.bottom-100, str);
+	writer_.Draw(g_rectClient.right-320, g_rectClient.bottom-100, str);
 }

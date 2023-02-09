@@ -3,12 +3,12 @@
 bool RenderTarget::Create(ID3D11Device* device, FLOAT width, FLOAT height)
 {
     HRESULT hr;
-    _viewport.Width = width;
-    _viewport.Height = height;
-    _viewport.TopLeftX = 0;
-    _viewport.TopLeftY = 0;
-    _viewport.MinDepth = 0.0f;
-    _viewport.MaxDepth = 1.0f;
+    viewport_.Width = width;
+    viewport_.Height = height;
+    viewport_.TopLeftX = 0;
+    viewport_.TopLeftY = 0;
+    viewport_.MinDepth = 0.0f;
+    viewport_.MaxDepth = 1.0f;
 
 
     _textureDesc.Width = (UINT)width;
@@ -55,7 +55,7 @@ bool RenderTarget::Create(ID3D11Device* device, FLOAT width, FLOAT height)
     ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
     dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    if (FAILED(hr = device->CreateDepthStencilView(texture2D, &dsvDesc, &_dsv)))
+    if (FAILED(hr = device->CreateDepthStencilView(texture2D, &dsvDesc, &dsv_)))
     {
         return false;
     }
@@ -80,11 +80,11 @@ bool RenderTarget::Begin(ID3D11DeviceContext* context)
 {
     ID3D11RenderTargetView* nullRTV = NULL;
     context->OMSetRenderTargets(1, &nullRTV, NULL);
-    context->OMSetRenderTargets(1, &_renderTargetView, _dsv);
+    context->OMSetRenderTargets(1, &_renderTargetView, dsv_);
     const FLOAT color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     context->ClearRenderTargetView(_renderTargetView, color);
-    context->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0, 0);
-    context->RSSetViewports(1, &_viewport);
+    context->ClearDepthStencilView(dsv_, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0, 0);
+    context->RSSetViewports(1, &viewport_);
     return true;
 }
 
@@ -100,9 +100,9 @@ bool RenderTarget::Release()
     {
         _renderTargetView->Release();
     }
-    if (_dsv) 
+    if (dsv_) 
     {
-        _dsv->Release();
+        dsv_->Release();
     }
     if (_shaderResourceView) 
     {
@@ -118,7 +118,7 @@ bool RenderTarget::Release()
     }
 
     _renderTargetView   = nullptr;
-    _dsv                = nullptr;
+    dsv_                = nullptr;
     _shaderResourceView = nullptr;
     _depthSRV           = nullptr;
     _texture2D          = nullptr;

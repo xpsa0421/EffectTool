@@ -1,38 +1,42 @@
 #pragma once
 #include "Input.h"
-#include "Frustum.h"
 
 class Camera 
 {
 protected:
-	float		_speed = 10.0f;
+	float		move_speed_;
+	float		nearZ_;
+	float		farZ_;
+	float		fov_;
+	float		aspect_ratio_;
+
+	float		yaw_;
+	float		pitch_;
+	float		roll_;
+
 public:
-	Frustum		_frustum;
+	XMFLOAT4X4	view_;
+	XMFLOAT4X4	proj_;
+
+	XMFLOAT3	pos_;
+	XMFLOAT3	target_;
+	XMFLOAT3	up_;
+	XMFLOAT3	right_;
+	XMFLOAT3	look_;
+	
 public:
-	Matrix		_viewMat;
-	Matrix		_projMat;
-	Vector		_pos;
-	Vector		_target;
-	Vector		_up;
-	Vector		_right;
-	Vector		_look;
-public:
-	float		_near;
-	float		_far;
-	float		_fov;
-	float		_aspect;
-	float		_yaw;
-	float		_pitch;
-	float		_roll;
-public:
-	virtual bool	Init();
+	Camera();
+
+	void SetPosition(float x, float y, float z);
+	void SetWorldUp(float x, float y, float z);
+	void SetTarget(float x, float y, float z);
+	
+	void Move(XMFLOAT3 direction, float distance);
+
 	virtual bool	Frame();
 	virtual void	UpdateVector();
 	virtual void	UpdateRotation(float roll, float pitch, float yaw);
-	virtual void	CreateViewMatrix(Vector pos, Vector target, Vector up);
-	virtual void	CreateProjMatrix(float n, float f, float fov, float aspect);
-	virtual void	UpdateProjMatrix(float aspect);
-public:
-	Camera();
+	virtual void	UpdateViewMatrix();
+	virtual void	SetLens(float nearZ, float farZ, float fov, float aspect_ratio);
 };
 

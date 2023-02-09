@@ -5,14 +5,14 @@
 //-----------------------------------------------------------------------------
 VertexShader::VertexShader()
 {
-	_device		= nullptr;
+	device_		= nullptr;
 	_shader		= nullptr;
 	_VSCode		= nullptr;
 }
 
 HRESULT	VertexShader::Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName)
 {
-	_device = device;
+	device_ = device;
 	HRESULT result;
 	ID3DBlob* errorCode = nullptr;
 	DWORD shaderFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
@@ -40,7 +40,7 @@ HRESULT	VertexShader::Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFun
 		return E_FAIL;
 	}
 
-	result = _device->CreateVertexShader(
+	result = device_->CreateVertexShader(
 		_VSCode->GetBufferPointer(),
 		_VSCode->GetBufferSize(),
 		nullptr,
@@ -65,14 +65,14 @@ bool VertexShader::Release()
 
 PixelShader::PixelShader()
 {
-	_device = nullptr;
+	device_ = nullptr;
 	_shader = nullptr;
 	_PSCode = nullptr;
 }
 
 HRESULT	PixelShader::Create(ID3D11Device* device, W_STR PSFilePath, W_STR PSFuncName)
 {
-	_device = device;
+	device_ = device;
 	HRESULT result;
 	ID3DBlob* errorCode = nullptr;
 	DWORD shaderFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
@@ -101,7 +101,7 @@ HRESULT	PixelShader::Create(ID3D11Device* device, W_STR PSFilePath, W_STR PSFunc
 		return E_FAIL;
 	}
 
-	result = _device->CreatePixelShader(
+	result = device_->CreatePixelShader(
 		_PSCode->GetBufferPointer(),
 		_PSCode->GetBufferSize(),
 		nullptr,

@@ -1,31 +1,17 @@
 #include "Object.h"
 
-Object::Object()
-{
-	device_ = nullptr;
-	immediate_context_ = nullptr;
-	index_buffer_ = nullptr;
-	vertex_buffer_ = nullptr;
-	vertex_layout_ = nullptr;
-	fx_ = nullptr;
-	tech_ = nullptr;
-	fx_world_view_proj_ = nullptr;
-}
-
-Object::~Object()
-{
-
-}
-
 bool Object::Create(ID3D11Device* device, ID3D11DeviceContext* context, W_STR fx_path)
 {
 	device_ = device;
 	immediate_context_ = context;
 
+	BuildConstantBuffer();
 	BuildVertexBuffer();
 	BuildIndexBuffer();
 	BuildFX(fx_path);
 	BuildVertexLayout();
+
+	return true;
 }
 
 void Object::BuildVertexBuffer()
@@ -43,18 +29,18 @@ void Object::BuildVertexBuffer()
 		{ DirectX::XMFLOAT3(+1.0f, -1.0f, +1.0f), {1.0f, 0.0f, 1.0f, 1.0f} }
 	};
 
-	D3D11_BUFFER_DESC vertex_buffer_desc;
-	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-	vertex_buffer_desc.ByteWidth = sizeof(Vertex) * UINT(vertices_.size());
-	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertex_buffer_desc.CPUAccessFlags = 0;
-	vertex_buffer_desc.MiscFlags = 0;
-	vertex_buffer_desc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC vertex_desc;
+	vertex_desc.Usage = D3D11_USAGE_DEFAULT;
+	vertex_desc.ByteWidth = sizeof(Vertex) * UINT(vertices_.size());
+	vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertex_desc.CPUAccessFlags = 0;
+	vertex_desc.MiscFlags = 0;
+	vertex_desc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA vertex_sub_data;
 	vertex_sub_data.pSysMem = &vertices_.at(0);
 
-	HRESULT result = device_->CreateBuffer(&vertex_buffer_desc, &vertex_sub_data, &vertex_buffer_);
+	HRESULT result = device_->CreateBuffer(&vertex_desc, &vertex_sub_data, &vertex_buffer_);
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -92,18 +78,18 @@ void Object::BuildIndexBuffer()
 		4, 3, 7
 	};
 
-	D3D11_BUFFER_DESC index_buffer_desc;
-	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-	index_buffer_desc.ByteWidth = sizeof(UINT) * UINT(indices_.size());
-	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	index_buffer_desc.CPUAccessFlags = 0;
-	index_buffer_desc.MiscFlags = 0;
-	index_buffer_desc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC index_desc;
+	index_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_desc.ByteWidth = sizeof(UINT) * UINT(indices_.size());
+	index_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	index_desc.CPUAccessFlags = 0;
+	index_desc.MiscFlags = 0;
+	index_desc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA index_sub_data;
 	index_sub_data.pSysMem = &indices_.at(0);
 
-	HRESULT result = device_->CreateBuffer(&index_buffer_desc, &index_sub_data, &index_buffer_);
+	HRESULT result = device_->CreateBuffer(&index_desc, &index_sub_data, &index_buffer_);
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -151,7 +137,6 @@ void Object::BuildFX(W_STR fx_path)
 #endif // _DEBUG
 
 	tech_ = fx_->GetTechniqueByName("Color");
-	fx_world_view_proj_ = fx_->GetVariableByName("world_view_proj");
 }
 
 void Object::BuildVertexLayout()
@@ -178,13 +163,57 @@ void Object::BuildVertexLayout()
 
 void Object::BuildConstantBuffer()
 {
+	D3D11_BUFFER_DESC constant_desc;
+	ZeroMemory(&constant_desc, sizeof(constant_desc));
+	constant_desc.ByteWidth = sizeof(ConstantData) * 1;
+	constant_desc.Usage = D3D11_USAGE_DEFAULT;
+	constant_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
+	D3D11_SUBRESOURCE_DATA constant_sub_data;
+	ZeroMemory(&constant_sub_data, sizeof(constant_sub_data));
+	constant_sub_data.pSysMem = &constant_data_;
+
+	HRESULT result = device_->CreateBuffer(&constant_desc, &constant_sub_data, &constant_buffer_);
+#ifdef _DEBUG
+	if (FAILED(result))
+	{
+		printf("Failed to build a constant buffer\n");
+	}
+#endif // _DEBUG
+
+	UpdateConstantBuffer();
 }
 
+void Object::UpdateConstantBuffer()
+{
+	constant_data_.world_view_proj = world_ * view_ * proj_;
+	constant_data_.world_view_proj = DirectX::XMMatrixTranspose(constant_data_.world_view_proj);
+	immediate_context_->UpdateSubresource(constant_buffer_.Get(), 0, 0, &constant_data_, 0, 0);
+}
 
+void Object::SetTransformationMatrix(DirectX::XMMATRIX* world, DirectX::XMMATRIX* view, DirectX::XMMATRIX* proj)
+{
+	if (world)	world_ = *world;
+	if (view)	view_ = *view;
+	if (proj)	proj_ = *proj;
+	UpdateConstantBuffer();
+}
 
 bool Object::Init()
 {
+	device_				= nullptr;
+	immediate_context_	= nullptr;
+	index_buffer_		= nullptr;
+	vertex_buffer_		= nullptr;
+	constant_buffer_	= nullptr;
+	vertex_layout_		= nullptr;
+	fx_					= nullptr;
+	tech_				= nullptr;
+
+	world_ = DirectX::XMMatrixIdentity();
+	view_ = DirectX::XMMatrixIdentity();
+	proj_ = DirectX::XMMatrixIdentity();
+
 	return true;
 }
 
@@ -195,11 +224,7 @@ bool Object::Frame()
 
 bool Object::PreRender()
 {
-	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&world_);
-	DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4(&view_);
-	DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4(&proj_);
-	DirectX::XMMATRIX world_view_proj = world * view * proj;
-	fx_world_view_proj_->SetMatrix(reinterpret_cast<float*>(&world_view_proj));
+	UpdateConstantBuffer();
 
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
@@ -208,7 +233,8 @@ bool Object::PreRender()
 	immediate_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	immediate_context_->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(), &stride, &offset);
 	immediate_context_->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, offset);
-	
+	immediate_context_->VSSetConstantBuffers(0, 1, &constant_buffer_);
+
 	return true;
 }
 
@@ -233,8 +259,11 @@ bool Object::Render()
 	return true;
 }
 
-bool Release()
+bool Object::Release()
 {
+	vertices_.clear();
+	indices_.clear();
+
 	return true;
 }
 

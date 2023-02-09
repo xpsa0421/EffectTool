@@ -1,21 +1,21 @@
 #include "GlobalGameTimer.h"
 
-float   g_gameTimer = 0.0f;
-float   g_secondPerFrame = 0.0f;
+float   g_timer = 0.0f;
+float   g_spf = 0.0f;
 UINT    g_fps = 0.0f;
 
 bool GlobalGameTimer::Frame()
 {
     Timer::Frame();
-    _fpsCounter++;
-    _fpsTimer += _elapseTime;
-    if (_fpsTimer >= 1.0f)
+    fps_counter_++;
+    fps_timer_ += _elapseTime;
+    if (fps_timer_ >= 1.0f)
     {
-        g_fps = _fpsCounter;
-        _fpsCounter = 0;
-        _fpsTimer -= 1.0f;
+        g_fps = fps_counter_;
+        fps_counter_ = 0;
+        fps_timer_ -= 1.0f;
     }
-    g_gameTimer = _timer;
-    g_secondPerFrame = _elapseTime;
+    g_timer = _timer;
+    g_spf = _elapseTime;
     return true;
 }

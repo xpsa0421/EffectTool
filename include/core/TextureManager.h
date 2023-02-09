@@ -7,7 +7,7 @@ private:
 	friend class Singleton<TextureManager>;
 	std::map<W_STR, Texture*> _textures;
 public:
-	ID3D11Device*			_device;
+	ID3D11Device*			device_;
 	ID3D11DeviceContext*	_context;
 public:
 	void		SetDevice(ID3D11Device* device, ID3D11DeviceContext* context);

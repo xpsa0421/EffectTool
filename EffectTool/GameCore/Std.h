@@ -13,6 +13,7 @@
 #include <codecvt>
 #include <tchar.h>
 #include <wrl.h>
+#include <DirectXMath.h>
 
 
 //-----------------------------------------------------------------------------
@@ -29,8 +30,8 @@
 //-----------------------------------------------------------------------------
 extern HWND		g_hWnd;
 extern RECT		g_rectClient;
-extern float	g_gameTimer;
-extern float	g_secondPerFrame;
+extern float	g_timer;
+extern float	g_spf;
 extern UINT		g_fps;
 
 
@@ -47,9 +48,10 @@ typedef std::vector<float>						FLOAT_VECTOR;
 
 
 //-----------------------------------------------------------------------------
-// Namespace
+// Namespaces
 //-----------------------------------------------------------------------------
 using namespace Microsoft::WRL;
+using namespace DirectX;
 
 //-----------------------------------------------------------------------------
 // Standard classes

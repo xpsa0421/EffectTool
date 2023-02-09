@@ -24,7 +24,6 @@
     <ClCompile Include="CoreMath.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DxState.cpp" />
-    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameCore.cpp" />
     <ClCompile Include="GlobalGameTimer.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -43,7 +42,6 @@
     <ClInclude Include="CoreMath.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="DxState.h" />
-    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameCore.h" />
     <ClInclude Include="GlobalGameTimer.h" />
     <ClInclude Include="Input.h" />

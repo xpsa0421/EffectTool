@@ -31,8 +31,8 @@ struct VSConstantData
 class BaseObject
 {
 public:
-	ID3D11Device*				_device				= nullptr;
-	ID3D11DeviceContext*		_immediateContext	= nullptr;
+	ID3D11Device*				device_				= nullptr;
+	ID3D11DeviceContext*		immediate_context_	= nullptr;
 public:
 	ID3D11Buffer*				_constantBuffer		= nullptr;
 	ID3D11Buffer*				_indexBuffer		= nullptr;

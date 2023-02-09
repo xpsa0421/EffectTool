@@ -5,13 +5,13 @@ class RenderTarget
 {
 public:
 	ID3D11RenderTargetView*			_renderTargetView;
-	ID3D11DepthStencilView*			_dsv;
+	ID3D11DepthStencilView*			dsv_;
 	ID3D11ShaderResourceView*		_shaderResourceView;
 	ID3D11ShaderResourceView*		_depthSRV;
 	ID3D11Texture2D*				_texture2D;
 	D3D11_DEPTH_STENCIL_VIEW_DESC	_depthStencilDesc;
 	D3D11_TEXTURE2D_DESC			_textureDesc;
-	D3D11_VIEWPORT					_viewport;
+	D3D11_VIEWPORT					viewport_;
 public:
 	ID3D11RenderTargetView*			_oldRenderTarget;
 	ID3D11DepthStencilView*			_oldDepthStencil;

@@ -3,13 +3,12 @@
 bool Main::Init()
 {
     // initialise camera
-    _cam = new Camera;
-    _cam->CreateViewMatrix(Vector(0, 3.8, -13), Vector(0, 0, 0), Vector(0, 1, 0));
-    _cam->CreateProjMatrix(1.0f, 10000.0f, PI * 0.25f,
+    cam_ = new Camera;
+    cam_->SetPosition(0, 3.8, -13);
+    cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
 
 	BuildEnvironment();
-
     return true;
 }
 
@@ -25,9 +24,7 @@ bool Main::Frame()
 
 bool Main::Render()
 {
-	_floor.SetTransformationMatrix(nullptr, &_cam->_viewMat, &_cam->_projMat);
-	if (_renderFloor) _floor.Render();
-    return true;
+	return true;
 }
 
 bool Main::Release()

@@ -1,10 +1,11 @@
 #pragma once
 #include "Timer.h"
+
 class GlobalGameTimer : public Timer, public Singleton<GlobalGameTimer>
 {
 private:
-	float	_fpsTimer;
-	UINT	_fpsCounter;
+	float	fps_timer_;
+	UINT	fps_counter_;
 public:
 	virtual bool Frame();
 };

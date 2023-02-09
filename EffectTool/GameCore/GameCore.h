@@ -13,11 +13,11 @@
 class GameCore : public Device
 {
 private:
-	bool			_isGameRun	= true;
-	Window*			_window		= nullptr;
+	bool			game_active_	= true;
+	Window*			window_			= nullptr;
 public:
-	Writer			_writer;
-	Camera*			_cam;
+	Writer			writer_;
+	Camera*			cam_;
 public:
 	bool			CoreInit();
 	bool			CoreFrame();

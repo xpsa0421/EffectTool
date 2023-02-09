@@ -4,7 +4,7 @@
 class VertexShader
 {
 public:
-	ID3D11Device*			_device;
+	ID3D11Device*			device_;
 	ID3D11VertexShader*		_shader;
 	ID3DBlob*				_VSCode;
 public:
@@ -17,7 +17,7 @@ public:
 class PixelShader
 {
 public:
-	ID3D11Device*		_device;
+	ID3D11Device*		device_;
 	ID3D11PixelShader*	_shader;
 	ID3DBlob*			_PSCode;
 public:

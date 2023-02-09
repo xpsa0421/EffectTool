@@ -14,19 +14,19 @@ bool Device::Init()
 
 bool Device::Release()
 {
-    if (_device)            _device->Release();
-    if (_immediateContext)  _immediateContext->Release();
-    if (_giFactory)         _giFactory->Release();
-    if (_swapChain)         _swapChain->Release();
-    if (_rtv)               _rtv->Release();
-    if (_dsv)               _dsv->Release();
+    if (device_)            device_->Release();
+    if (immediate_context_)  immediate_context_->Release();
+    if (factory_)         factory_->Release();
+    if (swapchain_)         swapchain_->Release();
+    if (rtv_)               rtv_->Release();
+    if (dsv_)               dsv_->Release();
 
-    _device             = nullptr;
-    _immediateContext   = nullptr;
-    _giFactory          = nullptr;
-    _swapChain          = nullptr;
-    _rtv                = nullptr;
-    _dsv                = nullptr;
+    device_             = nullptr;
+    immediate_context_   = nullptr;
+    factory_          = nullptr;
+    swapchain_          = nullptr;
+    rtv_                = nullptr;
+    dsv_                = nullptr;
 
 	return true;
 }
@@ -42,14 +42,14 @@ HRESULT Device::CreateDevice()
     D3D_FEATURE_LEVEL featureLevel;
     D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
     hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, CreateDeviceFlags, featureLevels, 1,
-                           D3D11_SDK_VERSION, &_device, &featureLevel, &_immediateContext);
+                           D3D11_SDK_VERSION, &device_, &featureLevel, &immediate_context_);
 	return hr;
 }
 
 HRESULT Device::CreateFactory()
 {
     HRESULT hr = S_OK;
-    hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&_giFactory);
+    hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory_);
 
 	return hr;
 }
@@ -73,7 +73,7 @@ HRESULT Device::CreateSwapChain()
     sd.Windowed                             = true; 
     sd.Flags                                = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-    hr = _giFactory->CreateSwapChain(_device, &sd, &_swapChain);
+    hr = factory_->CreateSwapChain(device_, &sd, &swapchain_);
 	return hr;
 }
 
@@ -82,8 +82,8 @@ HRESULT Device::CreateRenderTargetView()
     HRESULT hr = S_OK;
     // 4)랜더타켓뷰 생성
     ID3D11Texture2D* backBuffer = nullptr;
-    _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-    hr = _device->CreateRenderTargetView(backBuffer, NULL, &_rtv);
+    swapchain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+    hr = device_->CreateRenderTargetView(backBuffer, NULL, &rtv_);
     backBuffer->Release();
 	return hr;
 }
@@ -92,7 +92,7 @@ HRESULT Device::CreateDepthStencilView()
 {
     HRESULT hr;
     DXGI_SWAP_CHAIN_DESC scd;
-    _swapChain->GetDesc(&scd);
+    swapchain_->GetDesc(&scd);
     ID3D11Texture2D* DSTexture;
     D3D11_TEXTURE2D_DESC td;
     ZeroMemory(&td, sizeof(td));
@@ -107,13 +107,13 @@ HRESULT Device::CreateDepthStencilView()
     td.CPUAccessFlags       = 0;
     td.MiscFlags            = 0;
     td.BindFlags            = D3D11_BIND_DEPTH_STENCIL;
-    hr = _device->CreateTexture2D(&td, NULL, &DSTexture);
+    hr = device_->CreateTexture2D(&td, NULL, &DSTexture);
 
     D3D11_DEPTH_STENCIL_VIEW_DESC dtvd;
     ZeroMemory(&dtvd, sizeof(dtvd));
     dtvd.Format         = DXGI_FORMAT_D24_UNORM_S8_UINT;
     dtvd.ViewDimension  = D3D11_DSV_DIMENSION_TEXTURE2D;
-    hr = _device->CreateDepthStencilView(DSTexture, &dtvd, &_dsv);
+    hr = device_->CreateDepthStencilView(DSTexture, &dtvd, &dsv_);
     DSTexture->Release();
 
     return hr;
@@ -121,13 +121,13 @@ HRESULT Device::CreateDepthStencilView()
 
 void Device::CreateViewPort()
 {
-    _viewport.Width     = g_rectClient.right;
-    _viewport.Height    = g_rectClient.bottom;
-    _viewport.TopLeftX  = 0;
-    _viewport.TopLeftY  = 0;
-    _viewport.MinDepth  = 0.0f;
-    _viewport.MaxDepth  = 1.0f;
-    _immediateContext->RSSetViewports(1, &_viewport);
+    viewport_.Width     = g_rectClient.right;
+    viewport_.Height    = g_rectClient.bottom;
+    viewport_.TopLeftX  = 0;
+    viewport_.TopLeftY  = 0;
+    viewport_.MinDepth  = 0.0f;
+    viewport_.MaxDepth  = 1.0f;
+    immediate_context_->RSSetViewports(1, &viewport_);
 }
 
 HRESULT Device::CreateDXResource()
@@ -143,7 +143,7 @@ HRESULT Device::DeleteDXResource()
 HRESULT Device::ResizeWindow(UINT width, UINT height)
 {
     HRESULT hr;
-    if (_device == nullptr) {
+    if (device_ == nullptr) {
         return S_OK;
     }
     g_rectClient.right = width;
@@ -151,16 +151,16 @@ HRESULT Device::ResizeWindow(UINT width, UINT height)
 
     // unset and release current render target
     if (FAILED(hr = DeleteDXResource())) return hr;
-    _immediateContext->OMSetRenderTargets(0, nullptr, NULL);
-    _rtv->Release();
-    _rtv = nullptr;
-    _dsv->Release();
-    _dsv = nullptr;
+    immediate_context_->OMSetRenderTargets(0, nullptr, NULL);
+    rtv_->Release();
+    rtv_ = nullptr;
+    dsv_->Release();
+    dsv_ = nullptr;
 
     // resize back buffer size
     DXGI_SWAP_CHAIN_DESC CurrentSD;
-    _swapChain->GetDesc(&CurrentSD);
-    hr = _swapChain->ResizeBuffers(CurrentSD.BufferCount, width, height, CurrentSD.BufferDesc.Format, 0);
+    swapchain_->GetDesc(&CurrentSD);
+    hr = swapchain_->ResizeBuffers(CurrentSD.BufferCount, width, height, CurrentSD.BufferDesc.Format, 0);
 
     // recreate render target view
     if (FAILED(CreateRenderTargetView())) {

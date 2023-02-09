@@ -8,7 +8,7 @@ private:
 	std::map<W_STR, VertexShader*>	_vertexShaders;
 	std::map<W_STR, PixelShader*>	_pixelShaders;
 public:
-	ID3D11Device*	_device;
+	ID3D11Device*	device_;
 public:
 	void			SetDevice(ID3D11Device* device);
 	VertexShader*	LoadVertexShader(W_STR VSFilePath, W_STR VSFuncName);

@@ -1,20 +1,16 @@
 #pragma once
-
-#include <d3d11.h>
-#include <d3dcompiler.h>
 #include "Std.h"
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
+
 class Device 
 {
 public:
-	ID3D11Device*			_device				= nullptr;
-	ID3D11DeviceContext*	_immediateContext	= nullptr;
-	IDXGIFactory*			_giFactory			= nullptr; 
-	IDXGISwapChain*			_swapChain			= nullptr;
-	ID3D11RenderTargetView* _rtv				= nullptr;
-	ID3D11DepthStencilView* _dsv				= nullptr;
-	D3D11_VIEWPORT			_viewport;
+	ID3D11Device*			device_				= nullptr;
+	ID3D11DeviceContext*	immediate_context_	= nullptr;
+	IDXGIFactory*			factory_			= nullptr; 
+	IDXGISwapChain*			swapchain_			= nullptr;
+	ID3D11RenderTargetView* rtv_				= nullptr;
+	ID3D11DepthStencilView* dsv_				= nullptr;
+	D3D11_VIEWPORT			viewport_;
 
 public:
 	bool			Init();	
