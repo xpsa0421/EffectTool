@@ -32,7 +32,7 @@ class BaseObject
 {
 public:
 	ID3D11Device*				device_				= nullptr;
-	ID3D11DeviceContext*		immediate_context_	= nullptr;
+	ID3D11DeviceContext*		device_context_	= nullptr;
 public:
 	ID3D11Buffer*				_constantBuffer		= nullptr;
 	ID3D11Buffer*				_indexBuffer		= nullptr;

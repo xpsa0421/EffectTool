@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------------
 // Standard includes
 //-----------------------------------------------------------------------------
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -52,6 +52,7 @@ typedef std::vector<float>						FLOAT_VECTOR;
 //-----------------------------------------------------------------------------
 using namespace Microsoft::WRL;
 using namespace DirectX;
+
 
 //-----------------------------------------------------------------------------
 // Standard classes

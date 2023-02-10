@@ -1,23 +1,33 @@
 #include "Shader.h"
 
 //-----------------------------------------------------------------------------
+// Shader Commons
+//-----------------------------------------------------------------------------
+void Shader::Init()
+{
+	code_ = nullptr;
+}
+
+bool Shader::Release()
+{
+	code_ = nullptr;
+}
+
+//-----------------------------------------------------------------------------
 // Vertex shader
 //-----------------------------------------------------------------------------
-VertexShader::VertexShader()
+void VertexShader::Init()
 {
-	device_		= nullptr;
-	_shader		= nullptr;
-	_VSCode		= nullptr;
+	Shader::Init();
+	shader_	= nullptr;
 }
 
 HRESULT	VertexShader::Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName)
 {
-	device_ = device;
-	HRESULT result;
-	ID3DBlob* errorCode = nullptr;
+	ComPtr<ID3DBlob> errorCode = nullptr;
 	DWORD shaderFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
 	
-	result = D3DCompileFromFile(
+	HRESULT result = D3DCompileFromFile(
 		VSFilePath.c_str(),
 		nullptr,
 		nullptr,
@@ -25,8 +35,8 @@ HRESULT	VertexShader::Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFun
 		"vs_5_0",
 		shaderFlags,
 		0,
-		&_VSCode,
-		&errorCode
+		code_.GetAddressOf(),
+		errorCode.GetAddressOf()
 	);
 	if (FAILED(result))
 	{
@@ -35,25 +45,21 @@ HRESULT	VertexShader::Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFun
 			#if defined( _DEBUG ) 
 			OutputDebugStringA((char*)errorCode->GetBufferPointer());
 			#endif
-			errorCode->Release();
+			errorCode = nullptr;
 		}
 		return E_FAIL;
 	}
 
-	result = device_->CreateVertexShader(
-		_VSCode->GetBufferPointer(),
-		_VSCode->GetBufferSize(),
-		nullptr,
-		&_shader
-	);
+	result = device->CreateVertexShader(code_->GetBufferPointer(), 
+						code_->GetBufferSize(),nullptr, shader_.GetAddressOf());
 
 	return result;
 }
 
 bool VertexShader::Release()
 {
-	if (_shader)	_shader->Release();
-	if (_VSCode)	_VSCode->Release();
+	shader_ = nullptr;
+	Shader::Release();
 
 	return true;
 }
@@ -62,22 +68,18 @@ bool VertexShader::Release()
 //-----------------------------------------------------------------------------
 // Pixel shader
 //-----------------------------------------------------------------------------
-
-PixelShader::PixelShader()
+void PixelShader::Init()
 {
-	device_ = nullptr;
-	_shader = nullptr;
-	_PSCode = nullptr;
+	Shader::Init();
+	shader_ = nullptr;
 }
 
 HRESULT	PixelShader::Create(ID3D11Device* device, W_STR PSFilePath, W_STR PSFuncName)
 {
-	device_ = device;
-	HRESULT result;
-	ID3DBlob* errorCode = nullptr;
+	ComPtr<ID3DBlob> errorCode = nullptr;
 	DWORD shaderFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
-
-	result = D3DCompileFromFile(
+	
+	HRESULT result = D3DCompileFromFile(
 		PSFilePath.c_str(),
 		nullptr,
 		nullptr,
@@ -85,39 +87,31 @@ HRESULT	PixelShader::Create(ID3D11Device* device, W_STR PSFilePath, W_STR PSFunc
 		"ps_5_0",
 		shaderFlags,
 		0,
-		&_PSCode,
-		&errorCode
+		code_.GetAddressOf(),
+		errorCode.GetAddressOf()
 	);
-
 	if (FAILED(result))
 	{
 		if (errorCode)
 		{
-#if defined( _DEBUG ) 
+			#if defined( _DEBUG ) 
 			OutputDebugStringA((char*)errorCode->GetBufferPointer());
-#endif
-			errorCode->Release();
+			#endif
+			errorCode = nullptr;
 		}
 		return E_FAIL;
 	}
 
-	result = device_->CreatePixelShader(
-		_PSCode->GetBufferPointer(),
-		_PSCode->GetBufferSize(),
-		nullptr,
-		&_shader
-	);
-	if (FAILED(result)) return E_FAIL;
+	result = device->CreatePixelShader(code_->GetBufferPointer(), 
+						code_->GetBufferSize(),nullptr, shader_.GetAddressOf());
 
 	return result;
 }
 
 bool PixelShader::Release()
 {
-	if (_shader)	_shader->Release();
-	if (_PSCode)	_PSCode->Release();
+	shader_ = nullptr;
+	Shader::Release();
 
 	return true;
 }
-
-

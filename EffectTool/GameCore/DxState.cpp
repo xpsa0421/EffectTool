@@ -1,18 +1,12 @@
 #include "DxState.h"
-ID3D11SamplerState*         DxState::g_SSWrap           = nullptr;
-ID3D11SamplerState*         DxState::g_SSMirror         = nullptr;
-ID3D11SamplerState*         DxState::g_SSBorder         = nullptr;
-ID3D11SamplerState*         DxState::g_SSSmooth         = nullptr;
-ID3D11BlendState*           DxState::g_BSAlpha          = nullptr;
-ID3D11BlendState*           DxState::g_BSNoAlpha        = nullptr;
-ID3D11BlendState*           DxState::g_BSOneZero        = nullptr;
-ID3D11RasterizerState*      DxState::g_RSWireFrame      = nullptr;
-ID3D11RasterizerState*      DxState::g_RSSolid          = nullptr;
-ID3D11DepthStencilState*    DxState::g_DSDepthDisable   = nullptr;
-ID3D11DepthStencilState*    DxState::g_DSDepthEnable    = nullptr;
-ID3D11DepthStencilState*    DxState::g_DSDepthGreater   = nullptr;
 
-bool DxState::CreateStates(ID3D11Device* device)
+void ID3D11State::SetDevice(ID3D11Device* device, ID3D11DeviceContext* context)
+{
+    device_ = device;
+    device_context_ = context;
+}
+
+bool ID3D11State::Init()
 {
     //-----------------------------------------------------------------------------
     // Create sampler states
@@ -23,24 +17,27 @@ bool DxState::CreateStates(ID3D11Device* device)
     samplerDesc.AddressU    = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressV    = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW    = D3D11_TEXTURE_ADDRESS_WRAP;
-    device->CreateSamplerState(&samplerDesc, &g_SSWrap);
+    device_->CreateSamplerState(&samplerDesc, &SS_wrap_);
+    states_.insert(std::make_pair(L"SS_wrap", (ID3D11DeviceChild*)SS_wrap_.Get()));
 
     samplerDesc.Filter      = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     samplerDesc.AddressU    = D3D11_TEXTURE_ADDRESS_MIRROR;
     samplerDesc.AddressV    = D3D11_TEXTURE_ADDRESS_MIRROR;
     samplerDesc.AddressW    = D3D11_TEXTURE_ADDRESS_MIRROR;
-    device->CreateSamplerState(&samplerDesc, &g_SSMirror);
+    device_->CreateSamplerState(&samplerDesc, &SS_mirror_);
+    states_.insert(std::make_pair(L"SS_mirror", (ID3D11DeviceChild*)SS_mirror_.Get()));
 
     samplerDesc.AddressU        = D3D11_TEXTURE_ADDRESS_BORDER;
     samplerDesc.AddressV        = D3D11_TEXTURE_ADDRESS_BORDER;
     samplerDesc.AddressW        = D3D11_TEXTURE_ADDRESS_BORDER;
     samplerDesc.BorderColor[0]  = 1.0f;  samplerDesc.BorderColor[1] = 1.0f;
     samplerDesc.BorderColor[2]  = 1.0f;  samplerDesc.BorderColor[3] = 1.0f;
-    device->CreateSamplerState(&samplerDesc, &g_SSBorder);
+    device_->CreateSamplerState(&samplerDesc, &SS_border_);
+    states_.insert(std::make_pair(L"SS_border", (ID3D11DeviceChild*)SS_border_.Get()));
 
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    device->CreateSamplerState(&samplerDesc, &g_SSSmooth);
-
+    device_->CreateSamplerState(&samplerDesc, &SS_smooth_);
+    states_.insert(std::make_pair(L"SS_smooth", (ID3D11DeviceChild*)SS_smooth_.Get()));
 
     //-----------------------------------------------------------------------------
     // Create blend states
@@ -55,16 +52,18 @@ bool DxState::CreateStates(ID3D11Device* device)
     blendDesc.RenderTarget[0].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     blendDesc.RenderTarget[0].BlendEnable           = TRUE;
-    device->CreateBlendState(&blendDesc, &g_BSAlpha);
+    device_->CreateBlendState(&blendDesc, &BS_alpha_);
+    states_.insert(std::make_pair(L"BS_alpha", (ID3D11DeviceChild*)BS_alpha_.Get()));
 
     blendDesc.RenderTarget[0].BlendEnable = FALSE;
-    device->CreateBlendState(&blendDesc, &g_BSNoAlpha);
+    device_->CreateBlendState(&blendDesc, &BS_no_apha_);
+    states_.insert(std::make_pair(L"BS_no_apha", (ID3D11DeviceChild*)BS_no_apha_.Get()));
 
     blendDesc.RenderTarget[0].BlendEnable = TRUE;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
-    device->CreateBlendState(&blendDesc, &g_BSOneZero);
-
+    device_->CreateBlendState(&blendDesc, &BS_one_zero_);
+    states_.insert(std::make_pair(L"BS_one_zero", (ID3D11DeviceChild*)BS_one_zero_.Get()));
 
     //-----------------------------------------------------------------------------
     // Create rasterizer states
@@ -74,11 +73,13 @@ bool DxState::CreateStates(ID3D11Device* device)
     rasterDesc.DepthClipEnable = TRUE;
     rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
     rasterDesc.CullMode = D3D11_CULL_NONE;
-    device->CreateRasterizerState(&rasterDesc, &g_RSWireFrame);
+    device_->CreateRasterizerState(&rasterDesc, &RS_wireframe_);
+    states_.insert(std::make_pair(L"RS_wireframe", (ID3D11DeviceChild*)RS_wireframe_.Get()));
 
     rasterDesc.FillMode = D3D11_FILL_SOLID;
     rasterDesc.CullMode = D3D11_CULL_BACK;
-    device->CreateRasterizerState(&rasterDesc, &g_RSSolid);
+    device_->CreateRasterizerState(&rasterDesc, &RS_solid_);
+    states_.insert(std::make_pair(L"RS_solid", (ID3D11DeviceChild*)RS_solid_.Get()));
 
     //-----------------------------------------------------------------------------
     // Create depth stencil states
@@ -88,54 +89,95 @@ bool DxState::CreateStates(ID3D11Device* device)
     depthDesc.DepthEnable       = TRUE;
     depthDesc.DepthWriteMask    = D3D11_DEPTH_WRITE_MASK_ALL;
     depthDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-    device->CreateDepthStencilState(&depthDesc, &g_DSDepthEnable);
+    device_->CreateDepthStencilState(&depthDesc, &DS_depth_enable_);
+    states_.insert(std::make_pair(L"DS_depth_enable", (ID3D11DeviceChild*)DS_depth_enable_.Get()));
 
     depthDesc.DepthFunc = D3D11_COMPARISON_GREATER;
-    device->CreateDepthStencilState(&depthDesc, &g_DSDepthGreater);
+    device_->CreateDepthStencilState(&depthDesc, &DS_depth_greater_);
+    states_.insert(std::make_pair(L"DS_depth_greater", (ID3D11DeviceChild*)DS_depth_greater_.Get()));
 
     depthDesc.DepthEnable = FALSE;
-    device->CreateDepthStencilState(&depthDesc, &g_DSDepthDisable);
-    return true;
-}
-
-bool DxState::Release()
-{
-    if (g_SSSmooth)             g_SSSmooth->Release();
-    if (g_SSWrap)               g_SSWrap->Release();
-    if (g_SSMirror)             g_SSMirror->Release();
-    if (g_SSBorder)             g_SSBorder->Release();
-    if (g_BSAlpha)              g_BSAlpha->Release();
-    if (g_BSNoAlpha)            g_BSNoAlpha->Release();
-    if (g_BSOneZero)            g_BSOneZero->Release();
-    if (g_RSWireFrame)          g_RSWireFrame->Release();
-    if (g_RSSolid)              g_RSSolid->Release();
-    if (g_DSDepthDisable)       g_DSDepthDisable->Release();
-    if (g_DSDepthEnable)        g_DSDepthEnable->Release();
-    if (g_DSDepthGreater)       g_DSDepthGreater->Release();
+    device_->CreateDepthStencilState(&depthDesc, &DS_depth_disable_);
+    states_.insert(std::make_pair(L"DS_depth_disable", (ID3D11DeviceChild*)DS_depth_disable_.Get()));
 
     return true;
 }
 
-void DxState::ApplySamplerState(ID3D11DeviceContext* context,
-    ID3D11SamplerState* samplerState, UINT startSlot, UINT numSamplers)
+bool ID3D11State::Release()
 {
-    context->PSSetSamplers(startSlot, numSamplers, &samplerState);
+    for (auto iter = states_.begin(); iter != states_.end(); iter++)
+    {
+        iter->second = nullptr;
+    }
+    states_.clear();
+
+    return true;
 }
 
-void DxState::ApplyBlendState(ID3D11DeviceContext* context,
-    ID3D11BlendState* blendState, const FLOAT blendFactor[], UINT sampleMask)
+void ID3D11State::ApplySamplerState(W_STR state_name, UINT startSlot, UINT numSamplers)
 {
-    context->OMSetBlendState(blendState, blendFactor, sampleMask);
+    auto state_iter = states_.find(state_name);
+
+    if (state_iter != states_.end())
+    {
+        ID3D11SamplerState* state = (ID3D11SamplerState*)(state_iter->second);
+        device_context_->PSSetSamplers(startSlot, numSamplers, &state);
+    }
+    else
+    {
+#ifdef _DEBUG
+        OutputDebugStringA(("Failed to apply sampler state: " + wtm(state_name) + "\n").c_str());
+#endif // _DEBUG
+    }
 }
 
-void DxState::ApplyRasterizerState(ID3D11DeviceContext* context,
-    ID3D11RasterizerState* rasterizerState)
+void ID3D11State::ApplyBlendState(W_STR state_name, const FLOAT blendFactor[], UINT sampleMask)
 {
-    context->RSSetState(rasterizerState);
+    auto state_iter = states_.find(state_name);
+
+    if (state_iter != states_.end())
+    {
+        ID3D11BlendState* state = (ID3D11BlendState*)state_iter->second;
+        device_context_->OMSetBlendState(state, blendFactor, sampleMask);
+    }
+    else
+    {
+#ifdef _DEBUG
+        OutputDebugStringA(("Failed to apply blend state: " + wtm(state_name) + "\n").c_str());
+#endif // _DEBUG
+    }
 }
 
-void DxState::ApplyDepthStencilState(ID3D11DeviceContext* context,
-    ID3D11DepthStencilState* depthStencilState, UINT stencilRef)
+void ID3D11State::ApplyRasterizerState(W_STR state_name)
 {
-    context->OMSetDepthStencilState(depthStencilState, stencilRef);
+    auto state_iter = states_.find(state_name);
+
+    if (state_iter != states_.end())
+    {
+        ID3D11RasterizerState* state = (ID3D11RasterizerState*)state_iter->second;
+        device_context_->RSSetState(state);
+    }
+    else
+    {
+#ifdef _DEBUG
+        OutputDebugStringA(("Failed to apply rasterizer state: " + wtm(state_name) + "\n").c_str());
+#endif // _DEBUG
+    }
+}
+
+void ID3D11State::ApplyDepthStencilState(W_STR state_name, UINT stencilRef)
+{
+    auto state_iter = states_.find(state_name);
+
+    if (state_iter != states_.end())
+    {
+        ID3D11DepthStencilState* state = (ID3D11DepthStencilState*)state_iter->second;
+        device_context_->OMSetDepthStencilState(state, stencilRef);
+    }
+    else
+    {
+#ifdef _DEBUG
+        OutputDebugStringA(("Failed to apply depth stencil state: " + wtm(state_name) + "\n").c_str());
+#endif // _DEBUG
+    }
 }

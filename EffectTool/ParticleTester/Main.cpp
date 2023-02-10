@@ -4,31 +4,40 @@ bool Main::Init()
 {
     // initialise camera
     cam_ = new Camera;
-    cam_->SetPosition(0, 3.8, -13);
+    cam_->Init();
+    cam_->SetView(XMFLOAT3(0, 3.8, -13), XMFLOAT3(0, 0, 0));
     cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
 
-	BuildEnvironment();
-    return true;
-}
+    // initialise object
+    box_ = new Object;
+    box_->Init();
+    box_->Create(device_.Get(), device_context_.Get(), L"testEffect.fx");
 
-void Main::BuildEnvironment()
-{
-	
+    return true;
 }
 
 bool Main::Frame()
 {
+    cam_->Frame();
+
+    box_->Frame();
+    box_->SetTransformationMatrix(nullptr, &cam_->view_, &cam_->proj_);
+
 	return true;
 }
 
 bool Main::Render()
 {
+    box_->Render();
 	return true;
 }
 
 bool Main::Release()
 {
+    box_->Release();
+    delete box_;
+
     return true;
 }
 

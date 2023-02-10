@@ -1,53 +1,53 @@
 #pragma once
 #include "Std.h"
-#include <d3d11.h> // TODO to be added to Std.h
+#define DxState ID3D11State::GetInstance()
 
-class DxState
+class ID3D11State : public Singleton<ID3D11State>
 {
+private:
+	friend class Singleton<ID3D11State>;
+	
+	ComPtr<ID3D11Device>				device_;
+	ComPtr<ID3D11DeviceContext>			device_context_;
+
+	std::map<W_STR, ID3D11DeviceChild*> states_;
+
 public:
 	//-----------------------------------------------------------------------------
 	// Sampler states
 	//-----------------------------------------------------------------------------
-	static ID3D11SamplerState*		g_SSSmooth;
-	static ID3D11SamplerState*		g_SSWrap;
-	static ID3D11SamplerState*		g_SSMirror;
-	static ID3D11SamplerState*		g_SSBorder;
+	ComPtr<ID3D11SamplerState>		SS_smooth_;
+	ComPtr<ID3D11SamplerState>		SS_wrap_;
+	ComPtr<ID3D11SamplerState>		SS_mirror_;
+	ComPtr<ID3D11SamplerState>		SS_border_;
 
 	//-----------------------------------------------------------------------------
 	// Blend states
 	//-----------------------------------------------------------------------------
-	static ID3D11BlendState*		g_BSAlpha;
-	static ID3D11BlendState*		g_BSNoAlpha;
-	static ID3D11BlendState*		g_BSOneZero;
+	ComPtr<ID3D11BlendState>		BS_alpha_;
+	ComPtr<ID3D11BlendState>		BS_no_apha_;
+	ComPtr<ID3D11BlendState>		BS_one_zero_;
 
 	//-----------------------------------------------------------------------------
 	// Rasterizer states
 	//-----------------------------------------------------------------------------
-	static ID3D11RasterizerState*	g_RSWireFrame;
-	static ID3D11RasterizerState*	g_RSSolid;
+	ComPtr<ID3D11RasterizerState>	RS_wireframe_;
+	ComPtr<ID3D11RasterizerState>	RS_solid_;
 
 	//-----------------------------------------------------------------------------
 	// Depth Stencil states
 	//-----------------------------------------------------------------------------
-	static ID3D11DepthStencilState* g_DSDepthDisable;
-	static ID3D11DepthStencilState* g_DSDepthEnable;
-	static ID3D11DepthStencilState* g_DSDepthGreater;
+	ComPtr<ID3D11DepthStencilState> DS_depth_disable_;
+	ComPtr<ID3D11DepthStencilState> DS_depth_enable_;
+	ComPtr<ID3D11DepthStencilState> DS_depth_greater_;
 
 public:
-	static bool CreateStates(ID3D11Device* device);
-	static bool Release();
+	void	SetDevice(ID3D11Device* device, ID3D11DeviceContext* context);
+	bool	Init();
+	bool	Release();
 
-	static void ApplySamplerState(ID3D11DeviceContext* context,
-									ID3D11SamplerState* samplerState, 
-									UINT startSlot = 0,
-									UINT numSamplers = 1);
-	static void ApplyBlendState(ID3D11DeviceContext* context,
-									ID3D11BlendState* blendState,
-									const FLOAT blendFactor[] = 0,
-									UINT sampleMask = 0xffffffff);
-	static void ApplyRasterizerState(ID3D11DeviceContext* context,
-									ID3D11RasterizerState* rasterizerState);
-	static void ApplyDepthStencilState(ID3D11DeviceContext* context,
-									ID3D11DepthStencilState* depthStencilState,
-									UINT stencilRef = 0x01);
+	void	ApplySamplerState(W_STR state_name, UINT start_slot = 0, UINT num_samplers = 1);
+	void	ApplyBlendState(W_STR state_name, const FLOAT blend_factor[] = 0, UINT sample_mask = 0xffffffff);
+	void	ApplyRasterizerState(W_STR state_name);
+	void	ApplyDepthStencilState(W_STR state_name, UINT stencil_ref = 0x01);
 };

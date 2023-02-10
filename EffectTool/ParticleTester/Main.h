@@ -6,12 +6,12 @@
 
 class Main : public GameCore
 {
+private:
+	Object*	box_	=	nullptr;
 public:
 	bool	Init()		override;
 	bool	Frame()		override;
 	bool	Render()	override;
 	bool	Release()	override;
-public:
-	void	BuildEnvironment();
 };
 

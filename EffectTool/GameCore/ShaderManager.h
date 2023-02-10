@@ -5,21 +5,27 @@ class ShaderManager : public Singleton<ShaderManager>
 {
 private:
 	friend class Singleton<ShaderManager>;
-	std::map<W_STR, VertexShader*>	_vertexShaders;
-	std::map<W_STR, PixelShader*>	_pixelShaders;
+	ShaderManager();
+
 public:
-	ID3D11Device*	device_;
+	~ShaderManager();
+
+private:
+	VertexShader*	FindVertexShader(W_STR VSName);
+	PixelShader*	FindPixelShader(W_STR PSName);
+
 public:
 	void			SetDevice(ID3D11Device* device);
 	VertexShader*	LoadVertexShader(W_STR VSFilePath, W_STR VSFuncName);
 	PixelShader*	LoadPixelShader(W_STR PSFilePath, W_STR PSFuncName);
-	VertexShader*	FindVertexShader(W_STR VSName);
-	PixelShader*	FindPixelShader(W_STR PSName);
 	bool			Release();
+
 private:
-	ShaderManager();
+	std::map<W_STR, VertexShader*>	_vertexShaders;
+	std::map<W_STR, PixelShader*>	_pixelShaders;
+
 public:
-	~ShaderManager();
+	ComPtr<ID3D11Device> device_;
 };
 
-#define s_shaderManager ShaderManager::GetInstance()
+#define shader_manager ShaderManager::GetInstance()

@@ -25,18 +25,18 @@ public:
 	XMFLOAT3	look_;
 	
 public:
-	Camera();
+	virtual void	Init();
 
 	void SetPosition(float x, float y, float z);
-	void SetWorldUp(float x, float y, float z);
 	void SetTarget(float x, float y, float z);
+	void SetWorldUp(float x, float y, float z);
 	
 	void Move(XMFLOAT3 direction, float distance);
 
 	virtual bool	Frame();
 	virtual void	UpdateVector();
 	virtual void	UpdateRotation(float roll, float pitch, float yaw);
-	virtual void	UpdateViewMatrix();
-	virtual void	SetLens(float n, float f, float fov, float aspect);
+	virtual void	SetView(XMFLOAT3 pos = XMFLOAT3(0, 0, -1), XMFLOAT3 target = XMFLOAT3(0, 0, 0), XMFLOAT3 up = XMFLOAT3(0, 1, 0));
+	virtual void	SetLens(float nearZ, float farZ, float fov, float aspect_ratio);
 };
 

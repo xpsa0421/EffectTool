@@ -4,13 +4,13 @@
 class Device 
 {
 public:
-	ID3D11Device*			device_				= nullptr;
-	ID3D11DeviceContext*	immediate_context_	= nullptr;
-	IDXGIFactory*			factory_			= nullptr; 
-	IDXGISwapChain*			swapchain_			= nullptr;
-	ID3D11RenderTargetView* rtv_				= nullptr;
-	ID3D11DepthStencilView* dsv_				= nullptr;
-	D3D11_VIEWPORT			viewport_;
+	ComPtr<ID3D11Device>			device_;
+	ComPtr<ID3D11DeviceContext>		device_context_;
+	ComPtr<IDXGIFactory>			factory_; 
+	ComPtr<IDXGISwapChain>			swapchain_;
+	ComPtr<ID3D11RenderTargetView>	rtv_;
+	ComPtr<ID3D11DepthStencilView>	dsv_;
+	D3D11_VIEWPORT					viewport_;
 
 public:
 	bool			Init();	
@@ -23,7 +23,7 @@ public:
 	HRESULT			CreateSwapChain();
 	HRESULT			CreateRenderTargetView();
 	HRESULT			CreateDepthStencilView();
-	void			CreateViewPort();
+	void			CreateViewport();
 public:
 	HRESULT			ResizeWindow(UINT width, UINT height);
 };

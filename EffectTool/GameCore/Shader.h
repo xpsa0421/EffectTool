@@ -1,28 +1,36 @@
 #pragma once
 #include "Std.h"
 
-class VertexShader
+class Shader
 {
+private:
+	Shader() = delete;
 public:
-	ID3D11Device*			device_;
-	ID3D11VertexShader*		_shader;
-	ID3DBlob*				_VSCode;
+	virtual void	Init();
+	virtual HRESULT	Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName) = 0;
+	virtual bool	Release();
 public:
-	HRESULT Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName);
-	bool	Release();
-
-	VertexShader();
+	ComPtr<ID3DBlob>	code_;
 };
 
-class PixelShader
+class VertexShader : public Shader
 {
 public:
-	ID3D11Device*		device_;
-	ID3D11PixelShader*	_shader;
-	ID3DBlob*			_PSCode;
-public:
-	HRESULT Create(ID3D11Device* device, W_STR PSFilePath, W_STR PSFuncName);
-	bool	Release();
+	void		Init()	override;
+	HRESULT		Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName) override;
+	bool		Release() override;
 
-	PixelShader();
+public:
+	ComPtr<ID3D11VertexShader>	shader_;
+};
+
+class PixelShader : public Shader
+{
+public:
+	void		Init()	override;
+	HRESULT		Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName) override;
+	bool		Release() override;
+
+public:
+	ComPtr<ID3D11PixelShader>	shader_;
 };

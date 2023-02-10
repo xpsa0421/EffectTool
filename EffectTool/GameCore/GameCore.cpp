@@ -3,11 +3,11 @@
 HRESULT GameCore::CreateDXResource()
 {
 	writer_.Init();
-	IDXGISurface1* backBuffer;
+	ComPtr<IDXGISurface1> backBuffer = nullptr;
 	swapchain_->GetBuffer(0, __uuidof(IDXGISurface1),
 		(void**)&backBuffer);
-	writer_.Set(backBuffer);
-	backBuffer->Release();
+	writer_.Set(backBuffer.Get());
+
 	return S_OK;
 }
 
@@ -20,21 +20,23 @@ HRESULT GameCore::DeleteDXResource()
 
 void GameCore::ClearD3D11DeviceContext()
 {
+	ID3D11DepthStencilView* pDSV		= NULL;
 	ID3D11ShaderResourceView* pSRVs[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	ID3D11RenderTargetView* pRTVs[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	ID3D11DepthStencilView* pDSV		= NULL;
 	ID3D11Buffer* pBuffers[16]			= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	ID3D11SamplerState* pSamplers[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	UINT StrideOffset[16]				= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	immediate_context_->VSSetShaderResources(0, 16, pSRVs);
-	immediate_context_->PSSetShaderResources(0, 16, pSRVs);
+	device_context_->VSSetShaderResources(0, 16, pSRVs);
+	device_context_->PSSetShaderResources(0, 16, pSRVs);
 }
+
 bool GameCore::CoreInit()
 {
 	Device::Init();
-	DxState::CreateStates(device_);
-	s_texManager.SetDevice(device_, immediate_context_);
-	s_shaderManager.SetDevice(device_);
+	DxState.SetDevice(device_.Get(), device_context_.Get());
+	DxState.Init();
+	texture_manager.SetDevice(device_.Get(), device_context_.Get());
+	shader_manager.SetDevice(device_.Get());
 
 	s_input.Init();
 	s_gameTimer.Init();
@@ -65,7 +67,7 @@ bool GameCore::CoreRender()
 #ifdef _DEBUG
 	if (s_input.GetKey(VK_F1) == KEY_HOLD)
 	{
-		immediate_context_->RSSetState(DxState::g_RSWireFrame);
+		DxState.ApplyRasterizerState(L"RS_wireframe");
 	}
 #endif // DEBUG
 	Render();
@@ -82,14 +84,15 @@ bool GameCore::CorePreRender()
 {
 	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	
-	immediate_context_->OMSetRenderTargets(1, &rtv_, dsv_);
-	immediate_context_->ClearRenderTargetView(rtv_, color);
-	immediate_context_->ClearDepthStencilView(dsv_, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	immediate_context_->PSSetSamplers(0, 1, &DxState::g_SSWrap);
-	immediate_context_->RSSetViewports(1, &viewport_);
-	immediate_context_->RSSetState(DxState::g_RSSolid);
-	immediate_context_->OMSetBlendState(DxState::g_BSAlpha, 0, -1);
-	immediate_context_->OMSetDepthStencilState(DxState::g_DSDepthEnable, 0xff);
+	device_context_->OMSetRenderTargets(1, rtv_.GetAddressOf(), dsv_.Get());
+	device_context_->ClearRenderTargetView(rtv_.Get(), color);
+	device_context_->ClearDepthStencilView(dsv_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	device_context_->RSSetViewports(1, &viewport_);
+
+	DxState.ApplySamplerState(L"SS_wrap");
+	DxState.ApplyRasterizerState(L"RS_solid");
+	DxState.ApplyBlendState(L"BS_alpha", 0, -1);
+	DxState.ApplyDepthStencilState(L"DS_depth_enable", 0xff);
 
 	return true;
 }
@@ -106,11 +109,12 @@ bool GameCore::CorePostRender()
 bool GameCore::CoreRelease()
 {
 	Release();
-	DxState::Release();
-	Device::Release();
+	DxState.Release();
 	writer_.Release();
 	if (cam_) delete cam_;
-	
+	delete window_;
+	Device::Release();
+
 	return true;
 }
 

@@ -3,7 +3,7 @@
 bool Object::Create(ID3D11Device* device, ID3D11DeviceContext* context, W_STR fx_path)
 {
 	device_ = device;
-	immediate_context_ = context;
+	device_context_ = context;
 
 	BuildConstantBuffer();
 	BuildVertexBuffer();
@@ -19,14 +19,14 @@ void Object::BuildVertexBuffer()
 	vertices_.resize(8);
 	vertices_ =
 	{
-		{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), {1.0f, 1.0f, 1.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(-1.0f, +1.0f, -1.0f), {0.0f, 0.0f, 0.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(+1.0f, +1.0f, -1.0f), {1.0f, 0.0f, 0.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(+1.0f, -1.0f, -1.0f), {0.0f, 1.0f, 0.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(-1.0f, -1.0f, +1.0f), {0.0f, 0.0f, 1.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(-1.0f, +1.0f, +1.0f), {1.0f, 1.0f, 0.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(+1.0f, +1.0f, +1.0f), {0.0f, 1.0f, 1.0f, 1.0f} },
-		{ DirectX::XMFLOAT3(+1.0f, -1.0f, +1.0f), {1.0f, 0.0f, 1.0f, 1.0f} }
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), {1.0f, 1.0f, 1.0f, 1.0f} },
+		{ XMFLOAT3(-1.0f, +1.0f, -1.0f), {0.0f, 0.0f, 0.0f, 1.0f} },
+		{ XMFLOAT3(+1.0f, +1.0f, -1.0f), {1.0f, 0.0f, 0.0f, 1.0f} },
+		{ XMFLOAT3(+1.0f, -1.0f, -1.0f), {0.0f, 1.0f, 0.0f, 1.0f} },
+		{ XMFLOAT3(-1.0f, -1.0f, +1.0f), {0.0f, 0.0f, 1.0f, 1.0f} },
+		{ XMFLOAT3(-1.0f, +1.0f, +1.0f), {1.0f, 1.0f, 0.0f, 1.0f} },
+		{ XMFLOAT3(+1.0f, +1.0f, +1.0f), {0.0f, 1.0f, 1.0f, 1.0f} },
+		{ XMFLOAT3(+1.0f, -1.0f, +1.0f), {1.0f, 0.0f, 1.0f, 1.0f} }
 	};
 
 	D3D11_BUFFER_DESC vertex_desc;
@@ -40,7 +40,7 @@ void Object::BuildVertexBuffer()
 	D3D11_SUBRESOURCE_DATA vertex_sub_data;
 	vertex_sub_data.pSysMem = &vertices_.at(0);
 
-	HRESULT result = device_->CreateBuffer(&vertex_desc, &vertex_sub_data, &vertex_buffer_);
+	HRESULT result = device_->CreateBuffer(&vertex_desc, &vertex_sub_data, vertex_buffer_.GetAddressOf());
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -89,7 +89,7 @@ void Object::BuildIndexBuffer()
 	D3D11_SUBRESOURCE_DATA index_sub_data;
 	index_sub_data.pSysMem = &indices_.at(0);
 
-	HRESULT result = device_->CreateBuffer(&index_desc, &index_sub_data, &index_buffer_);
+	HRESULT result = device_->CreateBuffer(&index_desc, &index_sub_data, index_buffer_.GetAddressOf());
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -152,7 +152,7 @@ void Object::BuildVertexLayout()
 
 	HRESULT result = device_->CreateInputLayout(vertex_desc,
 		sizeof(vertex_desc) / sizeof(vertex_desc[0]), pass_desc.pIAInputSignature,
-		pass_desc.IAInputSignatureSize, &vertex_layout_);
+		pass_desc.IAInputSignatureSize, vertex_layout_.GetAddressOf());
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -173,7 +173,7 @@ void Object::BuildConstantBuffer()
 	ZeroMemory(&constant_sub_data, sizeof(constant_sub_data));
 	constant_sub_data.pSysMem = &constant_data_;
 
-	HRESULT result = device_->CreateBuffer(&constant_desc, &constant_sub_data, &constant_buffer_);
+	HRESULT result = device_->CreateBuffer(&constant_desc, &constant_sub_data, constant_buffer_.GetAddressOf());
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -186,33 +186,37 @@ void Object::BuildConstantBuffer()
 
 void Object::UpdateConstantBuffer()
 {
-	constant_data_.world_view_proj = world_ * view_ * proj_;
-	constant_data_.world_view_proj = DirectX::XMMatrixTranspose(constant_data_.world_view_proj);
-	immediate_context_->UpdateSubresource(constant_buffer_.Get(), 0, 0, &constant_data_, 0, 0);
+	XMMATRIX world_m = XMLoadFloat4x4(&world_);
+	XMMATRIX view_m = XMLoadFloat4x4(&view_);
+	XMMATRIX proj_m = XMLoadFloat4x4(&proj_);
+	XMMATRIX world_view_proj_m = XMMatrixTranspose(world_m * view_m * proj_m);
+
+	XMStoreFloat4x4(&constant_data_.world_view_proj, world_view_proj_m);
+	device_context_->UpdateSubresource(constant_buffer_.Get(), 0, 0, &constant_data_, 0, 0);
 }
 
-void Object::SetTransformationMatrix(DirectX::XMMATRIX* world, DirectX::XMMATRIX* view, DirectX::XMMATRIX* proj)
+void Object::SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj)
 {
-	if (world)	world_ = *world;
-	if (view)	view_ = *view;
-	if (proj)	proj_ = *proj;
+	if (world)	world_	= *world;
+	if (view)	view_	= *view;
+	if (proj)	proj_	= *proj;
 	UpdateConstantBuffer();
 }
 
 bool Object::Init()
 {
 	device_				= nullptr;
-	immediate_context_	= nullptr;
+	device_context_		= nullptr;
 	index_buffer_		= nullptr;
 	vertex_buffer_		= nullptr;
 	constant_buffer_	= nullptr;
 	vertex_layout_		= nullptr;
 	fx_					= nullptr;
 	tech_				= nullptr;
-
-	world_ = DirectX::XMMatrixIdentity();
-	view_ = DirectX::XMMatrixIdentity();
-	proj_ = DirectX::XMMatrixIdentity();
+	
+	XMStoreFloat4x4(&world_, XMMatrixIdentity());
+	XMStoreFloat4x4(&view_, XMMatrixIdentity());
+	XMStoreFloat4x4(&proj_, XMMatrixIdentity());
 
 	return true;
 }
@@ -224,16 +228,14 @@ bool Object::Frame()
 
 bool Object::PreRender()
 {
-	UpdateConstantBuffer();
-
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
-	immediate_context_->IASetInputLayout(vertex_layout_.Get());
-	immediate_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	immediate_context_->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(), &stride, &offset);
-	immediate_context_->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, offset);
-	immediate_context_->VSSetConstantBuffers(0, 1, &constant_buffer_);
+	device_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	device_context_->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(), &stride, &offset);
+	device_context_->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, 0);
+	device_context_->IASetInputLayout(vertex_layout_.Get());
+	device_context_->VSSetConstantBuffers(0, 1, constant_buffer_.GetAddressOf());
 
 	return true;
 }
@@ -251,8 +253,8 @@ bool Object::Render()
 	tech_->GetDesc(&tech_desc);
 	for (UINT pass_idx = 0; pass_idx < tech_desc.Passes; pass_idx++)
 	{
-		tech_->GetPassByIndex(pass_idx)->Apply(0, immediate_context_.Get());
-		immediate_context_->DrawIndexed(UINT(indices_.size()), 0, 0);
+		tech_->GetPassByIndex(pass_idx)->Apply(0, device_context_.Get());
+		device_context_->DrawIndexed(UINT(indices_.size()), 0, 0);
 	}
 
 	PostRender();
@@ -261,9 +263,15 @@ bool Object::Render()
 
 bool Object::Release()
 {
+	index_buffer_		= nullptr;
+	vertex_buffer_		= nullptr;
+	constant_buffer_	= nullptr;
+	vertex_layout_		= nullptr;
+	tech_				= nullptr;
+	fx_					= nullptr;
+
 	vertices_.clear();
 	indices_.clear();
 
 	return true;
 }
-

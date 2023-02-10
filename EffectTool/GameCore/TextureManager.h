@@ -20,4 +20,4 @@ public:
 	~TextureManager();
 };
 
-#define s_texManager TextureManager::GetInstance()
+#define texture_manager TextureManager::GetInstance()

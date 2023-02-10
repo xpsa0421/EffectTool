@@ -1,14 +1,14 @@
 #include "Camera.h"
 
-Camera::Camera()
-	:	move_speed_(10.0f),
-		nearZ_(0.0f), 
-		roll_(0.0f), pitch_(0.0f), yaw_(0.0f),
-		pos_(XMFLOAT3(0, 0, 0)),
-		target_(XMFLOAT3(0, 0, 1)),
-		up_(XMFLOAT3(0, 1, 0)),
-		right_(XMFLOAT3(1, 0, 0))
+void Camera::Init()
 {
+	move_speed_				= 10.0f;
+	nearZ_					= 0.0f;
+	roll_ = pitch_ = yaw_	= 0.0f;
+	pos_					= XMFLOAT3(0, 0, -1);
+	target_					= XMFLOAT3(0, 0, 0);
+	up_						= XMFLOAT3(0, 1, 0);
+	right_					= XMFLOAT3(1, 0, 0);
 }
 
 void Camera::SetPosition(float x, float y, float z)
@@ -34,8 +34,12 @@ void Camera::Move(XMFLOAT3 direction, float distance)
 	XMStoreFloat3(&pos_, XMVectorMultiplyAdd(dist_v, dir_v, pos_v));
 }
 
-void Camera::UpdateViewMatrix()
+void Camera::SetView(XMFLOAT3 pos, XMFLOAT3 target, XMFLOAT3 up)
 {
+	pos_ = pos;
+	target_ = target;
+	up_ = up;
+
 	XMMATRIX view_m = XMMatrixLookAtLH(XMLoadFloat3(&pos_), XMLoadFloat3(&target_), XMLoadFloat3(&up_));
 	XMStoreFloat4x4(&view_, view_m);
 
@@ -107,7 +111,6 @@ bool Camera::Frame()
 		Move(up_, move_speed_ * g_spf);
 	}
 
-	UpdateViewMatrix();	
 	return true;
 }
 

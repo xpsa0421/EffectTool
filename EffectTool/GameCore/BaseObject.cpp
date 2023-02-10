@@ -136,8 +136,8 @@ HRESULT	BaseObject::CreateVertexLayout()
 	HRESULT result = device_->CreateInputLayout(
 		elementDesc,
 		sizeof(elementDesc) / sizeof(elementDesc[0]),
-		_vertexShader->_VSCode->GetBufferPointer(),
-		_vertexShader->_VSCode->GetBufferSize(),
+		_vertexShader->code_->GetBufferPointer(),
+		_vertexShader->code_->GetBufferSize(),
 		&_vertexLayout
 	);
 	return result;
@@ -145,8 +145,8 @@ HRESULT	BaseObject::CreateVertexLayout()
 
 bool BaseObject::LoadShader(W_STR VSFilePath, W_STR PSFilePath, W_STR VSFuncName, W_STR PSFuncName)
 {
-	_vertexShader = s_shaderManager.LoadVertexShader(VSFilePath, VSFuncName);
-	_pixelShader = s_shaderManager.LoadPixelShader(PSFilePath, PSFuncName);
+	_vertexShader = shader_manager.LoadVertexShader(VSFilePath, VSFuncName);
+	_pixelShader = shader_manager.LoadPixelShader(PSFilePath, PSFuncName);
 	if (_vertexShader && _pixelShader) return true;
 	else return false;
 }
@@ -154,7 +154,7 @@ bool BaseObject::LoadShader(W_STR VSFilePath, W_STR PSFilePath, W_STR VSFuncName
 bool BaseObject::LoadTexture(W_STR texFilePath)
 {
 	if (texFilePath == L"") return false;
-	_texture = s_texManager.Load(texFilePath);
+	_texture = texture_manager.Load(texFilePath);
 	if (_texture)
 	{
 		_textureSRV = _texture->_textureSRV;
@@ -170,7 +170,7 @@ bool BaseObject::Create(
 	W_STR VSFilePath, W_STR PSFilePath)
 {
 	device_ = device;
-	immediate_context_ = immediateContext;
+	device_context_ = immediateContext;
 
 	if (FAILED(CreateConstantBuffer()))			return false;
 	if (FAILED(CreateVertexBuffer()))			return false;
@@ -189,7 +189,7 @@ bool BaseObject::Create(
 	W_STR VSFuncName, W_STR PSFuncName, W_STR texFilePath)
 {
 	device_ = device;
-	immediate_context_ = immediateContext;
+	device_context_ = immediateContext;
 
 	if (FAILED(CreateConstantBuffer()))									return false;
 	if (FAILED(CreateVertexBuffer()))									return false;
@@ -210,13 +210,13 @@ void BaseObject::UpdateConstantBuffer()
 	_constantData.worldMat	= Matrix::Transpose(_worldMat);
 	_constantData.viewMat	= Matrix::Transpose(_viewMat); 
 	_constantData.projMat	= Matrix::Transpose(_projMat); 
-	immediate_context_->UpdateSubresource(
+	device_context_->UpdateSubresource(
 		_constantBuffer, NULL, nullptr, &_constantData, 0, 0);
 }
 
 void BaseObject::UpdateVertexBuffer()
 {
-	immediate_context_->UpdateSubresource(
+	device_context_->UpdateSubresource(
 		_vertexBuffer, NULL, nullptr, &_vertices.at(0), 0, 0);
 }
 
@@ -272,14 +272,14 @@ bool BaseObject::PreRender()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
-	immediate_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	immediate_context_->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-	immediate_context_->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, offset);
-	immediate_context_->IASetInputLayout(_vertexLayout);
-	immediate_context_->VSSetConstantBuffers(0, 1, &_constantBuffer);
-	immediate_context_->VSSetShader(_vertexShader->_shader, NULL, 0);
-	immediate_context_->PSSetShader(_pixelShader->_shader, NULL, 0);
-	immediate_context_->PSSetShaderResources(0, 1, &_textureSRV);
+	device_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	device_context_->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	device_context_->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, offset);
+	device_context_->IASetInputLayout(_vertexLayout);
+	device_context_->VSSetConstantBuffers(0, 1, &_constantBuffer);
+	device_context_->VSSetShader(_vertexShader->shader_, NULL, 0);
+	device_context_->PSSetShader(_pixelShader->shader_, NULL, 0);
+	device_context_->PSSetShaderResources(0, 1, &_textureSRV);
 
 	return true;
 }
@@ -287,9 +287,9 @@ bool BaseObject::PreRender()
 bool BaseObject::PostRender()
 {
 	if (_indexBuffer == nullptr)
-		immediate_context_->Draw(UINT(_vertices.size()), 0);
+		device_context_->Draw(UINT(_vertices.size()), 0);
 	else
-		immediate_context_->DrawIndexed(UINT(_indices.size()), 0, 0);
+		device_context_->DrawIndexed(UINT(_indices.size()), 0, 0);
 
 	return true;
 }

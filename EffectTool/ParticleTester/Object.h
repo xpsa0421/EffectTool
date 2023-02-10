@@ -10,7 +10,7 @@ struct Vertex
 
 struct ConstantData
 {
-	XMMATRIX world_view_proj;
+	XMFLOAT4X4 world_view_proj;
 };
 
 class Object
@@ -23,7 +23,7 @@ public:
 	virtual void	BuildVertexLayout();
 	virtual void	BuildConstantBuffer();
 	virtual void	UpdateConstantBuffer();
-	virtual void	SetTransformationMatrix(XMMATRIX* world, XMMATRIX* view, XMMATRIX* proj);
+	virtual void	SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
 
 	virtual bool	Init();
 	virtual bool	Frame();
@@ -33,23 +33,23 @@ public:
 	virtual bool	Release();
 
 private:
-	ComPtr<ID3D11Device> device_;
-	ComPtr<ID3D11DeviceContext> immediate_context_;
+	ComPtr<ID3D11Device>		device_;
+	ComPtr<ID3D11DeviceContext> device_context_;
 
-	ComPtr<ID3D11Buffer> index_buffer_;
-	ComPtr<ID3D11Buffer> vertex_buffer_;
-	ComPtr<ID3D11Buffer> constant_buffer_;
-	ComPtr<ID3D11InputLayout> vertex_layout_;
+	ComPtr<ID3D11Buffer>		index_buffer_;
+	ComPtr<ID3D11Buffer>		vertex_buffer_;
+	ComPtr<ID3D11Buffer>		constant_buffer_;
+	ComPtr<ID3D11InputLayout>	vertex_layout_;
 
-	ComPtr<ID3DX11Effect> fx_;
-	ComPtr<ID3DX11EffectTechnique> tech_;
+	ComPtr<ID3DX11Effect>			fx_;
+	ComPtr<ID3DX11EffectTechnique>	tech_;
 
-	DirectX::XMMATRIX world_;
-	DirectX::XMMATRIX view_;
-	DirectX::XMMATRIX proj_;
-	ConstantData constant_data_;
+	XMFLOAT4X4		world_;
+	XMFLOAT4X4		view_;
+	XMFLOAT4X4		proj_;
+	ConstantData	constant_data_;
 
 	std::vector<Vertex> vertices_;
-	std::vector<UINT> indices_;
+	std::vector<UINT>	indices_;
 };
 
