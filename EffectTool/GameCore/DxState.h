@@ -42,8 +42,9 @@ public:
 	ComPtr<ID3D11DepthStencilState> DS_depth_greater_;
 
 public:
+	void	Init();
 	void	SetDevice(ID3D11Device* device, ID3D11DeviceContext* context);
-	bool	Init();
+	bool	CreateStates();
 	bool	Release();
 
 	void	ApplySamplerState(W_STR state_name, UINT start_slot = 0, UINT num_samplers = 1);

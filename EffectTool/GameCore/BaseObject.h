@@ -63,15 +63,15 @@ public:;
 	virtual HRESULT			CreateVertexLayout();
 	static ID3D11Buffer*	CreateVertexBuffer(ID3D11Device* device, void* dataAddress, UINT numVertices, UINT vertexSize);
 public:
-	virtual bool	LoadShader(W_STR VSFilePath, W_STR PSFilePath,
-		W_STR VSFuncName = L"VSMain", W_STR PSFuncName = L"PSMain");
+	virtual bool	LoadShader(W_STR vs_filepath, W_STR ps_filepath,
+		W_STR vs_func_name = L"VSMain", W_STR ps_func_name = L"PSMain");
 	virtual bool	LoadTexture(W_STR texFilePath);
 public:
 	virtual bool	Create(ID3D11Device* device, ID3D11DeviceContext* immediateContext,
-		W_STR VSFilePath, W_STR PSFilePath,
-		W_STR VSFuncName, W_STR PSFuncName, W_STR texFilePath);
+		W_STR vs_filepath, W_STR ps_filepath,
+		W_STR vs_func_name, W_STR ps_func_name, W_STR texFilePath);
 	virtual bool	Create(ID3D11Device* device, ID3D11DeviceContext* immediateContext,
-		W_STR VSFilePath, W_STR PSFilePath);
+		W_STR vs_filepath, W_STR ps_filepath);
 public:
 	virtual void	UpdateConstantBuffer();
 	virtual void	UpdateVertexBuffer();

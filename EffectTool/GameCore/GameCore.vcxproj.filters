@@ -93,6 +93,9 @@
     <ClCompile Include="BaseObject.cpp">
       <Filter>Object\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Object\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -144,6 +147,9 @@
       <Filter>Utility\Header</Filter>
     </ClInclude>
     <ClInclude Include="BaseObject.h">
+      <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
       <Filter>Object\Header</Filter>
     </ClInclude>
   </ItemGroup>

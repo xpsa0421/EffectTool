@@ -1,12 +1,18 @@
 #include "DxState.h"
 
+void ID3D11State::Init()
+{
+    device_         = nullptr;
+    device_context_ = nullptr;
+}
+
 void ID3D11State::SetDevice(ID3D11Device* device, ID3D11DeviceContext* context)
 {
-    device_ = device;
+    device_         = device;
     device_context_ = context;
 }
 
-bool ID3D11State::Init()
+bool ID3D11State::CreateStates()
 {
     //-----------------------------------------------------------------------------
     // Create sampler states

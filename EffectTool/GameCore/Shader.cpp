@@ -22,16 +22,16 @@ void VertexShader::Init()
 	shader_	= nullptr;
 }
 
-HRESULT	VertexShader::Create(ID3D11Device* device, W_STR VSFilePath, W_STR VSFuncName)
+HRESULT	VertexShader::Create(ID3D11Device* device, W_STR vs_filepath, W_STR vs_func_name)
 {
 	ComPtr<ID3DBlob> errorCode = nullptr;
 	DWORD shaderFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
 	
 	HRESULT result = D3DCompileFromFile(
-		VSFilePath.c_str(),
+		vs_filepath.c_str(),
 		nullptr,
 		nullptr,
-		wtm(VSFuncName).c_str(),
+		wtm(vs_func_name).c_str(),
 		"vs_5_0",
 		shaderFlags,
 		0,
@@ -74,16 +74,16 @@ void PixelShader::Init()
 	shader_ = nullptr;
 }
 
-HRESULT	PixelShader::Create(ID3D11Device* device, W_STR PSFilePath, W_STR PSFuncName)
+HRESULT	PixelShader::Create(ID3D11Device* device, W_STR ps_filepath, W_STR ps_func_name)
 {
 	ComPtr<ID3DBlob> errorCode = nullptr;
 	DWORD shaderFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
 	
 	HRESULT result = D3DCompileFromFile(
-		PSFilePath.c_str(),
+		ps_filepath.c_str(),
 		nullptr,
 		nullptr,
-		wtm(PSFuncName).c_str(),
+		wtm(ps_func_name).c_str(),
 		"ps_5_0",
 		shaderFlags,
 		0,

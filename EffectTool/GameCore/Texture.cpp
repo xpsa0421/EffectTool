@@ -1,49 +1,47 @@
 #include "Texture.h"
 
-Texture::Texture()
+void Texture::Init()
 {
-	_texture	= nullptr;
-	_textureSRV = nullptr;
+	texture_ = nullptr;
+	subresource_ = nullptr;
+	desc_ = nullptr;
 }
 
-Texture::~Texture()
-{
-	Release();
-}
-
-HRESULT	Texture::Create(ID3D11Device* device, ID3D11DeviceContext* context, W_STR texFilePath)
+HRESULT	Texture::Create(ID3D11Device* device, ID3D11DeviceContext* context, W_STR filepath)
 {
 	HRESULT result = DirectX::CreateWICTextureFromFileEx(
 		device,
 		context,
-		texFilePath.c_str(),
+		filepath.c_str(),
 		0,
 		D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0,
 		DirectX::DX11::WIC_LOADER_FLAGS::WIC_LOADER_IGNORE_SRGB,
-		(ID3D11Resource**)&_texture, &_textureSRV
+		(ID3D11Resource**)texture_.GetAddressOf(), subresource_.GetAddressOf()
 	);
 	if (FAILED(result))
 	{
 		result = DirectX::CreateDDSTextureFromFile(
 			device,
 			context,
-			texFilePath.c_str(),
-			(ID3D11Resource**)&_texture, &_textureSRV
+			filepath.c_str(),
+			(ID3D11Resource**)texture_.GetAddressOf(), subresource_.GetAddressOf()
 		);
 	}
 
-	if (_texture) _texture->GetDesc(&_textureDesc);
+	if (texture_) texture_->GetDesc(desc_.Get());
 	return result;
 }
 
-void Texture::Apply(ID3D11DeviceContext* context, UINT startSlot)
+void Texture::Apply(ID3D11DeviceContext* context, UINT start_slot)
 {
-	context->PSSetShaderResources(startSlot, 1, &_textureSRV);
+	context->PSSetShaderResources(start_slot, 1, subresource_.GetAddressOf());
 }
 
 bool Texture::Release()
 {
-	if (_texture)		_texture->Release();
-	if (_textureSRV)	_textureSRV->Release();
+	texture_ = nullptr;
+	subresource_ = nullptr;
+	desc_ = nullptr;
+
 	return true;
 }

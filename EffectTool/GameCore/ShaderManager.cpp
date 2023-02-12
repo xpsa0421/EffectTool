@@ -1,13 +1,8 @@
 #include "ShaderManager.h"
 
-ShaderManager::ShaderManager()
+void ShaderManager::Init()
 {
 	device_ = nullptr;
-}
-
-ShaderManager::~ShaderManager()
-{
-	Release();
 }
 
 void ShaderManager::SetDevice(ID3D11Device* device)
@@ -15,85 +10,85 @@ void ShaderManager::SetDevice(ID3D11Device* device)
 	device_ = device;
 }
 
-VertexShader* ShaderManager::LoadVertexShader(W_STR VSFilePath, W_STR VSFuncName)
+VertexShader* ShaderManager::LoadVertexShader(W_STR vs_filepath, W_STR vs_func_name)
 {
 	HRESULT result;
-	W_STR VSName = VSFilePath + VSFuncName;
-	VertexShader* vertexShader = FindVertexShader(VSName);
+	W_STR vs_id = vs_filepath + vs_func_name;
+	VertexShader* vertex_shader = FindVertexShader(vs_id);
 
-	if (vertexShader != nullptr)
+	if (vertex_shader != nullptr)
 	{
-		return vertexShader;
+		return vertex_shader;
 	}
 	else
 	{
-		vertexShader = new VertexShader;
-		result = vertexShader->Create(device_, VSFilePath, VSFuncName);
+		vertex_shader = new VertexShader;
+		result = vertex_shader->Create(device_.Get(), vs_filepath, vs_func_name);
 		if (SUCCEEDED(result))
 		{
-			_vertexShaders.insert(std::make_pair(VSName, vertexShader));
+			vertex_shaders_.insert(std::make_pair(vs_id, vertex_shader));
 		}
-		return vertexShader;
+		return vertex_shader;
 	}
 }
 
-VertexShader* ShaderManager::FindVertexShader(W_STR VSName)
+VertexShader* ShaderManager::FindVertexShader(W_STR vs_id)
 {
-	auto VSIter = _vertexShaders.find(VSName);
-	if (VSIter != _vertexShaders.end())
-		return VSIter->second;
+	auto iter = vertex_shaders_.find(vs_id);
+	if (iter != vertex_shaders_.end())
+		return iter->second;
 	else
 		return nullptr;
 }
 
-PixelShader* ShaderManager::LoadPixelShader(W_STR PSFilePath, W_STR PSFuncName)
+PixelShader* ShaderManager::LoadPixelShader(W_STR ps_filepath, W_STR ps_func_name)
 {
 	HRESULT result;
-	W_STR PSName = PSFilePath + PSFuncName;
-	PixelShader* pixelShader = FindPixelShader(PSName);
+	W_STR ps_id = ps_filepath + ps_func_name;
+	PixelShader* pixel_shader = FindPixelShader(ps_id);
 
-	if (pixelShader != nullptr)
+	if (pixel_shader != nullptr)
 	{
-		return pixelShader;
+		return pixel_shader;
 	}
 	else
 	{
-		pixelShader = new PixelShader;
-		result = pixelShader->Create(device_, PSFilePath, PSFuncName);
+		pixel_shader = new PixelShader;
+		result = pixel_shader->Create(device_.Get(), ps_filepath, ps_func_name);
 		if (SUCCEEDED(result))
 		{
-			_pixelShaders.insert(std::make_pair(PSName, pixelShader));
+			pixel_shaders_.insert(std::make_pair(ps_id, pixel_shader));
 		}
-		return pixelShader;
+		return pixel_shader;
 	}
 }
 
-PixelShader* ShaderManager::FindPixelShader(W_STR PSName)
+PixelShader* ShaderManager::FindPixelShader(W_STR ps_id)
 {
-	auto PSIter = _pixelShaders.find(PSName);
-	if (PSIter != _pixelShaders.end())
-		return PSIter->second;
+	auto iter = pixel_shaders_.find(ps_id);
+	if (iter != pixel_shaders_.end())
+		return iter->second;
 	else
 		return nullptr;
 }
 
 bool ShaderManager::Release()
 {
-	for (auto VSIter : _vertexShaders)
+	for (auto vs_iter : vertex_shaders_)
 	{
-		VertexShader* vertexShader = VSIter.second;
-		if (vertexShader) vertexShader->Release();
-		delete vertexShader;
+		VertexShader* vertex_shader = vs_iter.second;
+		if (vertex_shader) vertex_shader->Release();
+		delete vertex_shader;
 	}
-	_vertexShaders.clear();
+	vertex_shaders_.clear();
 
-	for (auto PSIter : _pixelShaders)
+	for (auto ps_iter : pixel_shaders_)
 	{
-		PixelShader* pixelShader = PSIter.second;
-		if (pixelShader) pixelShader->Release();
-		delete pixelShader;
+		PixelShader* pixel_shader = ps_iter.second;
+		if (pixel_shader) pixel_shader->Release();
+		delete pixel_shader;
 	}
-	_pixelShaders.clear();
+	pixel_shaders_.clear();
 
 	return true;
 }

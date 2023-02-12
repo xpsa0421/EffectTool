@@ -1,26 +1,21 @@
 #include "TextureManager.h"
 
-TextureManager::TextureManager()
+void TextureManager::Init()
 {
-	device_		= nullptr;
-	_context	= nullptr;
-}
-
-TextureManager::~TextureManager()
-{
-	Release();
+	device_			= nullptr;
+	device_context_	= nullptr;
 }
 
 void TextureManager::SetDevice(ID3D11Device* device, ID3D11DeviceContext* context)
 {
-	device_		= device;
-	_context	= context;
+	device_			= device;
+	device_context_	= context;
 }
 
-Texture* TextureManager::Load(W_STR texFilePath)
+Texture* TextureManager::Load(W_STR filepath)
 {
 	HRESULT result;
-	Texture* texture = Find(texFilePath);
+	Texture* texture = Find(filepath);
 
 	if (texture != nullptr)
 	{
@@ -29,10 +24,10 @@ Texture* TextureManager::Load(W_STR texFilePath)
 	else
 	{
 		texture = new Texture;
-		result = texture->Create(device_, _context, texFilePath);
+		result = texture->Create(device_.Get(), device_context_.Get(), filepath);
 		if (SUCCEEDED(result))
 		{
-			_textures.insert(std::make_pair(texFilePath, texture));
+			textures_.insert(std::make_pair(filepath, texture));
 			return texture;
 		}
 		delete texture;
@@ -40,22 +35,23 @@ Texture* TextureManager::Load(W_STR texFilePath)
 	return nullptr;
 }
 
-Texture* TextureManager::Find(W_STR texFilePath)
+Texture* TextureManager::Find(W_STR filepath)
 {
-	auto textureIter = _textures.find(texFilePath);
-	if (textureIter != _textures.end())
-		return textureIter->second;
+	auto iter = textures_.find(filepath);
+	if (iter != textures_.end())
+		return iter->second;
 	else
 		return nullptr;
 }
 
 bool TextureManager::Release()
 {
-	for (auto textureIter : _textures)
+	for (auto iter : textures_)
 	{
-		Texture* texture = textureIter.second;
+		Texture* texture = iter.second;
 		delete texture;
 	}
-	_textures.clear();
+	textures_.clear();
+
 	return true;
 }

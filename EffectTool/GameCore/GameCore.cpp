@@ -3,10 +3,10 @@
 HRESULT GameCore::CreateDXResource()
 {
 	writer_.Init();
-	ComPtr<IDXGISurface1> backBuffer = nullptr;
+	ComPtr<IDXGISurface1> back_buffer = nullptr;
 	swapchain_->GetBuffer(0, __uuidof(IDXGISurface1),
-		(void**)&backBuffer);
-	writer_.Set(backBuffer.Get());
+		(void**)&back_buffer);
+	writer_.Set(back_buffer.Get());
 
 	return S_OK;
 }
@@ -20,23 +20,30 @@ HRESULT GameCore::DeleteDXResource()
 
 void GameCore::ClearD3D11DeviceContext()
 {
-	ID3D11DepthStencilView* pDSV		= NULL;
-	ID3D11ShaderResourceView* pSRVs[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	ID3D11RenderTargetView* pRTVs[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	ID3D11Buffer* pBuffers[16]			= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	ID3D11SamplerState* pSamplers[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	UINT StrideOffset[16]				= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	device_context_->VSSetShaderResources(0, 16, pSRVs);
-	device_context_->PSSetShaderResources(0, 16, pSRVs);
+	ID3D11DepthStencilView* DSV			= NULL;
+	ID3D11ShaderResourceView* SRVs[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	ID3D11RenderTargetView* RTVs[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	ID3D11Buffer* buffers[16]			= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	ID3D11SamplerState* samplers[16]	= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	UINT strideOffset[16]				= { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	device_context_->VSSetShaderResources(0, 16, SRVs);
+	device_context_->PSSetShaderResources(0, 16, SRVs);
 }
 
 bool GameCore::CoreInit()
 {
 	Device::Init();
-	DxState.SetDevice(device_.Get(), device_context_.Get());
+	
 	DxState.Init();
+	DxState.SetDevice(device_.Get(), device_context_.Get());
+	DxState.CreateStates();
+
+	texture_manager.Init();
 	texture_manager.SetDevice(device_.Get(), device_context_.Get());
+	
+	shader_manager.Init();
 	shader_manager.SetDevice(device_.Get());
+	
 
 	s_input.Init();
 	s_gameTimer.Init();

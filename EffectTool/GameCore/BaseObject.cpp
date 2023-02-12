@@ -143,10 +143,10 @@ HRESULT	BaseObject::CreateVertexLayout()
 	return result;
 }
 
-bool BaseObject::LoadShader(W_STR VSFilePath, W_STR PSFilePath, W_STR VSFuncName, W_STR PSFuncName)
+bool BaseObject::LoadShader(W_STR vs_filepath, W_STR ps_filepath, W_STR vs_func_name, W_STR ps_func_name)
 {
-	_vertexShader = shader_manager.LoadVertexShader(VSFilePath, VSFuncName);
-	_pixelShader = shader_manager.LoadPixelShader(PSFilePath, PSFuncName);
+	_vertexShader = shader_manager.LoadVertexShader(vs_filepath, vs_func_name);
+	_pixelShader = shader_manager.LoadPixelShader(ps_filepath, ps_func_name);
 	if (_vertexShader && _pixelShader) return true;
 	else return false;
 }
@@ -167,7 +167,7 @@ bool BaseObject::LoadTexture(W_STR texFilePath)
 // TODO default function  이름 바꾸기~!!!
 bool BaseObject::Create(
 	ID3D11Device* device, ID3D11DeviceContext* immediateContext,
-	W_STR VSFilePath, W_STR PSFilePath)
+	W_STR vs_filepath, W_STR ps_filepath)
 {
 	device_ = device;
 	device_context_ = immediateContext;
@@ -175,7 +175,7 @@ bool BaseObject::Create(
 	if (FAILED(CreateConstantBuffer()))			return false;
 	if (FAILED(CreateVertexBuffer()))			return false;
 	if (FAILED(CreateIndexBuffer()))			return false;
-	if (!LoadShader(VSFilePath, PSFilePath))	return false;
+	if (!LoadShader(vs_filepath, ps_filepath))	return false;
 	if (FAILED(CreateVertexLayout()))			return false;
 	
 	Init();
@@ -185,8 +185,8 @@ bool BaseObject::Create(
 // Creates an object with a texture, using custom shaders
 bool BaseObject::Create(
 	ID3D11Device* device, ID3D11DeviceContext* immediateContext,
-	W_STR VSFilePath, W_STR PSFilePath,
-	W_STR VSFuncName, W_STR PSFuncName, W_STR texFilePath)
+	W_STR vs_filepath, W_STR ps_filepath,
+	W_STR vs_func_name, W_STR ps_func_name, W_STR texFilePath)
 {
 	device_ = device;
 	device_context_ = immediateContext;
@@ -194,7 +194,7 @@ bool BaseObject::Create(
 	if (FAILED(CreateConstantBuffer()))									return false;
 	if (FAILED(CreateVertexBuffer()))									return false;
 	if (FAILED(CreateIndexBuffer()))									return false;
-	if (!LoadShader(VSFilePath, PSFilePath, VSFuncName, PSFuncName))	return false;
+	if (!LoadShader(vs_filepath, ps_filepath, vs_func_name, ps_func_name))	return false;
 	if (FAILED(CreateVertexLayout()))									return false;
 	if (LoadTexture(texFilePath))
 	{
