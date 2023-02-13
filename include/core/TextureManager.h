@@ -5,19 +5,19 @@ class TextureManager : public Singleton<TextureManager>
 {
 private:
 	friend class Singleton<TextureManager>;
-	std::map<W_STR, Texture*> _textures;
+	TextureManager() {};
+
 public:
-	ID3D11Device*			device_;
-	ID3D11DeviceContext*	_context;
-public:
+	void		Init();
 	void		SetDevice(ID3D11Device* device, ID3D11DeviceContext* context);
-	Texture*	Load(W_STR texFilePath);
-	Texture*	Find(W_STR texFilePath);
+	Texture*	Load(W_STR filepath);
+	Texture*	Find(W_STR filepath);
 	bool		Release();
+
 private:
-	TextureManager();
-public:
-	~TextureManager();
+	ComPtr<ID3D11Device>			device_;
+	ComPtr<ID3D11DeviceContext>		device_context_;
+	std::map<W_STR, Texture*>		textures_;
 };
 
-#define s_texManager TextureManager::GetInstance()
+#define texture_manager TextureManager::GetInstance()

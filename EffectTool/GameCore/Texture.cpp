@@ -4,7 +4,6 @@ void Texture::Init()
 {
 	texture_ = nullptr;
 	subresource_ = nullptr;
-	desc_ = nullptr;
 }
 
 HRESULT	Texture::Create(ID3D11Device* device, ID3D11DeviceContext* context, W_STR filepath)
@@ -28,7 +27,7 @@ HRESULT	Texture::Create(ID3D11Device* device, ID3D11DeviceContext* context, W_ST
 		);
 	}
 
-	if (texture_) texture_->GetDesc(desc_.Get());
+	if (texture_) texture_->GetDesc(&desc_);
 	return result;
 }
 
@@ -41,7 +40,6 @@ bool Texture::Release()
 {
 	texture_ = nullptr;
 	subresource_ = nullptr;
-	desc_ = nullptr;
 
 	return true;
 }

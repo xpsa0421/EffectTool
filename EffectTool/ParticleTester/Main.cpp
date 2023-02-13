@@ -12,8 +12,10 @@ bool Main::Init()
     // initialise object
     box_ = new Object;
     box_->Init();
-    box_->Create(device_.Get(), device_context_.Get(), L"testEffect.fx");
-
+    box_->SetVertexShader(L"VertexShader.hlsl", L"main");
+    box_->SetPixelShader(L"PixelShader.hlsl", L"main");
+    box_->Create(device_.Get(), device_context_.Get());
+    
     return true;
 }
 

@@ -15,5 +15,5 @@ public:
 public:
 	ComPtr<ID3D11Texture2D>				texture_;
 	ComPtr<ID3D11ShaderResourceView>	subresource_;
-	ComPtr<D3D11_TEXTURE2D_DESC>		desc_;
+	D3D11_TEXTURE2D_DESC				desc_;
 };

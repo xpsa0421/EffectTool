@@ -4,6 +4,7 @@
 class Camera 
 {
 protected:
+	bool		speed_controllable_;
 	float		move_speed_;
 	float		nearZ_;
 	float		farZ_;
@@ -27,10 +28,11 @@ public:
 public:
 	virtual void	Init();
 
+	void SetSpeedControllable(bool speed_controllable);
 	void SetPosition(float x, float y, float z);
 	void SetTarget(float x, float y, float z);
 	void SetWorldUp(float x, float y, float z);
-	
+		 
 	void Move(XMFLOAT3 direction, float distance);
 
 	virtual bool	Frame();

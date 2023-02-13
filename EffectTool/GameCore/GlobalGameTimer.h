@@ -10,4 +10,4 @@ public:
 	virtual bool Frame();
 };
 
-#define s_gameTimer GlobalGameTimer::GetInstance()
+#define global_timer GlobalGameTimer::GetInstance()

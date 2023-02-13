@@ -4,12 +4,17 @@ bool Object::Init()
 {
 	device_ = nullptr;
 	device_context_ = nullptr;
+
 	index_buffer_ = nullptr;
 	vertex_buffer_ = nullptr;
 	constant_buffer_ = nullptr;
 	input_layout_ = nullptr;
+
 	texture_ = nullptr;
+	texture_srv_ = nullptr;
+
 	vertex_shader_ = nullptr;
+	geo_shader_ = nullptr;
 	pixel_shader_ = nullptr;
 
 	XMStoreFloat4x4(&world_, XMMatrixIdentity());
@@ -36,29 +41,27 @@ bool Object::PreRender()
 	device_context_->VSSetConstantBuffers(0, 1, constant_buffer_.GetAddressOf());
 	device_context_->VSSetShader(vertex_shader_->shader_.Get(), NULL, 0);
 	device_context_->PSSetShader(pixel_shader_->shader_.Get(), NULL, 0);
-	if (texture_)	device_context_->PSSetShaderResources(0, 1, texture_->subresource_);
+	device_context_->PSSetShaderResources(0, 1, texture_srv_.GetAddressOf());
+	if (geo_shader_) device_context_->GSSetShader(geo_shader_->shader_.Get(), NULL, 0);
 
 	return true;
 }
 
 bool Object::PostRender()
 {
+	if (index_buffer_ == nullptr)
+		device_context_->Draw(UINT(vertices_.size()), 0);
+	else
+		device_context_->DrawIndexed(UINT(indices_.size()), 0, 0);
+
 	return true;
 }
 
 bool Object::Render()
 {
 	PreRender();
-
-	D3DX11_TECHNIQUE_DESC tech_desc;
-	tech_->GetDesc(&tech_desc);
-	for (UINT pass_idx = 0; pass_idx < tech_desc.Passes; pass_idx++)
-	{
-		tech_->GetPassByIndex(pass_idx)->Apply(0, device_context_.Get());
-		device_context_->DrawIndexed(UINT(indices_.size()), 0, 0);
-	}
-
 	PostRender();
+
 	return true;
 }
 
@@ -70,7 +73,9 @@ bool Object::Release()
 	input_layout_ = nullptr;
 	
 	texture_ = nullptr;
+	texture_srv_ = nullptr;
 	vertex_shader_ = nullptr;
+	geo_shader_ = nullptr;
 	pixel_shader_ = nullptr;
 
 	vertices_.clear();
@@ -107,10 +112,22 @@ void Object::SetVertexShader(W_STR filepath, W_STR func_name)
 	#endif // _DEBUG
 }
 
+void Object::SetGeometryShader(W_STR filepath, W_STR func_name)
+{
+	geo_shader_ = shader_manager.LoadGeometryShader(filepath, func_name);
+
+#ifdef _DEBUG
+	if (geo_shader_ == nullptr)
+	{
+		OutputDebugStringA(("Failed to set geometry shader: " + wtm(filepath) + "\n").c_str());
+	}
+#endif // _DEBUG
+}
+
 void Object::SetPixelShader(W_STR filepath, W_STR func_name)
 {
 	pixel_shader_ = shader_manager.LoadPixelShader(filepath, func_name);
-
+	
 	#ifdef _DEBUG
 	if (pixel_shader_ == nullptr)
 	{
@@ -130,6 +147,10 @@ void Object::SetTexture(W_STR filepath)
 		OutputDebugStringA(("Failed to set texture: " + wtm(filepath) + "\n").c_str());
 	}
 	#endif // _DEBUG
+	else
+	{
+		texture_srv_ = texture_->subresource_;
+	}
 }
 
 void Object::UpdateConstantBuffer()
@@ -152,9 +173,8 @@ void Object::SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOA
 	UpdateConstantBuffer();
 }
 
-void Object::BuildVertexBuffer()
+void Object::CreateVertexData()
 {
-	// define vertex properties
 	vertices_.resize(4);
 
 	vertices_[0].pos = { -1.0f, 1.0f, 0.0f };
@@ -172,7 +192,24 @@ void Object::BuildVertexBuffer()
 	vertices_[3].pos = { 1.0f, -1.0f, 0.0f };
 	vertices_[3].color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	vertices_[3].tex_coord = { 1.0f, 1.0f };
+}
 
+void Object::CreateIndexData()
+{
+	indices_.resize(6);
+
+	indices_[0] = 0;
+	indices_[1] = 1;
+	indices_[2] = 2;
+	indices_[3] = 2;
+	indices_[4] = 1;
+	indices_[5] = 3;
+}
+
+void Object::BuildVertexBuffer()
+{
+	CreateVertexData();
+	
 	// generate vertex buffer
 	D3D11_BUFFER_DESC vertex_desc;
 	vertex_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -196,16 +233,8 @@ void Object::BuildVertexBuffer()
 
 void Object::BuildIndexBuffer()
 {
-	// define index properties
-	indices_.resize(6);
-
-	indices_[0] = 0;
-	indices_[1] = 1;
-	indices_[2] = 2;
-	indices_[3] = 2;
-	indices_[4] = 1;
-	indices_[5] = 3;
-
+	CreateIndexData();
+	
 	// generate index buffer
 	D3D11_BUFFER_DESC index_desc;
 	index_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -254,7 +283,7 @@ void Object::BuildConstantBuffer()
 void Object::BuildInputLayout()
 {
 	_ASSERT(vertex_shader_);
-	D3D11_INPUT_ELEMENT_DESC vertex_desc[] =
+	D3D11_INPUT_ELEMENT_DESC vertex_descs[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -262,8 +291,8 @@ void Object::BuildInputLayout()
 	};
 
 	HRESULT result = device_->CreateInputLayout(
-		vertex_desc,
-		sizeof(vertex_desc) / sizeof(vertex_desc[0]),
+		vertex_descs,
+		sizeof(vertex_descs) / sizeof(vertex_descs[0]),
 		vertex_shader_->code_->GetBufferPointer(),
 		vertex_shader_->code_->GetBufferSize(),
 		input_layout_.GetAddressOf()

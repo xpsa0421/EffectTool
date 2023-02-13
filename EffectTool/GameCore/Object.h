@@ -35,14 +35,18 @@ public:
 	virtual bool	Release();
 
 	virtual bool	Create(ID3D11Device* device, ID3D11DeviceContext* context);
-	virtual void	SetVertexShader(W_STR filepath, W_STR func_name);
-	virtual void	SetPixelShader(W_STR filepath, W_STR func_name);
+	void			SetVertexShader(W_STR filepath, W_STR func_name);
+	void			SetGeometryShader(W_STR filepath, W_STR func_name);
+	void			SetPixelShader(W_STR filepath, W_STR func_name);
 	virtual void	SetTexture(W_STR filepath);
 
 	virtual void	UpdateConstantBuffer();
 	virtual void	SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
 
 protected:
+	virtual void	CreateVertexData();
+	virtual void	CreateIndexData();
+
 	virtual void	BuildVertexBuffer();
 	virtual void	BuildIndexBuffer();
 	virtual void	BuildConstantBuffer();
@@ -57,14 +61,17 @@ protected:
 	ComPtr<ID3D11Buffer>		constant_buffer_;
 	ComPtr<ID3D11InputLayout>	input_layout_;
 
-	Texture*			texture_;
+	Texture*							texture_;
+	ComPtr<ID3D11ShaderResourceView>	texture_srv_;
+
 	VertexShader*		vertex_shader_;
+	GeometryShader*		geo_shader_;
 	PixelShader*		pixel_shader_;
 
-	XMFLOAT4X4			world_;
-	XMFLOAT4X4			view_;
-	XMFLOAT4X4			proj_;
-	ConstantData		constant_data_;
+	XMFLOAT4X4					world_;
+	XMFLOAT4X4					view_;
+	XMFLOAT4X4					proj_;
+	ConstantData				constant_data_;
 
 	std::vector<Vertex> vertices_;
 	std::vector<UINT>	indices_;

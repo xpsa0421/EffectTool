@@ -7,6 +7,7 @@ HRESULT GameCore::CreateDXResource()
 	swapchain_->GetBuffer(0, __uuidof(IDXGISurface1),
 		(void**)&back_buffer);
 	writer_.Set(back_buffer.Get());
+	back_buffer = nullptr;
 
 	return S_OK;
 }
@@ -44,9 +45,8 @@ bool GameCore::CoreInit()
 	shader_manager.Init();
 	shader_manager.SetDevice(device_.Get());
 	
-
 	s_input.Init();
-	s_gameTimer.Init();
+	global_timer.Init();
 	CreateDXResource();
 
 	return Init();
@@ -59,7 +59,7 @@ bool GameCore::CoreFrame()
 		ResizeWindow(window_->_clientWidth, window_->_clientHeight);
 	}
 	s_input.Frame();
-	s_gameTimer.Frame();
+	global_timer.Frame();
 	writer_.Frame();
 	ClearD3D11DeviceContext();
 
@@ -106,7 +106,7 @@ bool GameCore::CorePreRender()
 
 bool GameCore::CorePostRender()
 {
-	s_gameTimer.Render();
+	global_timer.Render();
 	writer_.Render();
 	swapchain_->Present(0, 0);
 
@@ -116,9 +116,11 @@ bool GameCore::CorePostRender()
 bool GameCore::CoreRelease()
 {
 	Release();
-	DxState.Release();
-	writer_.Release();
 	if (cam_) delete cam_;
+	writer_.Release();
+	DxState.Release();
+	shader_manager.Release();
+	texture_manager.Release();
 	delete window_;
 	Device::Release();
 

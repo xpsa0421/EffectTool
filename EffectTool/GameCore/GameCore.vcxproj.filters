@@ -90,9 +90,6 @@
     <ClCompile Include="Writer.cpp">
       <Filter>Utility\Source</Filter>
     </ClCompile>
-    <ClCompile Include="BaseObject.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Object\Source</Filter>
     </ClCompile>
@@ -145,9 +142,6 @@
     </ClInclude>
     <ClInclude Include="Writer.h">
       <Filter>Utility\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseObject.h">
-      <Filter>Object\Header</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>Object\Header</Filter>

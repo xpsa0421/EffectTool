@@ -2,6 +2,7 @@
 
 void Camera::Init()
 {
+	speed_controllable_		= false;
 	move_speed_				= 10.0f;
 	nearZ_					= 0.0f;
 	roll_ = pitch_ = yaw_	= 0.0f;
@@ -9,6 +10,11 @@ void Camera::Init()
 	target_					= XMFLOAT3(0, 0, 0);
 	up_						= XMFLOAT3(0, 1, 0);
 	right_					= XMFLOAT3(1, 0, 0);
+}
+
+void Camera::SetSpeedControllable(bool speed_controllable)
+{
+	speed_controllable_ = speed_controllable;
 }
 
 void Camera::SetPosition(float x, float y, float z)
@@ -74,15 +80,18 @@ bool Camera::Frame()
 	UpdateRotation(roll_, pitch_, yaw_);
 
 	// movement speed control
-	if (s_input.GetKey(VK_SPACE) == KEY_HOLD)
+	if (speed_controllable_)
 	{
-		move_speed_ += g_spf * 100.0f;
-		move_speed_ = min(100.0f, move_speed_);
-	}
-	else
-	{
-		move_speed_ -= g_spf * 100.0f;
-		move_speed_ = max(20.0f, move_speed_);
+		if (s_input.GetKey(VK_SPACE) == KEY_HOLD)
+		{
+			move_speed_ += g_spf * 100.0f;
+			move_speed_ = min(100.0f, move_speed_);
+		}
+		else
+		{
+			move_speed_ -= g_spf * 100.0f;
+			move_speed_ = max(10.0f, move_speed_);
+		}
 	}
 
 	// movement control
