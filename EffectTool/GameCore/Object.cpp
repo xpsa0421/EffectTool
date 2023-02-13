@@ -164,7 +164,7 @@ void Object::UpdateConstantBuffer()
 	device_context_->UpdateSubresource(constant_buffer_.Get(), 0, 0, &constant_data_, 0, 0);
 }
 
-void Object::SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj)
+void Object::Update(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj)
 {
 	if (world)	world_ = *world;
 	if (view)	view_ = *view;
@@ -300,7 +300,7 @@ void Object::BuildInputLayout()
 #ifdef _DEBUG
 	if (FAILED(result))
 	{
-		printf("Failed to build an input layout\n");
+		printf("Failed to build input layout\n");
 	}
 #endif // _DEBUG
 }

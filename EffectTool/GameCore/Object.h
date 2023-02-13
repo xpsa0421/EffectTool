@@ -41,7 +41,7 @@ public:
 	virtual void	SetTexture(W_STR filepath);
 
 	virtual void	UpdateConstantBuffer();
-	virtual void	SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
+	virtual void	Update(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
 
 protected:
 	virtual void	CreateVertexData();
@@ -58,8 +58,8 @@ protected:
 
 	ComPtr<ID3D11Buffer>		index_buffer_;
 	ComPtr<ID3D11Buffer>		vertex_buffer_;
-	ComPtr<ID3D11Buffer>		constant_buffer_;
 	ComPtr<ID3D11InputLayout>	input_layout_;
+	ComPtr<ID3D11Buffer>		constant_buffer_;
 
 	Texture*							texture_;
 	ComPtr<ID3D11ShaderResourceView>	texture_srv_;
@@ -68,10 +68,10 @@ protected:
 	GeometryShader*		geo_shader_;
 	PixelShader*		pixel_shader_;
 
-	XMFLOAT4X4					world_;
-	XMFLOAT4X4					view_;
-	XMFLOAT4X4					proj_;
-	ConstantData				constant_data_;
+	XMFLOAT4X4			world_;
+	XMFLOAT4X4			view_;
+	XMFLOAT4X4			proj_;
+	ConstantData		constant_data_;
 
 	std::vector<Vertex> vertices_;
 	std::vector<UINT>	indices_;

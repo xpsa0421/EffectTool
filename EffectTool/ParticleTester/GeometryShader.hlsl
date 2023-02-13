@@ -44,7 +44,7 @@ void main(
 	look = normalize(look);
 	float3 right = cross(up, look);
 
-	// compute quad vertices in local space
+	// compute quad vertices in world space
 	float2 size = { 1, 1 };
 	float half_width = 0.5f * size.x;
 	float half_height = 0.5f * size.y;

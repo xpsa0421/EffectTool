@@ -18,7 +18,7 @@
     <ClCompile Include="Main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Particle.cpp">
+    <ClCompile Include="ParticleSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +26,7 @@
     <ClInclude Include="Main.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Particle.h">
+    <ClInclude Include="ParticleSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
