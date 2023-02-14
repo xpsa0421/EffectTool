@@ -10,6 +10,7 @@ private:
 	struct CdPerFrame
 	{
 		XMFLOAT3 eye_pos;
+		//XMFLOAT4X4 cam_view;
 	};
 
 public:
@@ -19,7 +20,7 @@ public:
 	bool	Release()	override;
 
 private:
-	Object*	box_	=	nullptr;
+	ParticleSystem* particle_system_;
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
 	CdPerFrame gs_cdata_per_frame_;
 };

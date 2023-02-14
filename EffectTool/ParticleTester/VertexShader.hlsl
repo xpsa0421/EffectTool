@@ -7,16 +7,10 @@ struct VertexIn
 
 struct VertexOut
 {
-	float4 	center 	: SV_POSITION;
+	float3 	center 	: POSITION;
 	float4 	color 	: COLOR0;
 	float2 	tex 	: TEXCOORD0;
 };
-
-cbuffer cbPerObject : register(b0)
-{
-	matrix 	g_worldviewproj	: packoffset(c0);
-};
-
 
 VertexOut main(VertexIn v_in)
 {

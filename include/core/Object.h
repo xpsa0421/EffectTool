@@ -41,9 +41,12 @@ public:
 	virtual void	SetTexture(W_STR filepath);
 
 	virtual void	UpdateConstantBuffer();
-	virtual void	SetTransformationMatrix(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
+	virtual void	Update(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
 
 protected:
+	virtual void	CreateVertexData();
+	virtual void	CreateIndexData();
+
 	virtual void	BuildVertexBuffer();
 	virtual void	BuildIndexBuffer();
 	virtual void	BuildConstantBuffer();
@@ -55,8 +58,8 @@ protected:
 
 	ComPtr<ID3D11Buffer>		index_buffer_;
 	ComPtr<ID3D11Buffer>		vertex_buffer_;
-	ComPtr<ID3D11Buffer>		constant_buffer_;
 	ComPtr<ID3D11InputLayout>	input_layout_;
+	ComPtr<ID3D11Buffer>		constant_buffer_;
 
 	Texture*							texture_;
 	ComPtr<ID3D11ShaderResourceView>	texture_srv_;

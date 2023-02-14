@@ -119,7 +119,7 @@ bool Camera::Frame()
 	{
 		Move(up_, move_speed_ * g_spf);
 	}
-
+	UpdateVector();
 	return true;
 }
 

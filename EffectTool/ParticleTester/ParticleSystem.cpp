@@ -2,14 +2,13 @@
 
 bool ParticleSystem::Init()
 {	 
-	Object::Init();
-	particles_
+	return Object::Init();
 }	 
 	 
 bool ParticleSystem::Release()
 {
 	gs_cbuffer_per_system = nullptr;
-	Object::Release();
+	return Object::Release();
 }
 	 
 bool ParticleSystem::PreRender()
@@ -31,7 +30,9 @@ bool ParticleSystem::PreRender()
 
 void ParticleSystem::CreateVertexData()
 {
-	vertices_[0].pos = { -1.0f, 1.0f, 0.0f };
+	vertices_.resize(1);
+
+	vertices_[0].pos = { 0.0f, 0.0f, 0.0f };
 	vertices_[0].color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	vertices_[0].tex_coord = { 0.0f, 0.0f };
 }
@@ -58,7 +59,7 @@ void ParticleSystem::BuildConstantBuffer()
 	 
 bool ParticleSystem::Frame()
 {
-
+	return true;
 }
 
 bool ParticleSystem::Create(ID3D11Device* device, ID3D11DeviceContext* context)

@@ -10,13 +10,14 @@ cbuffer cbPerObject : register(b1)
 
 struct GeoIn
 {
-	float4 	center 	: SV_POSITION;
+	float3 	center 	: POSITION;
 	float4 	color 	: COLOR0;
 	float2 	tex 	: TEXCOORD0;
 };
 
 struct GeoOut
 {
+	float4	sv_pos	: SV_POSITION;
 	float3	pos		: POSITION;
 	//float3	normal	: NORMAL;
 	float2	tex		: TEXCOORD;
@@ -37,15 +38,18 @@ void main(
 	point GeoIn g_in[1],
 	inout TriangleStream<GeoOut> tri_stream)
 {
-	// compute local coordinate system of the sprite
+	// facing camera position
 	float3 up = float3(0.0f, 1.0f, 0.0f);
 	float3 look = g_eye_pos - g_in[0].center;
-	look.y = 0.0f; // y-axis aligned 
+	look.y = 0;
 	look = normalize(look);
 	float3 right = cross(up, look);
+	up = cross(look, right);
+	up = normalize(up);
+	right = normalize(right);
 
 	// compute quad vertices in world space
-	float2 size = { 1, 1 };
+	float2 size = { 2, 2 };
 	float half_width = 0.5f * size.x;
 	float half_height = 0.5f * size.y;
 
@@ -59,7 +63,8 @@ void main(
 	[unroll(4)]
 	for (int i = 0; i < 4; i++)
 	{
-		g_out.pos = (mul(vertices[i], g_view_proj)).xyz;
+		g_out.sv_pos = mul(vertices[i], g_view_proj);
+		g_out.pos = vertices[i].xyz;
 		//g_out.normal = look;
 		g_out.tex = g_tex_coord[i];
 

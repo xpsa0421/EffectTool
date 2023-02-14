@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include "Camera.h"
 
 struct CdPerParticleSystem
 {
@@ -48,6 +49,5 @@ private:
 	XMFLOAT3	initial_pos_offset_min_;
 	XMFLOAT3	initial_pos_offset_max_;
 	bool		gravity_enabled_;
-	
 };
 

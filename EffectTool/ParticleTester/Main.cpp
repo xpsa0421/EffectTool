@@ -5,16 +5,17 @@ bool Main::Init()
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
-    cam_->SetView(XMFLOAT3(0, 3.8, -13), XMFLOAT3(0, 0, 0));
+    cam_->SetView(XMFLOAT3(3, 0, -10), XMFLOAT3(3, 0, 0));
     cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
 
     // initialise object
-    box_ = new Object;
-    box_->Init();
-    box_->SetVertexShader(L"VertexShader.hlsl", L"main");
-    box_->SetPixelShader(L"PixelShader.hlsl", L"main");
-    box_->Create(device_.Get(), device_context_.Get());
+    particle_system_ = new ParticleSystem;
+    particle_system_->Init();
+    particle_system_->SetVertexShader(L"VertexShader.hlsl", L"main");
+    particle_system_->SetPixelShader(L"PixelShader.hlsl", L"main");
+    particle_system_->SetGeometryShader(L"GeometryShader.hlsl", L"main");
+    particle_system_->Create(device_.Get(), device_context_.Get());
     
     // generate per frame geometry shader constant buffer
     D3D11_BUFFER_DESC constant_desc;
@@ -38,8 +39,8 @@ bool Main::Frame()
 {
     cam_->Frame();
 
-    box_->Frame();
-    box_->SetTransformationMatrix(nullptr, &cam_->view_, &cam_->proj_);
+    particle_system_->Frame();
+    particle_system_->Update(nullptr, &cam_->view_, &cam_->proj_);
 
 	return true;
 }
@@ -50,14 +51,14 @@ bool Main::Render()
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
 
-    box_->Render();
+    particle_system_->Render();
 	return true;
 }
 
 bool Main::Release()
 {
-    box_->Release();
-    delete box_;
+    particle_system_->Release();
+    delete particle_system_;
 
     return true;
 }

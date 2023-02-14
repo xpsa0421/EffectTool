@@ -1,5 +1,6 @@
 struct PixelIn
 {
+	float4	sv_pos	: SV_POSITION;
 	float3	pos		: POSITION;
 	//float3	normal	: NORMAL;
 	float2	tex		: TEXCOORD;
