@@ -2,6 +2,10 @@
 
 bool ParticleSystem::Init()
 {	 
+	x_locked = false; 
+	y_locked = false; 
+	z_locked = false; 
+
 	return Object::Init();
 }	 
 	 
@@ -56,9 +60,11 @@ void ParticleSystem::BuildConstantBuffer()
 
 	UpdateConstantBuffer();
 }
-	 
+
 bool ParticleSystem::Frame()
 {
+	
+	
 	return true;
 }
 
@@ -79,11 +85,17 @@ bool ParticleSystem::Create(ID3D11Device* device, ID3D11DeviceContext* context)
 	
 void ParticleSystem::UpdateConstantBuffer()
 {
+	XMMATRIX world_m = XMLoadFloat4x4(&world_);
 	XMMATRIX view_m = XMLoadFloat4x4(&view_);
 	XMMATRIX proj_m = XMLoadFloat4x4(&proj_);
-	XMMATRIX view_proj_m = XMMatrixTranspose(view_m * proj_m);
+	XMMATRIX world_view_proj_m = XMMatrixTranspose(world_m * view_m * proj_m);
 
 	CdPerParticleSystem gs_cdata_per_system;
-	XMStoreFloat4x4(&gs_cdata_per_system.view_proj, view_proj_m);
+	XMStoreFloat4x4(&gs_cdata_per_system.view_proj, world_view_proj_m);
 	device_context_->UpdateSubresource(gs_cbuffer_per_system.Get(), 0, 0, &gs_cdata_per_system, 0, 0);
+}
+
+void ParticleSystem::Update(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj)
+{
+	Object::Update(world, view, proj);
 }

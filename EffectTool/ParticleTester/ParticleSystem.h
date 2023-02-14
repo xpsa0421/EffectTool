@@ -40,14 +40,22 @@ public:
 	bool	Frame();
 	bool	Create(ID3D11Device* device, ID3D11DeviceContext* context);
 	void	UpdateConstantBuffer();
+	void	Update(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);
 
 private:
 	ComPtr<ID3D11Buffer>	gs_cbuffer_per_system;
 	std::vector<Particle>	particles_;
 
+	bool		x_locked;
+	bool		y_locked;
+	bool		z_locked;
+	
 	bool		enabled_;
+	
+	
 	XMFLOAT3	initial_pos_offset_min_;
 	XMFLOAT3	initial_pos_offset_max_;
 	bool		gravity_enabled_;
+
 };
 

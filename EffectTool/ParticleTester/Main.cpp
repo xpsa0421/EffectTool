@@ -39,8 +39,13 @@ bool Main::Frame()
 {
     cam_->Frame();
 
+    // generate billboard matrix
+    XMFLOAT4X4 cam_view_in;
+    XMStoreFloat4x4(&cam_view_in, XMMatrixInverse(nullptr, XMLoadFloat4x4(&cam_->view_)));
+    cam_view_in._41 = cam_view_in._42 = cam_view_in._43 = 0.0f;
+
+    particle_system_->Update(&cam_view_in, &cam_->view_, &cam_->proj_);
     particle_system_->Frame();
-    particle_system_->Update(nullptr, &cam_->view_, &cam_->proj_);
 
 	return true;
 }

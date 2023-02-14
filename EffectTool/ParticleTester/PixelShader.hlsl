@@ -1,13 +1,11 @@
 struct PixelIn
 {
-	float4	sv_pos	: SV_POSITION;
-	float3	pos		: POSITION;
-	//float3	normal	: NORMAL;
-	float2	tex		: TEXCOORD;
+	float4	pos		: SV_POSITION;
+	float2	tex		: TEXCOORD0;
 };
 
-Texture2D     	g_texture		: register(t0);
-SamplerState  	g_sampleWrap	: register(s0);
+//Texture2D     	g_texture		: register(t0);
+//SamplerState  	g_sampleWrap	: register(s0);
 
 
 float4 main(PixelIn p_in) : SV_Target
