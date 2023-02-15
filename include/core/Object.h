@@ -39,6 +39,7 @@ public:
 	void			SetGeometryShader(W_STR filepath, W_STR func_name);
 	void			SetPixelShader(W_STR filepath, W_STR func_name);
 	virtual void	SetTexture(W_STR filepath);
+	void			SetTextureSRV(ID3D11ShaderResourceView* srv);
 
 	virtual void	UpdateConstantBuffer();
 	virtual void	Update(XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* proj);

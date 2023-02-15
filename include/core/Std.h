@@ -69,7 +69,7 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// Standard functions
+// Utility functions
 //-----------------------------------------------------------------------------
 static W_STR mtw(STR str)
 {
@@ -82,4 +82,3 @@ static STR wtm(W_STR str)
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 	return conv.to_bytes(str);
 }
-

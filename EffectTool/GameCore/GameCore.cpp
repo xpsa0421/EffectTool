@@ -89,7 +89,7 @@ bool GameCore::CoreRender()
 
 bool GameCore::CorePreRender()
 {
-	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float color[4] = { 0.45f, 0.45f, 0.45f, 1.0f };
 	
 	device_context_->OMSetRenderTargets(1, rtv_.GetAddressOf(), dsv_.Get());
 	device_context_->ClearRenderTargetView(rtv_.Get(), color);

@@ -20,7 +20,6 @@ public:
 	VertexShader*	LoadVertexShader(W_STR vs_filepath, W_STR vs_func_name = L"main");
 	GeometryShader*	LoadGeometryShader(W_STR gs_filepath, W_STR gs_func_name = L"main");
 	PixelShader*	LoadPixelShader(W_STR ps_filepath, W_STR ps_func_name = L"main");
-	
 
 private:
 	std::map<W_STR, VertexShader*>		vertex_shaders_;

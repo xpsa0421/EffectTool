@@ -27,6 +27,7 @@ public:
 	ComPtr<ID3D11BlendState>		BS_alpha_;
 	ComPtr<ID3D11BlendState>		BS_no_apha_;
 	ComPtr<ID3D11BlendState>		BS_one_zero_;
+	ComPtr<ID3D11BlendState>		BS_dual_source_;
 
 	//-----------------------------------------------------------------------------
 	// Rasterizer states

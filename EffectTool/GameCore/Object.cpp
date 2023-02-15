@@ -153,6 +153,11 @@ void Object::SetTexture(W_STR filepath)
 	}
 }
 
+void Object::SetTextureSRV(ID3D11ShaderResourceView* srv)
+{
+	texture_srv_ = srv;
+}
+
 void Object::UpdateConstantBuffer()
 {
 	XMMATRIX world_m = XMLoadFloat4x4(&world_);
