@@ -55,7 +55,7 @@ void ParticleSystem::BuildVertexBuffer()
 	D3D11_BUFFER_DESC vertex_desc;
 	ZeroMemory(&vertex_desc, sizeof(vertex_desc));
 	//vertex_desc.Usage = D3D11_USAGE_DEFAULT;
-	vertex_desc.ByteWidth = sizeof(ParticleVertex) * emit_num_particles; //  to change 
+	vertex_desc.ByteWidth = sizeof(ParticleVertex) * 50; //  to change 
 	vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	//vertex_desc.CPUAccessFlags = 0;
 	//vertex_desc.MiscFlags = 0;
@@ -158,18 +158,18 @@ void ParticleSystem::EnhanceParticles()
 
 bool ParticleSystem::Frame()
 {
-	//if (emit_range != -1)
-	//{
-	//	emit_timer += g_spf;
-	//	if (particle_vertices_.size() < 1000)
-	//	{
-	//		if (emit_timer > emit_range)
-	//		{
-	//			//EmitParticles();
-	//			emit_timer -= emit_range;
-	//		}
-	//	}
-	//}
+	if (emit_range != -1)
+	{
+		emit_timer += g_spf;
+		if (particle_vertices_.size() < 40)
+		{
+			if (emit_timer > emit_range)
+			{
+				EmitParticles();
+				emit_timer -= emit_range;
+			}
+		}
+	}
 	UpdateConstantBuffer();
 	EnhanceParticles();
 
@@ -231,7 +231,7 @@ void ParticleSystem::SetUVAnimation(W_STR sprite_sheet_path, float num_rows, flo
 
 void ParticleSystem::SetMultiTexAnimation(std::vector<W_STR>& filenames)
 {
-	cd_per_system_.is_uv_animated = false;
+	is_uv_animated_ = false;
 	num_textures = filenames.size();
 	// create shader resource view from texture 2d array
 	SetTextureSRV(CreateTexture2DArraySRV(device_.Get(), device_context_.Get(), filenames));
@@ -275,4 +275,21 @@ void ParticleSystem::SetEmitterProperties(float emit_range, int emit_number)
 {
 	this->emit_range = emit_range;
 	this->emit_num_particles = emit_number;
+}
+
+void ParticleSystem::SetPosOffset(XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max)
+{
+	initial_pos_offset_min_ = pos_offset_min;
+	initial_pos_offset_max_ = pos_offset_max;
+}
+
+void ParticleSystem::SetSizeOffset(XMFLOAT2 size_min, XMFLOAT2 size_max)
+{
+	initial_size_offset_min_ = size_min;
+	initial_size_offset_max_ = size_max;
+}
+
+void ParticleSystem::SetEmitterPos(XMFLOAT3 pos)
+{
+	emitter_pos_ = pos;
 }

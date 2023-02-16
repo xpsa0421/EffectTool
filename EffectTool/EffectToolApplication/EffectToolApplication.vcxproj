@@ -192,6 +192,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDockPaneExp.h" />
+    <ClInclude Include="CEmitterListViewDlg.h" />
+    <ClInclude Include="CEmitterSettingsDlg.h" />
+    <ClInclude Include="CEmitterView.h" />
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="EffectTool.h" />
     <ClInclude Include="EffectToolApplication.h" />
@@ -209,6 +213,10 @@
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDockPaneExp.cpp" />
+    <ClCompile Include="CEmitterListViewDlg.cpp" />
+    <ClCompile Include="CEmitterSettingsDlg.cpp" />
+    <ClCompile Include="CEmitterView.cpp" />
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="EffectTool.cpp" />
     <ClCompile Include="EffectToolApplication.cpp" />

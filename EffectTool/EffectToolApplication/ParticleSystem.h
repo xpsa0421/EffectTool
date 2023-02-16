@@ -101,6 +101,9 @@ public:
 	void	EmitParticles();
 	void	SetEmitterProperties(float emit_range, int emit_number);
 	void	SetLifetimeOffset(float min_lifetime, float max_lifetime);
+	void	SetPosOffset(XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max);
+	void	SetSizeOffset(XMFLOAT2 size_min, XMFLOAT2 size_max);
+	void	SetEmitterPos(XMFLOAT3 pos);
 public:
 	std::vector<Particle>		particles_;
 	int			num_textures;

@@ -6,46 +6,12 @@ bool EffectTool::Init()
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
-    cam_->SetView(XMFLOAT3(0, 0, -20), XMFLOAT3(0, 0, 0));
+    cam_->SetView(XMFLOAT3(0, 0, -10), XMFLOAT3(0, 0, 0));
     cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
 
     //********************************************************************
-    // initialise object
-    tex_anim_ps_ = new ParticleSystem;
-    tex_anim_ps_->Init();
     
-    //template code for adding textures as multiple fies
-    std::vector<W_STR> tex_names = {
-        L"../../data/image/shine0.bmp",
-        L"../../data/image/shine1.bmp",
-        L"../../data/image/shine2.bmp",
-        L"../../data/image/shine3.bmp",
-        L"../../data/image/shine4.bmp",
-        L"../../data/image/shine5.bmp",
-        L"../../data/image/shine6.bmp",
-        L"../../data/image/shine7.bmp",
-        L"../../data/image/shine8.bmp",
-        L"../../data/image/shine9.bmp"
-    };
-    std::vector<W_STR> tex_names1 = {
-        L"../../data/image/pf00.dds",
-        L"../../data/image/pf01.dds",
-        L"../../data/image/pf02.dds",
-        L"../../data/image/pf03.dds",
-        L"../../data/image/pf04.dds",
-        L"../../data/image/pf05.dds",
-        L"../../data/image/pf06.dds",
-        L"../../data/image/pf07.dds",
-        L"../../data/image/pf08.dds",
-        L"../../data/image/pf09.dds"
-    };
-    tex_anim_ps_->emitter_pos_ = { -6, 0, 0 };
-    tex_anim_ps_->SetLifetimeOffset(-1,-1);
-    tex_anim_ps_->SetEmitterProperties(1.0f, 100);
-    tex_anim_ps_->EmitParticles();
-    tex_anim_ps_->Create(device_.Get(), device_context_.Get());
-    tex_anim_ps_->SetMultiTexAnimation(tex_names);
     //********************************************************************
 
      // initialise object
@@ -56,7 +22,6 @@ bool EffectTool::Init()
     uv_anim_ps_->EmitParticles();
     uv_anim_ps_->Create(device_.Get(), device_context_.Get());
     uv_anim_ps_->SetUVAnimation(L"../../data/image/fire.dds", 4, 4);*/
-
 
 
 
@@ -103,8 +68,10 @@ bool EffectTool::Frame()
     gs_cdata_per_frame_.view = cdata_view;
     gs_cdata_per_frame_.proj = cdata_proj;
    
-    tex_anim_ps_->Frame();
-   // uv_anim_ps_->Frame();
+    for (auto emitter : emitters)
+    {
+        emitter.second->Frame();
+    }
 
 	return true;
 }
@@ -114,15 +81,20 @@ bool EffectTool::Render()
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
 
-    tex_anim_ps_->Render();
-   // uv_anim_ps_->Render();
+    for (auto emitter : emitters)
+    {
+        emitter.second->Render();
+    }
 	return true;
 }
 
 bool EffectTool::Release()
 {
-    tex_anim_ps_->Release();
-    delete tex_anim_ps_;
+    for (auto emitter : emitters)
+    {
+        emitter.second->Release();
+        delete emitter.second;
+    }
     
    // uv_anim_ps_->Release();
    // delete uv_anim_ps_;
@@ -141,4 +113,27 @@ HRESULT EffectTool::CreateDXResource()
             (float)g_rectClient.right / (float)g_rectClient.bottom);
     }
     return S_OK;
+}
+
+void    EffectTool::GenEmitterFromMultipleTex(std::vector<W_STR> tex_names, 
+    int num_particles, float emit_cycle, XMFLOAT3 emitter_pos, XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max,
+    XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax, W_STR emitter_name)
+{
+    ParticleSystem* emitter = new ParticleSystem;
+    emitter->Init();
+    emitter->SetEmitterProperties(emit_cycle, num_particles);
+    emitter->SetEmitterPos(emitter_pos);
+    emitter->SetPosOffset(pos_offset_min, pos_offset_max);
+    emitter->SetSizeOffset(size_min, size_max);
+    emitter->SetLifetimeOffset(lifetime_minmax.x, lifetime_minmax.y);
+    emitter->EmitParticles();
+    emitter->Create(device_.Get(), device_context_.Get());
+    emitter->SetMultiTexAnimation(tex_names);
+
+    emitters.insert(std::make_pair(emitter_name, emitter));
+}
+
+bool EffectTool::NameExists(W_STR name)
+{
+    return (emitters.find(name) != emitters.end());
 }

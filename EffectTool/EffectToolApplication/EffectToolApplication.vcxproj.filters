@@ -39,9 +39,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ClassView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,6 +60,21 @@
     <ClInclude Include="ParticleSystem.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="FileView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CDockPaneExp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CEmitterSettingsDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CEmitterView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CEmitterListViewDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EffectToolApplication.cpp">
@@ -75,9 +87,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EffectToolApplicationView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FileView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ClassView.cpp">
@@ -100,6 +109,21 @@
     </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="FileView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDockPaneExp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CEmitterSettingsDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CEmitterView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CEmitterListViewDlg.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
