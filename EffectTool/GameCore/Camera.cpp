@@ -72,7 +72,7 @@ void Camera::SetLens(float nearZ, float farZ, float fov, float aspect_ratio)
 bool Camera::Frame()
 {
 	// view direction control
-	if (s_input.GetKey(VK_LBUTTON) == KEY_HOLD)
+	if (s_input.GetKey(VK_MBUTTON) == KEY_HOLD)
 	{
 		yaw_ += s_input.mouse_offset_.x * 0.002f;
 		pitch_ += s_input.mouse_offset_.y * 0.002f;

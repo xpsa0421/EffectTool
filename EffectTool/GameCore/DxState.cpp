@@ -71,12 +71,11 @@ bool ID3D11State::CreateStates()
     device_->CreateBlendState(&blendDesc, &BS_one_zero_);
     states_.insert(std::make_pair(L"BS_one_zero", (ID3D11DeviceChild*)BS_one_zero_.Get()));
 
-    blendDesc.AlphaToCoverageEnable = FALSE; // 알파 (0.5) 기준 알파테스팅 활성화 여부
+    blendDesc.AlphaToCoverageEnable = TRUE; 
     blendDesc.IndependentBlendEnable = TRUE;
     blendDesc.RenderTarget[0].BlendEnable = TRUE;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC1_COLOR;
-
     device_->CreateBlendState(&blendDesc, &BS_dual_source_);
     states_.insert(std::make_pair(L"BS_dual_source", (ID3D11DeviceChild*)BS_dual_source_.Get()));
 

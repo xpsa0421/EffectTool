@@ -47,16 +47,21 @@ bool ParticleSystem::PreRender()
 
 void ParticleSystem::BuildVertexBuffer()
 {
+	//particle_vertices_.resize(1);
+
+
 	// generate vertex buffer
 	D3D11_BUFFER_DESC vertex_desc;
-	vertex_desc.Usage = D3D11_USAGE_DEFAULT;
-	vertex_desc.ByteWidth = sizeof(ParticleVertex) * 1000; //  to change 
+	ZeroMemory(&vertex_desc, sizeof(vertex_desc));
+	//vertex_desc.Usage = D3D11_USAGE_DEFAULT;
+	vertex_desc.ByteWidth = sizeof(ParticleVertex) * emit_num_particles; //  to change 
 	vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertex_desc.CPUAccessFlags = 0;
-	vertex_desc.MiscFlags = 0;
-	vertex_desc.StructureByteStride = 0;
+	//vertex_desc.CPUAccessFlags = 0;
+	//vertex_desc.MiscFlags = 0;
+	//vertex_desc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA vertex_sub_data;
+	ZeroMemory(&vertex_sub_data, sizeof(vertex_sub_data));
 	vertex_sub_data.pSysMem = &particle_vertices_.at(0);
 
 	HRESULT result = device_->CreateBuffer(&vertex_desc, &vertex_sub_data, vertex_buffer_.GetAddressOf());
@@ -123,16 +128,19 @@ void ParticleSystem::EnhanceParticles()
 	for (int i = 0; i < particles_.size(); i++)
 	{
 		if (particles_[i].active == false) continue;
+		
+		if ((particles_[i].lifetime != -1) && (particles_[i].timer > particles_[i].lifetime))
+		{
+			particle_vertices_[i].color = { 0,0,0,0 };
+			particles_[i].active = false;
+			continue;
+		}
 
 		particles_[i].timer += g_spf;
 		particles_[i].anim_timer += g_spf;
 
-		if ((particles_[i].lifetime != -1) && (particles_[i].timer > particles_[i].lifetime))
-		{
-			particles_[i].active = false;
-			continue;
-		}
-		if (particles_[i].anim_timer >= anim_offset)
+		// update texture
+		if (particles_[i].anim_timer > anim_offset)
 		{
 			particle_vertices_[i].tex_idx++;
 			if (particle_vertices_[i].tex_idx == num_textures) particle_vertices_[i].tex_idx = 0;
@@ -141,29 +149,29 @@ void ParticleSystem::EnhanceParticles()
 		particle_vertices_[i].pos = particles_[i].position;
 		particle_vertices_[i].color = particles_[i].color;
 		particle_vertices_[i].size = particles_[i].size;
-	}
-	device_context_->UpdateSubresource(vertex_buffer_.Get(), 0, NULL,
+	};
+
+	device_context_->UpdateSubresource(vertex_buffer_.Get(), 0, 0,
 		&particle_vertices_.at(0), 0, 0);
 }
 
 bool ParticleSystem::Frame()
 {
+	//if (emit_range != -1)
+	//{
+	//	emit_timer += g_spf;
+	//	if (particle_vertices_.size() < 1000)
+	//	{
+	//		if (emit_timer > emit_range)
+	//		{
+	//			//EmitParticles();
+	//			emit_timer -= emit_range;
+	//		}
+	//	}
+	//}
 	UpdateConstantBuffer();
-
-	if (emit_range != -1)
-	{
-		emit_timer += g_spf;
-		if (particle_vertices_.size() < 1000)
-		{
-			if (emit_timer > emit_range)
-			{
-				EmitParticles();
-				emit_timer -= emit_range;
-			}
-		}
-	}
-	
 	EnhanceParticles();
+
 	
 	//TODO: tex coordinate 
 	
@@ -187,7 +195,7 @@ bool ParticleSystem::Frame()
 
 bool ParticleSystem::PostRender()
 {
-	device_context_->Draw(UINT(particle_vertices_.size()), 0);
+	device_context_->Draw(particle_vertices_.size(), 0);
 
 	return true;
 }

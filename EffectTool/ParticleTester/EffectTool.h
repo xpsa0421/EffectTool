@@ -20,7 +20,7 @@ public:
 
 private:
 	ParticleSystem* tex_anim_ps_;
-	ParticleSystem* uv_anim_ps_;
+	//ParticleSystem* uv_anim_ps_;
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
 	CdPerFrame gs_cdata_per_frame_;
 };

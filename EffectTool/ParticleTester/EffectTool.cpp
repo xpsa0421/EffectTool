@@ -27,12 +27,24 @@ bool EffectTool::Init()
         L"../../data/image/shine8.bmp",
         L"../../data/image/shine9.bmp"
     };
+    std::vector<W_STR> tex_names1 = {
+        L"../../data/image/pf00.dds",
+        L"../../data/image/pf01.dds",
+        L"../../data/image/pf02.dds",
+        L"../../data/image/pf03.dds",
+        L"../../data/image/pf04.dds",
+        L"../../data/image/pf05.dds",
+        L"../../data/image/pf06.dds",
+        L"../../data/image/pf07.dds",
+        L"../../data/image/pf08.dds",
+        L"../../data/image/pf09.dds"
+    };
     tex_anim_ps_->emitter_pos_ = { -6, 0, 0 };
-    tex_anim_ps_->SetLifetimeOffset(3,5);
-    tex_anim_ps_->SetEmitterProperties(1.0f, 10);
+    tex_anim_ps_->SetLifetimeOffset(-1,-1);
+    tex_anim_ps_->SetEmitterProperties(1.0f, 1);
     tex_anim_ps_->EmitParticles();
     tex_anim_ps_->Create(device_.Get(), device_context_.Get());
-    tex_anim_ps_->SetMultiTexAnimation(tex_names);
+    tex_anim_ps_->SetMultiTexAnimation(tex_names1);
     //********************************************************************
 
      // initialise object

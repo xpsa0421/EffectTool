@@ -145,6 +145,16 @@ bool GameCore::Run()
 	return true;
 }
 
+bool GameCore::RunMFC()
+{
+	if (!CoreFrame() || !CoreRender())
+	{
+		game_active_ = false;
+		return false;
+	}
+	return true;
+}
+
 bool GameCore::SetWindow(HINSTANCE hInstance, const WCHAR* title, UINT width, UINT height)
 {
 	window_ = new Window;
@@ -154,9 +164,9 @@ bool GameCore::SetWindow(HINSTANCE hInstance, const WCHAR* title, UINT width, UI
 
 void GameCore::ResizeWindow(UINT width, UINT height) 
 {
-	//if (swapchain_ == nullptr) {
-	//	return;
-	//} mfc 사용 시 활성화
+	if (swapchain_ == nullptr) {
+		return;
+	} 
 	Device::ResizeWindow(width, height);
 	window_->_resizeWindow = false;
 }

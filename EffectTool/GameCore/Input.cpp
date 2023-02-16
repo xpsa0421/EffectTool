@@ -27,12 +27,12 @@ bool Input::Init()
 bool Input::Frame()
 {
     // 프로그램 윈도우가 포커싱 되어있지 않으면 인풋을 받지 않는다
-    if (GetForegroundWindow() != g_hWnd)
-    {
-        wnd_active_ = false;
-        memset(key_states_, KEY_FREE, sizeof(key_states_));
-        return false;
-    }
+    //if (GetForegroundWindow() != g_hWnd)
+    //{
+    //    wnd_active_ = false;
+    //    memset(key_states_, KEY_FREE, sizeof(key_states_));
+    //    return false;
+    //}
 
     GetCursorPos(&mouse_pos_);
     ScreenToClient(g_hWnd, &mouse_pos_);
