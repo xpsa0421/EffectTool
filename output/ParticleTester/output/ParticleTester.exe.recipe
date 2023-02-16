@@ -2,18 +2,18 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\xpsa0\source\repos\EffectTool\output\ParticleTester\program\ParticleTester.exe</FullPath>
+      <FullPath>C:\Users\kgca41-011\source\repos\EffectTool\output\ParticleTester\program\ParticleTester.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>C:\Users\xpsa0\source\repos\EffectTool\output\ParticleTester\program\GeometryShader.cso</FullPath>
+      <FullPath>C:\Users\kgca41-011\source\repos\EffectTool\output\ParticleTester\program\GeometryShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\xpsa0\source\repos\EffectTool\output\ParticleTester\program\PixelShader.cso</FullPath>
+      <FullPath>C:\Users\kgca41-011\source\repos\EffectTool\output\ParticleTester\program\PixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\xpsa0\source\repos\EffectTool\output\ParticleTester\program\VertexShader.cso</FullPath>
+      <FullPath>C:\Users\kgca41-011\source\repos\EffectTool\output\ParticleTester\program\VertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

@@ -7,17 +7,21 @@ cbuffer cbPerFrame : register(b0)
 
 cbuffer cbPerObject : register(b1)
 {
-	uint	axis_lock_type	: packoffset(c0.x);
-	float3	temp			: packoffset(c0.y);
+	int		axis_lock_type		: packoffset(c0.x);
+	float	is_alpha_tested		: packoffset(c0.y);
+	float	is_alpha_blended	: packoffset(c0.z);
+	float	is_uv_animated		: packoffset(c0.w);
+	float2	sprite_dimension	: packoffset(c1.x);
+	float2	temp				: packoffset(c1.z);
 };
 
 struct GeoIn
 {
 	float3 	center 		: POSITION;
 	float4 	color 		: COLOR0;
-	float2	init_size	: SIZE;
-	float2 	tex 		: TEXCOORD0;
-	uint	tex_idx		: TEXIDX;
+	float2	size		: SIZE;
+	float2 	tex 		: TEXCOORD0; // contains row, col idx in uv-animation
+	uint	tex_idx		: TEXIDX;	// unused in uv, contains texture idx in texture-animation
 };
 
 struct GeoOut
@@ -42,8 +46,8 @@ void main(
 		float2(1.0, 1.0),
 	};
 
-	float half_width = 0.5f;// 0.5f * g_in[0].init_size.x;
-	float half_height = 0.5f;// 0.5f * g_in[0].init_size.y;
+	float half_width = 0.5f * g_in[0].size.x;
+	float half_height = 0.5f * g_in[0].size.y;
 	
 	float3 right = { 1,0,0 };
 	float3 up = { 0,1,0 };

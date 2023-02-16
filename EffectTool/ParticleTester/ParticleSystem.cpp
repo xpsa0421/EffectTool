@@ -2,13 +2,19 @@
 
 bool ParticleSystem::Init()
 {	 
-	gs_cdata_.axis_lock_type = 0;
+	cd_per_system_.axis_lock_type = 0;
 	gs_cbuffer_ = nullptr;
 	is_uv_animated_ = true; // TO CHANGE
+	initial_pos_offset_min_ = { -2,-1,-2 };
+	initial_pos_offset_max_ = { 2,4,2 };
+	initial_size_offset_min_ = {0.5f, 0.5f};
+	initial_size_offset_max_ = { 3,3 };
+	Object::Init();
 
-	
-
-	return Object::Init();
+	SetVertexShader(L"VertexShader.hlsl", L"main");
+	SetPixelShader(L"PixelShader.hlsl", L"main");
+	SetGeometryShader(L"GeometryShader.hlsl", L"main");
+	return true;
 }	 
 	 
 bool ParticleSystem::Release()
@@ -39,25 +45,12 @@ bool ParticleSystem::PreRender()
 	return true;
 }
 
-void ParticleSystem::CreateVertexData()
-{
-	particle_vertices_.resize(1);
-
-	particle_vertices_[0].pos = { 0.0f, 0.0f, 0.0f };
-	particle_vertices_[0].color = { 1.0f, 0.0f, 1.0f, 1.0f };
-	particle_vertices_[0].initial_size = { 1.0f, 1.0f };
-	particle_vertices_[0].tex_coord = { 0.0f, 0.0f };
-	particle_vertices_[0].tex_idx = 0;
-}
-
 void ParticleSystem::BuildVertexBuffer()
 {
-	CreateVertexData();
-
 	// generate vertex buffer
 	D3D11_BUFFER_DESC vertex_desc;
 	vertex_desc.Usage = D3D11_USAGE_DEFAULT;
-	vertex_desc.ByteWidth = sizeof(ParticleVertex) * UINT(particle_vertices_.size());
+	vertex_desc.ByteWidth = sizeof(ParticleVertex) * 1000; //  to change 
 	vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertex_desc.CPUAccessFlags = 0;
 	vertex_desc.MiscFlags = 0;
@@ -85,7 +78,7 @@ void ParticleSystem::BuildConstantBuffer()
 	constant_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	D3D11_SUBRESOURCE_DATA constant_sub_data;
-	constant_sub_data.pSysMem = &gs_cdata_;
+	constant_sub_data.pSysMem = &cd_per_system_;
 
 	HRESULT result = device_->CreateBuffer(&constant_desc, &constant_sub_data, gs_cbuffer_.GetAddressOf());
 	#ifdef _DEBUG
@@ -125,24 +118,55 @@ void ParticleSystem::BuildInputLayout()
 #endif // _DEBUG
 }
 
-bool ParticleSystem::Frame()
+void ParticleSystem::EnhanceParticles()
 {
-	UpdateConstantBuffer();
-
-	//EnhanceParticles();
 	for (int i = 0; i < particles_.size(); i++)
 	{
+		if (particles_[i].active == false) continue;
+
 		particles_[i].timer += g_spf;
 		particles_[i].anim_timer += g_spf;
+
+		if ((particles_[i].lifetime != -1) && (particles_[i].timer > particles_[i].lifetime))
+		{
+			particles_[i].active = false;
+			continue;
+		}
 		if (particles_[i].anim_timer >= anim_offset)
 		{
 			particle_vertices_[i].tex_idx++;
 			if (particle_vertices_[i].tex_idx == num_textures) particle_vertices_[i].tex_idx = 0;
 			particles_[i].anim_timer -= anim_offset;
 		}
+		particle_vertices_[i].pos = particles_[i].position;
+		particle_vertices_[i].color = particles_[i].color;
+		particle_vertices_[i].size = particles_[i].size;
 	}
 	device_context_->UpdateSubresource(vertex_buffer_.Get(), 0, NULL,
 		&particle_vertices_.at(0), 0, 0);
+}
+
+bool ParticleSystem::Frame()
+{
+	UpdateConstantBuffer();
+
+	if (emit_range != -1)
+	{
+		emit_timer += g_spf;
+		if (particle_vertices_.size() < 1000)
+		{
+			if (emit_timer > emit_range)
+			{
+				EmitParticles();
+				emit_timer -= emit_range;
+			}
+		}
+	}
+	
+	EnhanceParticles();
+	
+	//TODO: tex coordinate 
+	
 
 	/*for (int i = 0; i < particles_.size(); i++)
 	{
@@ -158,8 +182,6 @@ bool ParticleSystem::Frame()
 		m_VertexList[i].c = m_Paticles[i].vColor;
 		m_VertexList[i].t = { 0.0f, 0.0f };
 	}*/
-
-
 	return true;
 }
 
@@ -187,10 +209,61 @@ bool ParticleSystem::Create(ID3D11Device* device, ID3D11DeviceContext* context)
 	
 void ParticleSystem::UpdateConstantBuffer()
 {
-	device_context_->UpdateSubresource(gs_cbuffer_.Get(), 0, 0, &gs_cdata_, 0, 0);
+	device_context_->UpdateSubresource(gs_cbuffer_.Get(), 0, 0, &cd_per_system_, 0, 0);
 }
 
-void ParticleSystem::AddTextureToArray()
+void ParticleSystem::SetUVAnimation(W_STR sprite_sheet_path, float num_rows, float num_cols)
 {
-	
+	cd_per_system_.is_uv_animated = true;
+	num_textures = num_rows * num_cols;
+	SetTexture(sprite_sheet_path);
+	cd_per_system_.sprite_dimension = { int(texture_->desc_.Width) / num_cols, int(texture_->desc_.Height) / num_rows };
+}
+
+void ParticleSystem::SetMultiTexAnimation(std::vector<W_STR>& filenames)
+{
+	cd_per_system_.is_uv_animated = false;
+	num_textures = filenames.size();
+	// create shader resource view from texture 2d array
+	SetTextureSRV(CreateTexture2DArraySRV(device_.Get(), device_context_.Get(), filenames));
+}
+
+void ParticleSystem::SetAlphaTesting(bool is_alpha_tested)
+{
+	cd_per_system_.is_alpha_tested = is_alpha_tested;
+}
+
+void ParticleSystem::SetAlphaBlending(bool is_alpha_blended)
+{
+	cd_per_system_.is_alpha_tested = is_alpha_blended;
+}
+
+void ParticleSystem::SetLifetimeOffset(float min_lifetime, float max_lifetime)
+{
+	lifetime_offset = { min_lifetime, max_lifetime };
+}
+
+void ParticleSystem::EmitParticles()
+{
+	for (int i = 0; i < emit_num_particles; i++)
+	{
+		Particle p;
+		p.position = {	emitter_pos_.x + randstep(initial_pos_offset_min_.x, initial_pos_offset_max_.x),
+						emitter_pos_.y + randstep(initial_pos_offset_min_.y, initial_pos_offset_max_.y),
+						emitter_pos_.z + randstep(initial_pos_offset_min_.z, initial_pos_offset_max_.z) };
+		p.color = { randstep(0,1),randstep(0,1),randstep(0,1),1 };
+		p.size = {	randstep(initial_size_offset_min_.x, initial_size_offset_max_.x),
+					randstep(initial_size_offset_min_.y, initial_size_offset_max_.y) };
+		p.lifetime = { randstep(lifetime_offset.x, lifetime_offset.y) };
+		particles_.push_back(p);
+
+		ParticleVertex p_v;
+		particle_vertices_.push_back(p_v);
+	}
+}
+
+void ParticleSystem::SetEmitterProperties(float emit_range, int emit_number)
+{
+	this->emit_range = emit_range;
+	this->emit_num_particles = emit_number;
 }

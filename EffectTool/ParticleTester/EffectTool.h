@@ -18,13 +18,9 @@ public:
 	bool	Render()	override;
 	bool	Release()	override;
 
-public:
-	ID3D11ShaderResourceView* CreateTexture2DArraySRV(
-		ID3D11Device* device, ID3D11DeviceContext* context,
-		std::vector<W_STR>& filenames);
-
 private:
-	ParticleSystem* particle_system_;
+	ParticleSystem* tex_anim_ps_;
+	ParticleSystem* uv_anim_ps_;
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
 	CdPerFrame gs_cdata_per_frame_;
 };
