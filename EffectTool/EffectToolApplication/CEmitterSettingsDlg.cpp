@@ -31,6 +31,13 @@ CEmitterSettingsDlg::CEmitterSettingsDlg(CWnd* pParent /*=nullptr*/)
 	, lifetime_min(0)
 	, lifetime_max(0)
 	, emitter_name(_T(""))
+	, vel_min_x(0)
+	, vel_min_y(0)
+	, vel_min_z(0)
+	, vel_max_x(0)
+	, vel_max_y(0)
+	, vel_max_z(0)
+	, use_random_color(FALSE)
 {
 
 }
@@ -80,13 +87,26 @@ void CEmitterSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_LIFETIME_MIN, lifetime_min);
 	DDX_Text(pDX, IDC_LIFETIME_MAX, lifetime_max);
 	DDX_Text(pDX, IDC_EMITTER_NAME, emitter_name);
+	DDX_Control(pDX, IDC_VEL_MIN_X, editctrl_vel_min_x);
+	DDX_Control(pDX, IDC_VEL_MIN_Y, editctrl_vel_min_y);
+	DDX_Control(pDX, IDC_VEL_MIN_Z, editctrl_vel_min_z);
+	DDX_Control(pDX, IDC_VEL_MAX_X, editctrl_vel_max_x);
+	DDX_Control(pDX, IDC_VEL_MAX_Y, editctrl_vel_max_y);
+	DDX_Control(pDX, IDC_VEL_MAX_Z, editctrl_vel_max_z);
+	DDX_Text(pDX, IDC_VEL_MIN_X, vel_min_x);
+	DDX_Text(pDX, IDC_VEL_MIN_Y, vel_min_y);
+	DDX_Text(pDX, IDC_VEL_MIN_Z, vel_min_z);
+	DDX_Text(pDX, IDC_VEL_MAX_X, vel_max_x);
+	DDX_Text(pDX, IDC_VEL_MAX_Y, vel_max_y);
+	DDX_Text(pDX, IDC_VEL_MAX_Z, vel_max_z);
 }
 
 
 BEGIN_MESSAGE_MAP(CEmitterSettingsDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BROWSE_TEXFILE, &CEmitterSettingsDlg::OnBnClickedBrowseTexfile)
-	ON_EN_CHANGE(IDC_EMITTER_Z, &CEmitterSettingsDlg::OnEnChangeEmitterZ)
 	ON_BN_CLICKED(BUTTON_GEN_EMITTER, &CEmitterSettingsDlg::OnBnClickedGenEmitter)
+	ON_BN_CLICKED(IDC_RANDOMCOLOR, &CEmitterSettingsDlg::OnBnClickedRandomcolor)
+	ON_BN_CLICKED(IDC_NOCOLOR, &CEmitterSettingsDlg::OnBnClickedNocolor)
 END_MESSAGE_MAP()
 
 
@@ -121,20 +141,23 @@ void CEmitterSettingsDlg::OnBnClickedBrowseTexfile()
 			CString tex_nameonly = tex_path.Right(tex_path.GetLength() - tex_path.ReverseFind(_T('\\')) - 1);
 			tex_paths_list_.AddString(tex_nameonly);
 		}
+
+		// load thumbnail image
+		CImage img;
+		HRESULT hr = img.Load(tex_file_paths[0].c_str());
+		CRect ImgRect;
+		GetDlgItem(IDC_TEX_THUMBNAIL)->GetWindowRect(&ImgRect);
+		ScreenToClient(ImgRect);
+		CDC* dc;
+		dc = tex_thumbnail_.GetDC();
+		dc->SetStretchBltMode(COLORONCOLOR);
+
+		if (hr == S_OK)
+		{
+			img.StretchBlt(dc->m_hDC, 0, 0, ImgRect.Width(), ImgRect.Height(), SRCCOPY);
+		}
 	}
 	return;
-}
-
-
-
-void CEmitterSettingsDlg::OnEnChangeEmitterZ()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Add your control notification handler code here
 }
 
 
@@ -159,8 +182,37 @@ BOOL CEmitterSettingsDlg::OnInitDialog()
 	editctrl_lifetime_min.SetWindowText(L"2");
 	editctrl_lifetime_max.SetWindowText(L"5");
 	editctrl_emittername.SetWindowText(L"");
+	editctrl_vel_min_x.SetWindowText(L"0");
+	editctrl_vel_min_y.SetWindowText(L"0");
+	editctrl_vel_min_z.SetWindowText(L"0");
+	editctrl_vel_max_x.SetWindowText(L"0");
+	editctrl_vel_max_y.SetWindowText(L"0");
+	editctrl_vel_max_z.SetWindowText(L"0");
 
-
+	edit_controls.push_back(&editctrl_emitter_x);
+	edit_controls.push_back(&editctrl_emitter_y);
+	edit_controls.push_back(&editctrl_emitter_z);
+	edit_controls.push_back(&editctrl_numparticles);
+	edit_controls.push_back(&editctrl_emitcycle);
+	edit_controls.push_back(&editctrl_offset_minX);
+	edit_controls.push_back(&editctrl_offset_minY);
+	edit_controls.push_back(&editctrl_offset_minZ);
+	edit_controls.push_back(&editctrl_offset_maxX);
+	edit_controls.push_back(&editctrl_offset_maxY);
+	edit_controls.push_back(&editctrl_offset_maxZ);
+	edit_controls.push_back(&editctrl_size_minX);
+	edit_controls.push_back(&editctrl_size_minY);
+	edit_controls.push_back(&editctrl_size_maxX);
+	edit_controls.push_back(&editctrl_size_maxY);
+	edit_controls.push_back(&editctrl_lifetime_min);
+	edit_controls.push_back(&editctrl_lifetime_max);
+	edit_controls.push_back(&editctrl_emittername);
+	edit_controls.push_back(&editctrl_vel_min_x);
+	edit_controls.push_back(&editctrl_vel_min_y);
+	edit_controls.push_back(&editctrl_vel_min_z);
+	edit_controls.push_back(&editctrl_vel_max_x);
+	edit_controls.push_back(&editctrl_vel_max_y);
+	edit_controls.push_back(&editctrl_vel_max_z);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -171,6 +223,24 @@ void CEmitterSettingsDlg::OnBnClickedGenEmitter()
 {
 	// TODO: Add your control notification handler code here
 	UpdateData(TRUE);
+
+	//check all data entered
+	if (tex_file_paths.empty())
+	{
+		AfxMessageBox(_T("Please fill out all information"), MB_OK);
+		return;
+	}
+	
+	CString checkstr;
+	for (int i = 0; i < edit_controls.size(); i++)
+	{
+		edit_controls[i]->GetWindowText(checkstr);
+		if (checkstr.IsEmpty())
+		{
+			AfxMessageBox(_T("Please fill out all information"), MB_OK);
+			return;
+		}
+	}
 
 	CEffectToolApplicationApp* app = (CEffectToolApplicationApp*)AfxGetApp();
 	if (app->effect_tool_.NameExists(LPCWSTR(emitter_name)))
@@ -185,8 +255,24 @@ void CEmitterSettingsDlg::OnBnClickedGenEmitter()
 		{ pos_offset_minX, pos_offset_minY, pos_offset_minZ },
 		{ pos_offset_maxX, pos_offset_maxY, pos_offset_maxZ },
 		{ size_minX, size_minY }, { size_maxX, size_maxY },
-		{ lifetime_min, lifetime_max },
+		{ lifetime_min, lifetime_max }, 
+		{ vel_min_x, vel_min_y, vel_min_z },
+		{ vel_max_x, vel_max_y, vel_max_z },
+		use_random_color,
 		LPCWSTR(emitter_name));
-	
+
 	return;
+}
+
+
+
+void CEmitterSettingsDlg::OnBnClickedRandomcolor()
+{
+	use_random_color = true;
+}
+
+
+void CEmitterSettingsDlg::OnBnClickedNocolor()
+{
+	use_random_color = false;
 }

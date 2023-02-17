@@ -104,8 +104,14 @@ public:
 	void	SetPosOffset(XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max);
 	void	SetSizeOffset(XMFLOAT2 size_min, XMFLOAT2 size_max);
 	void	SetEmitterPos(XMFLOAT3 pos);
+	void	SetVelocity(XMFLOAT3 velocity_min, XMFLOAT3 velocity_max);
+	void	SetAdditiveColor(BOOL use_random_color);
+	void	Reset();
+
 public:
 	std::vector<Particle>		particles_;
+	std::vector<Particle>		init_particles;
+
 	int			num_textures;
 	XMFLOAT3	emitter_pos_ = { 0,0,0 };
 
@@ -115,17 +121,21 @@ private:
 	float	emit_timer = 0.0f;
 	bool	is_uv_animated_;
 	float	anim_offset = 0.3f;
+	bool	use_random_color_;
 	ComPtr<ID3D11Buffer>		gs_cbuffer_;
 	
 
 	CdPerParticleSystem			cd_per_system_;
 	std::vector<ParticleVertex> particle_vertices_;
+	std::vector<ParticleVertex> init_particle_vertices_;
 	
 	XMFLOAT3	initial_pos_offset_min_;
 	XMFLOAT3	initial_pos_offset_max_;
 	XMFLOAT2	initial_size_offset_min_;
 	XMFLOAT2	initial_size_offset_max_;
 	XMFLOAT2	lifetime_offset = { -1,-1 };
+	XMFLOAT3	initial_velocity_min;
+	XMFLOAT3	initial_velocity_max;
 
 	// not implemented
 	bool		enabled_;

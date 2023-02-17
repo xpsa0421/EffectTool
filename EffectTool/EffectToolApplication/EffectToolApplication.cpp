@@ -232,3 +232,4 @@ BOOL CEffectToolApplicationApp::OnIdle(LONG lCount)
 	effect_tool_.RunMFC();
 	return true;
 }
+

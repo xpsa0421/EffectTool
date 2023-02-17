@@ -27,7 +27,8 @@ public:
 	ComPtr<ID3D11BlendState>		BS_alpha_;
 	ComPtr<ID3D11BlendState>		BS_no_apha_;
 	ComPtr<ID3D11BlendState>		BS_one_zero_;
-	ComPtr<ID3D11BlendState>		BS_dual_source_;
+	ComPtr<ID3D11BlendState>		BS_dual_source_blend_;
+	ComPtr<ID3D11BlendState>		BS_dual_source_no_blend_;
 
 	//-----------------------------------------------------------------------------
 	// Rasterizer states
@@ -39,6 +40,7 @@ public:
 	// Depth Stencil states
 	//-----------------------------------------------------------------------------
 	ComPtr<ID3D11DepthStencilState> DS_depth_disable_;
+	ComPtr<ID3D11DepthStencilState> DS_depth_enable_no_write_;
 	ComPtr<ID3D11DepthStencilState> DS_depth_enable_;
 	ComPtr<ID3D11DepthStencilState> DS_depth_greater_;
 

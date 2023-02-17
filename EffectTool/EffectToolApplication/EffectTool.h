@@ -20,8 +20,17 @@ public:
 	HRESULT CreateDXResource() override;
 	void	GenEmitterFromMultipleTex(std::vector<W_STR> tex_names,
 				int num_particles, float emit_cycle, XMFLOAT3 emitter_pos, XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max,
-				XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax, W_STR emitter_name);
+				XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax, 
+				XMFLOAT3 velocity_min, XMFLOAT3 velocity_max, BOOL use_random_color, W_STR emitter_name);
 	bool	NameExists(W_STR name);
+
+public:
+	bool	depth_write_enabled_	= false;
+	bool	depth_compared_			= true;
+	bool	alpha_tested_			= false;
+	bool	alpha_blended_			= true;
+	bool	wireframe_enabled_		= false;
+
 private:
 	std::map<W_STR, ParticleSystem*> emitters;
 

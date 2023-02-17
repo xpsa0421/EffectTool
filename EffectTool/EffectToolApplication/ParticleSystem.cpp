@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "ParticleSystem.h"
+#define MAXSIZE 90
+
 
 bool ParticleSystem::Init()
 {	 
@@ -10,11 +12,13 @@ bool ParticleSystem::Init()
 	initial_pos_offset_max_ = { 2,4,2 };
 	initial_size_offset_min_ = {0.5f, 0.5f};
 	initial_size_offset_max_ = { 3,3 };
+	initial_velocity_min = { 0,0,0 };
+	initial_velocity_max = { 0,0,0 };
 	Object::Init();
 
-	SetVertexShader(L"VertexShader.hlsl", L"main");
-	SetPixelShader(L"PixelShader.hlsl", L"main");
-	SetGeometryShader(L"GeometryShader.hlsl", L"main");
+	SetVertexShader(L"../../data/shader/VertexShader.hlsl", L"main");
+	SetGeometryShader(L"../../data/shader/GeometryShader.hlsl", L"main");
+
 	return true;
 }	 
 	 
@@ -40,8 +44,7 @@ bool ParticleSystem::PreRender()
 	device_context_->GSSetShader(geo_shader_->shader_.Get(), NULL, 0);
 	device_context_->GSSetConstantBuffers(1, 1, gs_cbuffer_.GetAddressOf());
 	device_context_->PSSetShader(pixel_shader_->shader_.Get(), NULL, 0);
-	device_context_->PSSetShaderResources(0, 1, texture_srv_.GetAddressOf());
-	DxState.ApplyBlendState(L"BS_dual_source");
+	if (texture_srv_) device_context_->PSSetShaderResources(0, 1, texture_srv_.GetAddressOf());
 
 	return true;
 }
@@ -55,7 +58,7 @@ void ParticleSystem::BuildVertexBuffer()
 	D3D11_BUFFER_DESC vertex_desc;
 	ZeroMemory(&vertex_desc, sizeof(vertex_desc));
 	//vertex_desc.Usage = D3D11_USAGE_DEFAULT;
-	vertex_desc.ByteWidth = sizeof(ParticleVertex) * 50; //  to change 
+	vertex_desc.ByteWidth = sizeof(ParticleVertex) * MAXSIZE; //  to change 
 	vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	//vertex_desc.CPUAccessFlags = 0;
 	//vertex_desc.MiscFlags = 0;
@@ -147,6 +150,9 @@ void ParticleSystem::EnhanceParticles()
 			if (particle_vertices_[i].tex_idx == num_textures) particle_vertices_[i].tex_idx = 0;
 			particles_[i].anim_timer -= anim_offset;
 		}
+		
+		XMVECTOR temp =  g_spf * XMLoadFloat3(&particles_[i].velocity);
+		XMStoreFloat3(&particles_[i].position, XMVectorAdd(XMLoadFloat3(&particles_[i].position), temp));
 		particle_vertices_[i].pos = particles_[i].position;
 		particle_vertices_[i].color = particles_[i].color;
 		particle_vertices_[i].size = particles_[i].size;
@@ -156,18 +162,31 @@ void ParticleSystem::EnhanceParticles()
 		&particle_vertices_.at(0), 0, 0);
 }
 
+void ParticleSystem::Reset()
+{
+	particle_vertices_.clear();
+	particles_.clear();
+
+	EmitParticles();
+}
+
 bool ParticleSystem::Frame()
 {
 	if (emit_range != -1)
 	{
 		emit_timer += g_spf;
-		if (particle_vertices_.size() < 40)
+		if (particle_vertices_.size() < MAXSIZE)
 		{
 			if (emit_timer > emit_range)
 			{
 				EmitParticles();
 				emit_timer -= emit_range;
 			}
+		}
+		else
+		{
+			Reset();
+			return true;
 		}
 	}
 	UpdateConstantBuffer();
@@ -260,10 +279,17 @@ void ParticleSystem::EmitParticles()
 		p.position = {	emitter_pos_.x + randstep(initial_pos_offset_min_.x, initial_pos_offset_max_.x),
 						emitter_pos_.y + randstep(initial_pos_offset_min_.y, initial_pos_offset_max_.y),
 						emitter_pos_.z + randstep(initial_pos_offset_min_.z, initial_pos_offset_max_.z) };
-		p.color = { randstep(0,1),randstep(0,1),randstep(0,1),1 };
 		p.size = {	randstep(initial_size_offset_min_.x, initial_size_offset_max_.x),
 					randstep(initial_size_offset_min_.y, initial_size_offset_max_.y) };
 		p.lifetime = { randstep(lifetime_offset.x, lifetime_offset.y) };
+		p.velocity = {	randstep(initial_velocity_min.x, initial_velocity_max.x),
+						randstep(initial_velocity_min.y, initial_velocity_max.y) ,
+						randstep(initial_velocity_min.y, initial_velocity_max.y) };
+		if (use_random_color_)
+			p.color = { randstep(0,1),randstep(0,1),randstep(0,1),1 };
+		else
+			p.color = { 1,1,1,1 };
+
 		particles_.push_back(p);
 
 		ParticleVertex p_v;
@@ -292,4 +318,15 @@ void ParticleSystem::SetSizeOffset(XMFLOAT2 size_min, XMFLOAT2 size_max)
 void ParticleSystem::SetEmitterPos(XMFLOAT3 pos)
 {
 	emitter_pos_ = pos;
+}
+
+void ParticleSystem::SetVelocity(XMFLOAT3 velocity_min, XMFLOAT3 velocity_max)
+{
+	initial_velocity_min = velocity_min;
+	initial_velocity_max = velocity_max;
+}
+
+void ParticleSystem::SetAdditiveColor(BOOL use_random_color)
+{
+	use_random_color_ = use_random_color;
 }

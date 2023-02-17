@@ -197,6 +197,8 @@
     <ClInclude Include="CEmitterSettingsDlg.h" />
     <ClInclude Include="CEmitterView.h" />
     <ClInclude Include="ClassView.h" />
+    <ClInclude Include="CShaderSetDlg.h" />
+    <ClInclude Include="CShaderSettingPane.h" />
     <ClInclude Include="EffectTool.h" />
     <ClInclude Include="EffectToolApplication.h" />
     <ClInclude Include="EffectToolApplicationDoc.h" />
@@ -218,6 +220,8 @@
     <ClCompile Include="CEmitterSettingsDlg.cpp" />
     <ClCompile Include="CEmitterView.cpp" />
     <ClCompile Include="ClassView.cpp" />
+    <ClCompile Include="CShaderSetDlg.cpp" />
+    <ClCompile Include="CShaderSettingPane.cpp" />
     <ClCompile Include="EffectTool.cpp" />
     <ClCompile Include="EffectToolApplication.cpp" />
     <ClCompile Include="EffectToolApplicationDoc.cpp" />
@@ -267,16 +271,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\EffectToolApplication.rc2" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="GeometryShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="PixelShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="VertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameCore\GameCore.vcxproj">

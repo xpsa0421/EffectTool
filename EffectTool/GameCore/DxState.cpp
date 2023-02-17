@@ -71,13 +71,17 @@ bool ID3D11State::CreateStates()
     device_->CreateBlendState(&blendDesc, &BS_one_zero_);
     states_.insert(std::make_pair(L"BS_one_zero", (ID3D11DeviceChild*)BS_one_zero_.Get()));
 
-    blendDesc.AlphaToCoverageEnable = TRUE; 
+    blendDesc.AlphaToCoverageEnable = TRUE;
     blendDesc.IndependentBlendEnable = TRUE;
     blendDesc.RenderTarget[0].BlendEnable = TRUE;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC1_COLOR;
-    device_->CreateBlendState(&blendDesc, &BS_dual_source_);
-    states_.insert(std::make_pair(L"BS_dual_source", (ID3D11DeviceChild*)BS_dual_source_.Get()));
+    device_->CreateBlendState(&blendDesc, &BS_dual_source_blend_);
+    states_.insert(std::make_pair(L"BS_dual_source_blend", (ID3D11DeviceChild*)BS_dual_source_blend_.Get()));
+
+    blendDesc.AlphaToCoverageEnable = FALSE;
+    device_->CreateBlendState(&blendDesc, &BS_dual_source_no_blend_);
+    states_.insert(std::make_pair(L"BS_dual_source_no_blend", (ID3D11DeviceChild*)BS_dual_source_no_blend_.Get()));
 
     //-----------------------------------------------------------------------------
     // Create rasterizer states
@@ -106,6 +110,11 @@ bool ID3D11State::CreateStates()
     device_->CreateDepthStencilState(&depthDesc, &DS_depth_enable_);
     states_.insert(std::make_pair(L"DS_depth_enable", (ID3D11DeviceChild*)DS_depth_enable_.Get()));
 
+    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    device_->CreateDepthStencilState(&depthDesc, &DS_depth_enable_no_write_);
+    states_.insert(std::make_pair(L"DS_depth_enable_no_write", (ID3D11DeviceChild*)DS_depth_enable_no_write_.Get()));
+
+    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     depthDesc.DepthFunc = D3D11_COMPARISON_GREATER;
     device_->CreateDepthStencilState(&depthDesc, &DS_depth_greater_);
     states_.insert(std::make_pair(L"DS_depth_greater", (ID3D11DeviceChild*)DS_depth_greater_.Get()));

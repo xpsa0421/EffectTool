@@ -86,6 +86,7 @@
 #define IDS_EDIT_MENU                   306
 #define IDD_EMITTER_SETTER              310
 #define IDD_EMITTERLIST_VIEW            312
+#define IDD_SHADER                      316
 #define IDC_TEX_LIST                    1000
 #define IDC_BROWSE_TEXFILE              1001
 #define IDC_TEX_THUMBNAIL               1002
@@ -95,6 +96,13 @@
 #define BUTTON_GEN_EMITTER              1011
 #define ID_DELETE_EMITTER               1012
 #define IDC_EMITTER_LIST                1014
+#define IDC_CHECK_DB_WRITE              1015
+#define IDC_CHECK_DB_CMP                1016
+#define IDC_CHECK_ALPHA_TEST            1017
+#define IDC_CHECK_ALPHA_BLEND           1018
+#define IDC_CHECK_WIREFRAME             1019
+#define IDC_RANDOMCOLOR                 1020
+#define IDC_NOCOLOR                     1021
 #define IDC_LIFETIME_MIN                1023
 #define IDC_LIFETIME_MAX                1025
 #define IDC_POS_MIN_X                   1029
@@ -110,14 +118,20 @@
 #define IDC_EMITTER_INIT_NUM            1039
 #define IDC_EMITTER_EMIT_CYCLE          1040
 #define IDC_EMITTER_NAME                1041
+#define IDC_VEL_MIN_X                   1042
+#define IDC_VEL_MIN_Y                   1043
+#define IDC_VEL_MIN_Z                   1044
+#define IDC_VEL_MAX_X                   1045
+#define IDC_VEL_MAX_Y                   1046
+#define IDC_VEL_MAX_Z                   1047
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        314
+#define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

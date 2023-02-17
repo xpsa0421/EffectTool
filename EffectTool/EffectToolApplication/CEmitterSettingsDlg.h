@@ -1,5 +1,6 @@
 #pragma once
-// CEmitterSettingsDlg dialog
+#include "CEmitterListViewDlg.h"
+
 
 class CEmitterSettingsDlg : public CDialogEx
 {
@@ -23,7 +24,6 @@ public:
 	afx_msg void OnBnClickedBrowseTexfile();
 	CStatic tex_thumbnail_;
 	CListBox tex_paths_list_;
-	afx_msg void OnEnChangeEmitterZ();
 	CEdit editctrl_emitter_x;
 	CEdit editctrl_emitter_y;
 	CEdit editctrl_emitter_z;
@@ -44,9 +44,9 @@ public:
 	CEdit editctrl_lifetime_max;
 	CEdit editctrl_emittername;
 
-	//_-----------------------------------
-	
+	std::vector<CEdit*> edit_controls;
 
+	//_-----------------------------------
 
 	afx_msg void OnBnClickedGenEmitter();
 	int emitter_init_num;
@@ -67,4 +67,19 @@ public:
 	float lifetime_min;
 	float lifetime_max;
 	CString emitter_name;
+	CEdit editctrl_vel_min_x;
+	CEdit editctrl_vel_min_y;
+	CEdit editctrl_vel_min_z;
+	CEdit editctrl_vel_max_x;
+	CEdit editctrl_vel_max_y;
+	CEdit editctrl_vel_max_z;
+	float vel_min_x;
+	float vel_min_y;
+	float vel_min_z;
+	float vel_max_x;
+	float vel_max_y;
+	float vel_max_z;
+	bool use_random_color;
+	afx_msg void OnBnClickedRandomcolor();
+	afx_msg void OnBnClickedNocolor();
 };

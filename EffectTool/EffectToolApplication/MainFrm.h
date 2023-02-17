@@ -9,6 +9,7 @@
 #include "PropertiesWnd.h"
 #include "CDockPaneExp.h"
 #include "CEmitterView.h"
+#include "CShaderSettingPane.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -21,6 +22,7 @@ protected: // create from serialization only
 public:
 	CDockPaneExp main_dockpane_;
 	CEmitterView emitter_view_pane;
+	CShaderSettingPane shader_set_pane;
 // Operations
 public:
 

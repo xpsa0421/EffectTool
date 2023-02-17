@@ -7,6 +7,7 @@ class CEmitterView :
 {
 public:
     CEmitterListViewDlg emitter_list_dlg_;
+
     DECLARE_MESSAGE_MAP()
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };

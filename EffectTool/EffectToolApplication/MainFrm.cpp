@@ -162,7 +162,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		CBRS_LEFT;
 	DWORD dwID = 0;
 	main_dockpane_.CreateEx(NULL, L"Particle System Generator", this,
-		CRect(0, 0, 350, 300),
+		CRect(0, 0, 320, 300),
 		TRUE,
 		dwID, dwStyle);
 	//main_dockpane_.EnableDocking(CBRS_ALIGN_ANY);
@@ -170,13 +170,24 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	dwStyle = WS_CHILD | WS_VISIBLE |
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		CBRS_RIGHT;
+		CBRS_RIGHT | CBRS_FLOAT_MULTI;
 	emitter_view_pane.CreateEx(NULL, L"Emitters Control", this,
-		CRect(0, 0, 300, 300),
+		CRect(0, 0, 300, 0),
 		TRUE,
 		dwID, dwStyle);
-	//main_dockpane_.EnableDocking(CBRS_ALIGN_ANY);
+	emitter_view_pane.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&emitter_view_pane);
+	
+	shader_set_pane.CreateEx(NULL, L"Shader Control", this,
+		CRect(0, 0, 300, 150),
+		TRUE,
+		dwID, dwStyle);
+	shader_set_pane.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&shader_set_pane);
+	shader_set_pane.DockToWindow(&emitter_view_pane, CBRS_BOTTOM);;
+
+
+
 
 
 	return 0;

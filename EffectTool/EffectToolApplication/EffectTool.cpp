@@ -22,10 +22,6 @@ bool EffectTool::Init()
     uv_anim_ps_->EmitParticles();
     uv_anim_ps_->Create(device_.Get(), device_context_.Get());
     uv_anim_ps_->SetUVAnimation(L"../../data/image/fire.dds", 4, 4);*/
-
-
-
-
     
     // generate per frame geometry shader constant buffer
     D3D11_BUFFER_DESC constant_desc;
@@ -78,6 +74,41 @@ bool EffectTool::Frame()
 
 bool EffectTool::Render()
 {
+    // set wireframe properties
+    if (wireframe_enabled_)
+        DxState.ApplyRasterizerState(L"RS_wireframe");
+    else
+        DxState.ApplyRasterizerState(L"RS_solid");
+
+    // set depth stencil state
+    if (depth_compared_)
+    {
+        if (depth_write_enabled_) 
+            DxState.ApplyDepthStencilState(L"DS_depth_enable");
+        else
+            DxState.ApplyDepthStencilState(L"DS_depth_enable_no_write");
+    }
+    else DxState.ApplyDepthStencilState(L"DS_depth_disable");
+
+    // set alpha blendstate
+    if (alpha_blended_)
+        DxState.ApplyBlendState(L"BS_dual_source_blend");
+    else
+        DxState.ApplyBlendState(L"BS_dual_source_no_blend");
+
+    // set alpha testing
+    if (alpha_tested_)
+    {
+        for (auto emitter : emitters)
+            emitter.second->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaTested");
+    }
+    else
+    {
+        for (auto emitter : emitters)
+            emitter.second->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaNotTested");
+    }
+
+
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
 
@@ -117,7 +148,8 @@ HRESULT EffectTool::CreateDXResource()
 
 void    EffectTool::GenEmitterFromMultipleTex(std::vector<W_STR> tex_names, 
     int num_particles, float emit_cycle, XMFLOAT3 emitter_pos, XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max,
-    XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax, W_STR emitter_name)
+    XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax,
+    XMFLOAT3 velocity_min, XMFLOAT3 velocity_max, BOOL use_random_color, W_STR emitter_name)
 {
     ParticleSystem* emitter = new ParticleSystem;
     emitter->Init();
@@ -126,6 +158,8 @@ void    EffectTool::GenEmitterFromMultipleTex(std::vector<W_STR> tex_names,
     emitter->SetPosOffset(pos_offset_min, pos_offset_max);
     emitter->SetSizeOffset(size_min, size_max);
     emitter->SetLifetimeOffset(lifetime_minmax.x, lifetime_minmax.y);
+    emitter->SetVelocity(velocity_min, velocity_max);
+    emitter->SetAdditiveColor(use_random_color);
     emitter->EmitParticles();
     emitter->Create(device_.Get(), device_context_.Get());
     emitter->SetMultiTexAnimation(tex_names);
