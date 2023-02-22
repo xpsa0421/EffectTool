@@ -157,18 +157,19 @@ void ParticleSystem::EnhanceParticles()
 
 bool ParticleSystem::Frame()
 {
-	//if (emit_range != -1)
-	//{
-	//	emit_timer += g_spf;
-	//	if (particle_vertices_.size() < 1000)
-	//	{
-	//		if (emit_timer > emit_range)
-	//		{
-	//			//EmitParticles();
-	//			emit_timer -= emit_range;
-	//		}
-	//	}
-	//}
+	// emit new particles
+	emit_timer += g_spf;
+
+	if (particle_vertices_.size() < 1000) // MAX_PARTICLE
+	{
+		if (emit_timer > emit_interval_)
+		{
+			EmitParticle();
+			emit_timer -= emit_interval_;
+		}
+	}
+
+	// enhance active particles
 	UpdateConstantBuffer();
 	EnhanceParticles();
 
@@ -251,10 +252,10 @@ void ParticleSystem::SetLifetimeOffset(float min_lifetime, float max_lifetime)
 	lifetime_offset = { min_lifetime, max_lifetime };
 }
 
-void ParticleSystem::EmitParticles()
+void ParticleSystem::EmitParticle()
 {
-	for (int i = 0; i < emit_num_particles; i++)
-	{
+	//for (int i = 0; i < emit_num_particles; i++)
+	//{
 		Particle p;
 		p.position = {	emitter_pos_.x + randstep(initial_pos_offset_min_.x, initial_pos_offset_max_.x),
 						emitter_pos_.y + randstep(initial_pos_offset_min_.y, initial_pos_offset_max_.y),
@@ -267,11 +268,11 @@ void ParticleSystem::EmitParticles()
 
 		ParticleVertex p_v;
 		particle_vertices_.push_back(p_v);
-	}
+		num_active_particles_++;
+	//}
 }
 
-void ParticleSystem::SetEmitterProperties(float emit_range, int emit_number)
+void ParticleSystem::SetSpawnRate(float spawn_rate)
 {
-	this->emit_range = emit_range;
-	this->emit_num_particles = emit_number;
+	emit_interval_ = 1 / spawn_rate;
 }

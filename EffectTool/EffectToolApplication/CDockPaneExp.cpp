@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CDockPaneExp.h"
 #include "resource.h"
+#include "CEmitterSettingsDlg.h"
 BEGIN_MESSAGE_MAP(CDockPaneExp, CDockablePane)
 	ON_WM_PAINT()
 	ON_WM_CREATE()
@@ -12,8 +13,20 @@ int CDockPaneExp::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	emitter_settings_dlg_.Create(IDD_EMITTER_SETTER, this);
-	emitter_settings_dlg_.ShowWindow(SW_SHOW);
+	required_dlg_ = new CEmitterSettingsDlg();
+	required_dlg_->Create(IDD_EMITTER_SETTER, this);
+	required_dlg_->ShowWindow(SW_SHOW);
+
+	
+
 
 	return 0;
+}
+
+
+void CDockPaneExp::PostNcDestroy()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	delete required_dlg_;
+	CDockablePane::PostNcDestroy();
 }

@@ -6,20 +6,20 @@ bool EffectTool::Init()
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
-    cam_->SetView(XMFLOAT3(0, 0, -10), XMFLOAT3(0, 0, 0));
+    cam_->SetView(XMFLOAT3(0, 0, -200), XMFLOAT3(0, 50, 0));
     cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
 
     //********************************************************************
-    
+    CreateDefaultEmitter();
     //********************************************************************
 
      // initialise object
    /* uv_anim_ps_ = new ParticleSystem;
     uv_anim_ps_->Init();
     uv_anim_ps_->emitter_pos_ = { 5, 0, 0 };
-    uv_anim_ps_->SetEmitterProperties(-1, 1);
-    uv_anim_ps_->EmitParticles();
+    uv_anim_ps_->SetSpawnRate(-1, 1);
+    uv_anim_ps_->EmitParticle();
     uv_anim_ps_->Create(device_.Get(), device_context_.Get());
     uv_anim_ps_->SetUVAnimation(L"../../data/image/fire.dds", 4, 4);*/
     
@@ -111,11 +111,18 @@ bool EffectTool::Render()
 
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
-
+    
+    W_STR text = L"";
+    
     for (auto emitter : emitters)
     {
         emitter.second->Render();
+        text += L" " + std::to_wstring(emitter.second->num_alive_particles) + L"/" + 
+            std::to_wstring(emitter.second->num_requested_particles) + L"\n";
     }
+
+    writer_.Draw(10, 5, text);
+
 	return true;
 }
 
@@ -153,16 +160,17 @@ void    EffectTool::GenEmitterFromMultipleTex(std::vector<W_STR> tex_names,
 {
     ParticleSystem* emitter = new ParticleSystem;
     emitter->Init();
-    emitter->SetEmitterProperties(emit_cycle, num_particles);
+    //emitter->SetSpawnRate(emit_cycle, num_particles);
     emitter->SetEmitterPos(emitter_pos);
     emitter->SetPosOffset(pos_offset_min, pos_offset_max);
     emitter->SetSizeOffset(size_min, size_max);
     emitter->SetLifetimeOffset(lifetime_minmax.x, lifetime_minmax.y);
     emitter->SetVelocity(velocity_min, velocity_max);
     emitter->SetAdditiveColor(use_random_color);
-    emitter->EmitParticles();
+    emitter->EmitParticle();
     emitter->Create(device_.Get(), device_context_.Get());
-    emitter->SetMultiTexAnimation(tex_names);
+   // emitter->SetMultiTexAnimation(tex_names);
+    emitter->SetUVAnimation(tex_names[0], 4, 4);
 
     emitters.insert(std::make_pair(emitter_name, emitter));
 }
@@ -170,4 +178,43 @@ void    EffectTool::GenEmitterFromMultipleTex(std::vector<W_STR> tex_names,
 bool EffectTool::NameExists(W_STR name)
 {
     return (emitters.find(name) != emitters.end());
+}
+
+void EffectTool::CreateDefaultEmitter()
+{
+    ParticleSystem* emitter = new ParticleSystem;
+    emitter->Init();
+    emitter->SetSpawnRate(20);
+    emitter->SetEmitterPos({ 0,0,0 });
+    emitter->SetSizeOffset({ 50,50 }, { 50,50 });
+    emitter->SetLifetimeOffset(1,1);
+    emitter->SetVelocity({ -20,50,-10 },{20,100,10});
+    emitter->Create(device_.Get(), device_context_.Get());
+    emitter->SetTexture(L"../../data/image/OrientParticle.PNG");
+    emitters.insert(std::make_pair(L"/default/", emitter));
+}
+
+void EffectTool::SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
+    int num_rows, int num_cols)
+{
+    emitters.find(emitter_name)->second->SetUVAnimation(tex_path, num_rows, num_cols);
+}
+
+void EffectTool::SetEmitterTexture(W_STR emitter_name, std::vector<W_STR>& tex_paths)
+{
+
+}
+
+void EffectTool::SetEmitterTexture(W_STR emitter_name, W_STR tex_path)
+{
+
+}
+
+void EffectTool::SetSpawnRate(W_STR emitter_name, float spawn_rate)
+{
+    auto emitter = emitters.find(emitter_name);
+    if (emitter != emitters.end())
+    {
+        emitter->second->SetSpawnRate(spawn_rate);
+    }
 }

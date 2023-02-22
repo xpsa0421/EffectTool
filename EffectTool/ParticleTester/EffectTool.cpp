@@ -41,8 +41,8 @@ bool EffectTool::Init()
     };
     tex_anim_ps_->emitter_pos_ = { -6, 0, 0 };
     tex_anim_ps_->SetLifetimeOffset(-1,-1);
-    tex_anim_ps_->SetEmitterProperties(1.0f, 1);
-    tex_anim_ps_->EmitParticles();
+    tex_anim_ps_->SetSpawnRate(1.0f, 1);
+    tex_anim_ps_->EmitParticle();
     tex_anim_ps_->Create(device_.Get(), device_context_.Get());
     tex_anim_ps_->SetMultiTexAnimation(tex_names1);
     //********************************************************************
@@ -51,8 +51,8 @@ bool EffectTool::Init()
    /* uv_anim_ps_ = new ParticleSystem;
     uv_anim_ps_->Init();
     uv_anim_ps_->emitter_pos_ = { 5, 0, 0 };
-    uv_anim_ps_->SetEmitterProperties(-1, 1);
-    uv_anim_ps_->EmitParticles();
+    uv_anim_ps_->SetSpawnRate(-1, 1);
+    uv_anim_ps_->EmitParticle();
     uv_anim_ps_->Create(device_.Get(), device_context_.Get());
     uv_anim_ps_->SetUVAnimation(L"../../data/image/fire.dds", 4, 4);*/
 

@@ -1,19 +1,25 @@
 #include "pch.h"
 #include "ParticleSystem.h"
-#define MAXSIZE 90
+#define MAX_RENDER_COUNT 1000
 
 
 bool ParticleSystem::Init()
 {	 
+	tex_coords[0] = { 0.0, 0.0 };
+	tex_coords[1] = { 1.0, 0.0 };
+	tex_coords[2] = { 0.0, 0.1 };
+	tex_coords[3] = { 1.0, 1.0 };
+
 	cd_per_system_.axis_lock_type = 0;
 	gs_cbuffer_ = nullptr;
 	is_uv_animated_ = true; // TO CHANGE
-	initial_pos_offset_min_ = { -2,-1,-2 };
-	initial_pos_offset_max_ = { 2,4,2 };
+	initial_pos_offset_min_ = { 0,0,0 };
+	initial_pos_offset_max_ = { 0,0,0 };
 	initial_size_offset_min_ = {0.5f, 0.5f};
 	initial_size_offset_max_ = { 3,3 };
 	initial_velocity_min = { 0,0,0 };
 	initial_velocity_max = { 0,0,0 };
+	lifetime_offset = { 0,0 };
 	Object::Init();
 
 	SetVertexShader(L"../../data/shader/VertexShader.hlsl", L"main");
@@ -25,10 +31,8 @@ bool ParticleSystem::Init()
 bool ParticleSystem::Release()
 {
 	gs_cbuffer_ = nullptr;
-	if (!texture_)
-	{
-		texture_srv_->Release();
-	}
+	if (!texture_) texture_srv_->Release();
+	
 	return Object::Release();
 }
 	 
@@ -51,24 +55,22 @@ bool ParticleSystem::PreRender()
 
 void ParticleSystem::BuildVertexBuffer()
 {
-	//particle_vertices_.resize(1);
-
-
 	// generate vertex buffer
 	D3D11_BUFFER_DESC vertex_desc;
 	ZeroMemory(&vertex_desc, sizeof(vertex_desc));
 	//vertex_desc.Usage = D3D11_USAGE_DEFAULT;
-	vertex_desc.ByteWidth = sizeof(ParticleVertex) * MAXSIZE; //  to change 
+	num_requested_particles = ceil(lifetime_offset.y * spawn_rate_);
+	int num_particles = min(MAX_RENDER_COUNT, ceil(lifetime_offset.y * spawn_rate_));
+	particle_vertices_.reserve(num_particles);
+	particles_.reserve(num_particles);
+
+	vertex_desc.ByteWidth = sizeof(ParticleVertex) * (num_particles + 2); //  to change 
 	vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	//vertex_desc.CPUAccessFlags = 0;
 	//vertex_desc.MiscFlags = 0;
 	//vertex_desc.StructureByteStride = 0;
 
-	D3D11_SUBRESOURCE_DATA vertex_sub_data;
-	ZeroMemory(&vertex_sub_data, sizeof(vertex_sub_data));
-	vertex_sub_data.pSysMem = &particle_vertices_.at(0);
-
-	HRESULT result = device_->CreateBuffer(&vertex_desc, &vertex_sub_data, vertex_buffer_.GetAddressOf());
+	HRESULT result = device_->CreateBuffer(&vertex_desc, nullptr, vertex_buffer_.GetAddressOf());
 	#ifdef _DEBUG
 	if (FAILED(result))
 	{
@@ -129,37 +131,44 @@ void ParticleSystem::BuildInputLayout()
 
 void ParticleSystem::EnhanceParticles()
 {
-	for (int i = 0; i < particles_.size(); i++)
+	int index = 0;
+	while (index < num_alive_particles)
 	{
-		if (particles_[i].active == false) continue;
-		
-		if ((particles_[i].lifetime != -1) && (particles_[i].timer > particles_[i].lifetime))
+		Particle& p = particles_[index];
+		p.lifetime -= g_delta_time;
+
+		if (p.lifetime <= 0.0f)
 		{
-			particle_vertices_[i].color = { 0,0,0,0 };
-			particles_[i].active = false;
-			continue;
+			std::swap(particles_[index], particles_[num_alive_particles - 1]);
+			particle_vertices_[index].tex_idx = particle_vertices_[num_alive_particles - 1].tex_idx;
+			num_alive_particles--;
 		}
-
-		particles_[i].timer += g_spf;
-		particles_[i].anim_timer += g_spf;
-
-		// update texture
-		if (particles_[i].anim_timer > anim_offset)
+		else
 		{
-			particle_vertices_[i].tex_idx++;
-			if (particle_vertices_[i].tex_idx == num_textures) particle_vertices_[i].tex_idx = 0;
-			particles_[i].anim_timer -= anim_offset;
-		}
-		
-		XMVECTOR temp =  g_spf * XMLoadFloat3(&particles_[i].velocity);
-		XMStoreFloat3(&particles_[i].position, XMVectorAdd(XMLoadFloat3(&particles_[i].position), temp));
-		particle_vertices_[i].pos = particles_[i].position;
-		particle_vertices_[i].color = particles_[i].color;
-		particle_vertices_[i].size = particles_[i].size;
-	};
+			// update texture
+			p.anim_timer += g_delta_time;
+			if (p.anim_timer > anim_offset)
+			{
+				particle_vertices_[index].tex_idx++;
+				if (particle_vertices_[index].tex_idx == num_textures) particle_vertices_[index].tex_idx = 0;
+				p.anim_timer -= anim_offset;
+			}
 
-	device_context_->UpdateSubresource(vertex_buffer_.Get(), 0, 0,
-		&particle_vertices_.at(0), 0, 0);
+			XMVECTOR displacement = g_delta_time * XMLoadFloat3(&p.velocity);
+			XMStoreFloat3(&p.position, XMVectorAdd(XMLoadFloat3(&p.position), displacement));
+			particle_vertices_[index].pos = p.position;
+			particle_vertices_[index].color = p.color;
+			particle_vertices_[index].size = p.size;
+
+			index++;
+		}
+	}
+
+	if (!particle_vertices_.empty())
+	{
+		device_context_->UpdateSubresource(vertex_buffer_.Get(), 0, 0,
+			&particle_vertices_.at(0), 0, 0);
+	}	
 }
 
 void ParticleSystem::Reset()
@@ -167,55 +176,38 @@ void ParticleSystem::Reset()
 	particle_vertices_.clear();
 	particles_.clear();
 
-	EmitParticles();
+	EmitParticle();
 }
 
 bool ParticleSystem::Frame()
 {
-	if (emit_range != -1)
+	if (spawn_rate_ == 0) return false;
+
+	// emit new particle
+	emit_timer += g_delta_time;
+	if (num_alive_particles < MAX_RENDER_COUNT)
 	{
-		emit_timer += g_spf;
-		if (particle_vertices_.size() < MAXSIZE)
+		if (emit_timer > emit_interval_)
 		{
-			if (emit_timer > emit_range)
-			{
-				EmitParticles();
-				emit_timer -= emit_range;
-			}
-		}
-		else
-		{
-			Reset();
-			return true;
+			EmitParticle();
+			emit_timer -= emit_interval_;
 		}
 	}
-	UpdateConstantBuffer();
 	EnhanceParticles();
+	UpdateConstantBuffer();
 
-	
-	//TODO: tex coordinate 
-	
-
-	/*for (int i = 0; i < particles_.size(); i++)
-	{
-		particles_[i].timer += g_spf;
-		if (particles_[i].timer > particles_[i].lifetime)
-		{
-			particles_.
-		}
-		m_Paticles[i].vPos = m_Paticles[i].vPos + m_Paticles[i].vVel * g_fSecondPerFrame;
-		m_VertexList[i].p = m_Paticles[i].vPos;
-
-		m_VertexList[i].n = m_Paticles[i].vVel;
-		m_VertexList[i].c = m_Paticles[i].vColor;
-		m_VertexList[i].t = { 0.0f, 0.0f };
-	}*/
 	return true;
+}
+
+bool ParticleSystem::Render()
+{
+	if (num_alive_particles == 0) return false;
+	else return Object::Render();
 }
 
 bool ParticleSystem::PostRender()
 {
-	device_context_->Draw(particle_vertices_.size(), 0);
+	device_context_->Draw(num_alive_particles, 0);
 
 	return true;
 }
@@ -240,20 +232,59 @@ void ParticleSystem::UpdateConstantBuffer()
 	device_context_->UpdateSubresource(gs_cbuffer_.Get(), 0, 0, &cd_per_system_, 0, 0);
 }
 
-void ParticleSystem::SetUVAnimation(W_STR sprite_sheet_path, float num_rows, float num_cols)
+void ParticleSystem::ResetTexture()
 {
-	cd_per_system_.is_uv_animated = true;
-	num_textures = num_rows * num_cols;
-	SetTexture(sprite_sheet_path);
-	cd_per_system_.sprite_dimension = { int(texture_->desc_.Width) / num_cols, int(texture_->desc_.Height) / num_rows };
+	// reset variables
+	if ((!texture_) && (texture_srv_))
+	{
+		texture_srv_->Release();
+		texture_srv_ = nullptr;
+	}
+	texture_ = nullptr;
+
+	//reset tex coordinates
+	tex_coords[0] = { 0.0, 0.0 };
+	tex_coords[1] = { float(1.0 / num_tex_cols_), 0.0 };
+	tex_coords[2] = { 0.0, float(1.0 / num_tex_rows_) };
+	tex_coords[3] = { float(1.0 / num_tex_cols_), float(1.0 / num_tex_rows_) };
+
+	if (!particle_vertices_.empty())
+	{
+		for (ParticleVertex& p_v : particle_vertices_)
+		{
+			p_v.tex_idx = 0;
+			p_v.tex_coord = { float(num_tex_rows_), float(num_tex_cols_) };
+		}
+	}
+}
+
+void ParticleSystem::SetTexture(W_STR filepath)
+{
+	num_tex_cols_ = 1;
+	num_tex_rows_ = 1;
+	num_textures = 1;
+	ResetTexture();
+	Object::SetTexture(filepath);
 }
 
 void ParticleSystem::SetMultiTexAnimation(std::vector<W_STR>& filenames)
 {
-	is_uv_animated_ = false;
 	num_textures = filenames.size();
+	num_tex_cols_ = 1;
+	num_tex_rows_ = 1;
 	// create shader resource view from texture 2d array
-	SetTextureSRV(CreateTexture2DArraySRV(device_.Get(), device_context_.Get(), filenames));
+	ResetTexture();
+	SetTextureSRV(CreateSRVFromMultipleImages(device_.Get(), device_context_.Get(), filenames));
+	
+}
+
+void ParticleSystem::SetUVAnimation(W_STR filename, int num_rows, int num_cols)
+{
+	num_textures = num_rows * num_cols;
+	num_tex_cols_ = num_cols;
+	num_tex_rows_ = num_rows;
+	ResetTexture();
+	SetTextureSRV(CreateSRVFromSpriteSheet(device_.Get(), device_context_.Get(), filename, num_rows, num_cols));
 }
 
 void ParticleSystem::SetAlphaTesting(bool is_alpha_tested)
@@ -271,36 +302,92 @@ void ParticleSystem::SetLifetimeOffset(float min_lifetime, float max_lifetime)
 	lifetime_offset = { min_lifetime, max_lifetime };
 }
 
-void ParticleSystem::EmitParticles()
+void ParticleSystem::InitialiseParticle(Particle& p)
 {
-	for (int i = 0; i < emit_num_particles; i++)
-	{
-		Particle p;
-		p.position = {	emitter_pos_.x + randstep(initial_pos_offset_min_.x, initial_pos_offset_max_.x),
-						emitter_pos_.y + randstep(initial_pos_offset_min_.y, initial_pos_offset_max_.y),
-						emitter_pos_.z + randstep(initial_pos_offset_min_.z, initial_pos_offset_max_.z) };
-		p.size = {	randstep(initial_size_offset_min_.x, initial_size_offset_max_.x),
-					randstep(initial_size_offset_min_.y, initial_size_offset_max_.y) };
-		p.lifetime = { randstep(lifetime_offset.x, lifetime_offset.y) };
-		p.velocity = {	randstep(initial_velocity_min.x, initial_velocity_max.x),
-						randstep(initial_velocity_min.y, initial_velocity_max.y) ,
-						randstep(initial_velocity_min.y, initial_velocity_max.y) };
-		if (use_random_color_)
-			p.color = { randstep(0,1),randstep(0,1),randstep(0,1),1 };
-		else
-			p.color = { 1,1,1,1 };
+	p.position = { emitter_pos_.x + randstep(initial_pos_offset_min_.x, initial_pos_offset_max_.x),
+					emitter_pos_.y + randstep(initial_pos_offset_min_.y, initial_pos_offset_max_.y),
+					emitter_pos_.z + randstep(initial_pos_offset_min_.z, initial_pos_offset_max_.z) };
+	p.size = { randstep(initial_size_offset_min_.x, initial_size_offset_max_.x),
+				randstep(initial_size_offset_min_.y, initial_size_offset_max_.y) };
+	p.lifetime = { randstep(lifetime_offset.x, lifetime_offset.y) };
+	p.velocity = { randstep(initial_velocity_min.x, initial_velocity_max.x),
+					randstep(initial_velocity_min.y, initial_velocity_max.y) ,
+					randstep(initial_velocity_min.y, initial_velocity_max.y) };
+	if (use_random_color_)
+		p.color = { randstep(0,1),randstep(0,1),randstep(0,1),1 };
+	else
+		p.color = { 1,1,1,1 };
+}
 
+void ParticleSystem::EmitParticle()
+{
+	// check if there is any unused particle
+	if (particles_.size() > num_alive_particles)
+	{
+		// there is an unused particle
+		// retrieve the first unused particle and reuse it
+		Particle& p = particles_[num_alive_particles]; 
+		InitialiseParticle(p);
+		particle_vertices_[num_alive_particles].tex_idx = 0;
+	}
+	else
+	{
+		// there is no unused particle
+		// create a new particle object
+		Particle p;
+		InitialiseParticle(p);
 		particles_.push_back(p);
 
 		ParticleVertex p_v;
+		p_v.tex_coord = { float(num_tex_rows_), float(num_tex_cols_) }; // TODO: pass to constant buffer instead
 		particle_vertices_.push_back(p_v);
 	}
+	num_alive_particles++;
 }
 
-void ParticleSystem::SetEmitterProperties(float emit_range, int emit_number)
+void ParticleSystem::SetSpawnRate(float spawn_rate)
 {
-	this->emit_range = emit_range;
-	this->emit_num_particles = emit_number;
+	spawn_rate_ = spawn_rate;
+	emit_interval_ = 1 / spawn_rate;
+
+	if (spawn_rate == 0)
+	{
+		num_alive_particles = 0;
+		num_requested_particles = 0;
+		return;
+	}
+
+	if (vertex_buffer_)
+	{
+		// release current buffer
+		vertex_buffer_ = nullptr;
+		num_alive_particles = 0;
+
+		// generate new vertex buffer
+		D3D11_BUFFER_DESC vertex_desc;
+		ZeroMemory(&vertex_desc, sizeof(vertex_desc));
+		//vertex_desc.Usage = D3D11_USAGE_DEFAULT;
+		num_requested_particles = ceil(lifetime_offset.y * spawn_rate_);
+		int num_particles = min(MAX_RENDER_COUNT, ceil(lifetime_offset.y * spawn_rate_));
+		particle_vertices_.clear();
+		particles_.clear();
+		particle_vertices_.reserve(num_particles);
+		particles_.reserve(num_particles);
+
+		vertex_desc.ByteWidth = sizeof(ParticleVertex) * (num_particles + 2); //  to change 
+		vertex_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		//vertex_desc.CPUAccessFlags = 0;
+		//vertex_desc.MiscFlags = 0;
+		//vertex_desc.StructureByteStride = 0;
+
+		HRESULT result = device_->CreateBuffer(&vertex_desc, nullptr, vertex_buffer_.GetAddressOf());
+#ifdef _DEBUG
+		if (FAILED(result))
+		{
+			OutputDebugStringA("[ParticleSystem] Failed to build a vertex buffer\n");
+		}
+#endif // _DEBUG
+	}
 }
 
 void ParticleSystem::SetPosOffset(XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max)

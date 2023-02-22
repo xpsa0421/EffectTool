@@ -87,6 +87,9 @@
 #define IDD_EMITTER_SETTER              310
 #define IDD_EMITTERLIST_VIEW            312
 #define IDD_SHADER                      316
+#define IDD_DIALOG2                     324
+#define IDD_DIALOG1                     326
+#define IDD_TEXTURE                     328
 #define IDC_TEX_LIST                    1000
 #define IDC_BROWSE_TEXFILE              1001
 #define IDC_TEX_THUMBNAIL               1002
@@ -110,28 +113,49 @@
 #define IDC_POS_MIN_Z                   1031
 #define IDC_POS_MAX_X                   1032
 #define IDC_POS_MAX_Y                   1033
+#define IDCANCEL                        1033
 #define IDC_POS_MAX_Z                   1034
+#define IDC_POS_MAX_Y2                  1034
+#define IDC_UV_ROWS                     1034
 #define IDC_SIZE_MIN_X                  1035
+#define IDC_POS_MAX_Z2                  1035
+#define IDC_UV_COLS                     1035
 #define IDC_SIZE_MIN_Y                  1036
+#define IDC_SIZE_MIN_X2                 1036
+#define IDC_RADIO2                      1036
 #define IDC_SIZE_MAX_X                  1037
+#define IDC_SIZE_MIN_Y2                 1037
+#define IDC_SINGLE_UV                   1037
 #define IDC_SIZE_MAX_Y                  1038
+#define IDC_SIZE_MAX_X2                 1038
+#define IDC_SINGLE                      1038
 #define IDC_EMITTER_INIT_NUM            1039
+#define IDC_BUTTON1                     1039
 #define IDC_EMITTER_EMIT_CYCLE          1040
+#define IDC_EDIT1                       1040
+#define IDC_SPAWNRATE                   1040
 #define IDC_EMITTER_NAME                1041
 #define IDC_VEL_MIN_X                   1042
+#define IDC_SIZE_MAX_Y2                 1042
 #define IDC_VEL_MIN_Y                   1043
+#define IDC_VEL_MIN_X2                  1043
 #define IDC_VEL_MIN_Z                   1044
+#define IDC_VEL_MIN_Y2                  1044
 #define IDC_VEL_MAX_X                   1045
+#define IDC_VEL_MIN_Z2                  1045
 #define IDC_VEL_MAX_Y                   1046
+#define IDC_VEL_MAX_X2                  1046
 #define IDC_VEL_MAX_Z                   1047
+#define IDC_VEL_MAX_Y2                  1047
+#define IDC_VEL_MAX_Z2                  1048
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        318
+#define _APS_NEXT_RESOURCE_VALUE        330
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1021
+#define _APS_NEXT_CONTROL_VALUE         1041
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

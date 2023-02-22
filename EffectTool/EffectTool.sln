@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameCore", "GameCore\GameCo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EffectToolApplication", "EffectToolApplication\EffectToolApplication.vcxproj", "{7413067C-4D0F-47E4-9009-E335FB28CF8A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFCApplication1", "MFCApplication1\MFCApplication1.vcxproj", "{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{7413067C-4D0F-47E4-9009-E335FB28CF8A}.Release|x64.Build.0 = Release|x64
 		{7413067C-4D0F-47E4-9009-E335FB28CF8A}.Release|x86.ActiveCfg = Release|Win32
 		{7413067C-4D0F-47E4-9009-E335FB28CF8A}.Release|x86.Build.0 = Release|Win32
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Debug|x64.ActiveCfg = Debug|x64
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Debug|x64.Build.0 = Debug|x64
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Debug|x86.ActiveCfg = Debug|Win32
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Debug|x86.Build.0 = Debug|Win32
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Release|x64.ActiveCfg = Release|x64
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Release|x64.Build.0 = Release|x64
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Release|x86.ActiveCfg = Release|Win32
+		{04CC248D-51B8-4DD3-99DC-7EE57C3EEFC2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

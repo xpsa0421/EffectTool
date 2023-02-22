@@ -40,7 +40,7 @@ bool Writer::Init()
 
 bool Writer::Frame()
 {
-	_textContent = L"FPS: " + std::to_wstring(g_fps);
+	//_textContent = L"FPS: " + std::to_wstring(g_fps);
 	return true;
 }
 

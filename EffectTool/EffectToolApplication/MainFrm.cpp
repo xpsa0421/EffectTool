@@ -156,35 +156,75 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_SORTING_GROUPBYTYPE);
 
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
-
-	DWORD dwStyle = WS_CHILD | WS_VISIBLE |
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		CBRS_LEFT;
+	
 	DWORD dwID = 0;
-	main_dockpane_.CreateEx(NULL, L"Particle System Generator", this,
+	DWORD dwStyle	= WS_CHILD | WS_VISIBLE |
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		CBRS_RIGHT;
+
+	details_tabbed_pane.CreateEx(NULL, L"TAB", this,
+		CRect(0, 0, 400, 300),
+		TRUE,
+		0, dwStyle);
+	details_tabbed_pane.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&details_tabbed_pane);
+
+
+	texture_dockpane.CreateEx(NULL, L"Texture", this,
+		CRect(0, 0, 400, 300),
+		TRUE,
+		0, dwStyle);
+	texture_dockpane.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&texture_dockpane);
+	details_tabbed_pane.AddTab(&texture_dockpane);
+	
+	/*main_dockpane_.CreateEx(NULL, L"Particle System Generator", this,
 		CRect(0, 0, 320, 300),
 		TRUE,
 		dwID, dwStyle);
-	//main_dockpane_.EnableDocking(CBRS_ALIGN_ANY);
+	main_dockpane_.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&main_dockpane_);
+	details_tabbed_pane.AddTab(&main_dockpane_);*/
+	
+	spawn_dockpane.CreateEx(NULL, L"Spawn", this,
+		CRect(0, 0, 320, 300),
+		TRUE,
+		0, dwStyle);
+	main_dockpane_.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&spawn_dockpane);
+	details_tabbed_pane.AddTab(&spawn_dockpane);
+
+
+
+	
+	dwStyle = WS_CHILD | WS_VISIBLE |
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		CBRS_BOTTOM;
+
+	shader_set_pane.CreateEx(NULL, L"Shader Control", this,
+		CRect(0, 0, 300, 300),
+		TRUE,
+		0, dwStyle);
+	shader_set_pane.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&shader_set_pane);
+
 
 	dwStyle = WS_CHILD | WS_VISIBLE |
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		CBRS_RIGHT | CBRS_FLOAT_MULTI;
+		CBRS_BOTTOM;
+	
+	
 	emitter_view_pane.CreateEx(NULL, L"Emitters Control", this,
-		CRect(0, 0, 300, 0),
+		CRect(0, 0, 500, 0),
 		TRUE,
-		dwID, dwStyle);
+		0, dwStyle);
 	emitter_view_pane.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&emitter_view_pane);
+	emitter_view_pane.DockToWindow(&shader_set_pane, CBRS_RIGHT);
 	
-	shader_set_pane.CreateEx(NULL, L"Shader Control", this,
-		CRect(0, 0, 300, 150),
-		TRUE,
-		dwID, dwStyle);
-	shader_set_pane.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&shader_set_pane);
-	shader_set_pane.DockToWindow(&emitter_view_pane, CBRS_BOTTOM);;
+	
+
+	
 
 
 

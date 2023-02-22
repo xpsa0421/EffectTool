@@ -98,17 +98,17 @@ public:
 	void	SetAlphaTesting(bool is_alpha_tested);
 	void	SetAlphaBlending(bool is_alpha_blended);
 
-	void	EmitParticles();
-	void	SetEmitterProperties(float emit_range, int emit_number);
+	void	EmitParticle();
+	void	SetSpawnRate(float spawn_rate);
 	void	SetLifetimeOffset(float min_lifetime, float max_lifetime);
 public:
 	std::vector<Particle>		particles_;
 	int			num_textures;
 	XMFLOAT3	emitter_pos_ = { 0,0,0 };
+	int			num_active_particles_ = 0;
 
 private:
-	int		emit_num_particles = 10;
-	float	emit_range = 1.0f;
+	float	emit_interval_;
 	float	emit_timer = 0.0f;
 	bool	is_uv_animated_;
 	float	anim_offset = 0.3f;

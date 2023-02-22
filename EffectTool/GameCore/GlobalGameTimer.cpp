@@ -1,7 +1,7 @@
 #include "GlobalGameTimer.h"
 
 float   g_timer = 0.0f;
-float   g_spf = 0.0f;
+float   g_delta_time = 0.0f;
 UINT    g_fps = 0.0f;
 
 bool GlobalGameTimer::Frame()
@@ -16,6 +16,6 @@ bool GlobalGameTimer::Frame()
         fps_timer_ -= 1.0f;
     }
     g_timer = _timer;
-    g_spf = _elapseTime;
+    g_delta_time = _elapseTime;
     return true;
 }

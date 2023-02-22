@@ -32,7 +32,7 @@
 extern HWND		g_hWnd;
 extern RECT		g_rectClient;
 extern float	g_timer;
-extern float	g_spf;
+extern float	g_delta_time;
 extern UINT		g_fps;
 
 
@@ -84,7 +84,7 @@ static STR wtm(W_STR str)
 	return conv.to_bytes(str);
 }
 
-static ID3D11ShaderResourceView* CreateTexture2DArraySRV(
+static ID3D11ShaderResourceView* CreateSRVFromMultipleImages(
 	ID3D11Device* device, ID3D11DeviceContext* context, std::vector<W_STR>& filenames)
 {
 	int num_textures = filenames.size();
@@ -151,6 +151,64 @@ static ID3D11ShaderResourceView* CreateTexture2DArraySRV(
 
 	texArray = nullptr;
 	for (int i = 0; i < num_textures; i++) src_textures[i] = nullptr;
+
+	return texArraySRV;
+}
+
+
+static ID3D11ShaderResourceView* CreateSRVFromSpriteSheet(
+	ID3D11Device* device, ID3D11DeviceContext* context, W_STR filename, int num_rows, int num_cols)
+{
+	int num_textures = num_rows * num_cols;
+	ComPtr<ID3D11Texture2D> srcTexture;
+	ComPtr<ID3D11Texture2D> texArray;
+
+	HRESULT result = DirectX::CreateWICTextureFromFileEx(
+		device,
+		context,
+		filename.c_str(),
+		0,
+		D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0,
+		DirectX::DX11::WIC_LOADER_FLAGS::WIC_LOADER_IGNORE_SRGB,
+		(ID3D11Resource**)srcTexture.GetAddressOf(), nullptr	);
+
+	// Create the texture array by specifying the texture dimensions and the number of textures in the array
+	D3D11_TEXTURE2D_DESC textureArrayDesc;
+	srcTexture->GetDesc(&textureArrayDesc);
+	int tex_width = textureArrayDesc.Width / num_cols;
+	int tex_height = textureArrayDesc.Height / num_rows;
+
+
+	textureArrayDesc.ArraySize = num_textures;
+	textureArrayDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	device->CreateTexture2D(&textureArrayDesc, NULL, texArray.GetAddressOf());
+
+	// Copy each 64x64 image from the original texture to the corresponding slice in the texture array
+	for (int i = 0; i < num_textures; i++)
+	{
+		D3D11_BOX sourceRegion;
+		sourceRegion.left = (i % num_cols) * tex_width;
+		sourceRegion.top = (i / num_cols) * tex_height;
+		sourceRegion.front = 0;
+		sourceRegion.right = sourceRegion.left + tex_width;
+		sourceRegion.bottom = sourceRegion.top + tex_height;
+		sourceRegion.back = 1;
+		context->CopySubresourceRegion(texArray.Get(), D3D11CalcSubresource(0, i, 1), 0, 0, 0, srcTexture.Get(), 0, &sourceRegion);
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = textureArrayDesc.Format;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	viewDesc.Texture2DArray.MostDetailedMip = 0;
+	viewDesc.Texture2DArray.MipLevels = textureArrayDesc.MipLevels;
+	viewDesc.Texture2DArray.FirstArraySlice = 0;
+	viewDesc.Texture2DArray.ArraySize = num_textures;
+
+	ID3D11ShaderResourceView* texArraySRV = 0;
+	device->CreateShaderResourceView(texArray.Get(), &viewDesc, &texArraySRV);
+
+	texArray = nullptr;
+	srcTexture = nullptr;
 
 	return texArraySRV;
 }

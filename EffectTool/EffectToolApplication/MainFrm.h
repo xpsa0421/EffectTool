@@ -10,6 +10,8 @@
 #include "CDockPaneExp.h"
 #include "CEmitterView.h"
 #include "CShaderSettingPane.h"
+#include "CDetailsSpawnPane.h"
+#include "CTextureSelectPane.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -20,7 +22,11 @@ protected: // create from serialization only
 
 // Attributes
 public:
+	CTabbedPane	details_tabbed_pane;
 	CDockPaneExp main_dockpane_;
+	CDetailsSpawnPane	spawn_dockpane;
+	CTextureSelectPane	texture_dockpane;
+
 	CEmitterView emitter_view_pane;
 	CShaderSettingPane shader_set_pane;
 // Operations

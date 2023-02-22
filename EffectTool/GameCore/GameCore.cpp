@@ -79,7 +79,7 @@ bool GameCore::CoreRender()
 #endif // DEBUG
 	Render();
 #ifdef _DEBUG
-	if (cam_) PrintDebugInfo();
+	//if (cam_) PrintDebugInfo();
 #endif // DEBUG
 
 	CorePostRender();

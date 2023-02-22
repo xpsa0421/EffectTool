@@ -23,7 +23,13 @@ public:
 				XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax, 
 				XMFLOAT3 velocity_min, XMFLOAT3 velocity_max, BOOL use_random_color, W_STR emitter_name);
 	bool	NameExists(W_STR name);
-
+	void	CreateDefaultEmitter();
+	void	SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
+		int num_rows, int num_cols);
+	void SetEmitterTexture(W_STR emitter_name,
+		std::vector<W_STR>& tex_paths);
+	void SetEmitterTexture(W_STR emitter_name, W_STR tex_path);
+	void	SetSpawnRate(W_STR emitter_name, float spawn_rate);
 public:
 	bool	depth_write_enabled_	= false;
 	bool	depth_compared_			= true;

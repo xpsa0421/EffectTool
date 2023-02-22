@@ -41,13 +41,13 @@ void main(
 	const float2 g_tex_coord[4] =
 	{
 		float2(0.0, 0.0),
-		float2(1.0, 0.0),
-		float2(0.0, 1.0),
-		float2(1.0, 1.0),
+		float2(1.0 / g_in[0].tex.y, 0.0),
+		float2(0.0, 1.0 / g_in[0].tex.x),
+		float2(1.0 / g_in[0].tex.y, 1.0 / g_in[0].tex.x)
 	};
 
-	float half_width = 0.5f * g_in[0].size.x;
-	float half_height = 0.5f * g_in[0].size.y;
+	float half_width = 0.5f *g_in[0].size.x;
+	float half_height = 0.5f *g_in[0].size.y;
 	
 	float3 right = { 1,0,0 };
 	float3 up = { 0,1,0 };

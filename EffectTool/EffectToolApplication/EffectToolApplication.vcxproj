@@ -192,6 +192,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDetails2Dlg.h" />
+    <ClInclude Include="CDetailsSpawnPane.h" />
     <ClInclude Include="CDockPaneExp.h" />
     <ClInclude Include="CEmitterListViewDlg.h" />
     <ClInclude Include="CEmitterSettingsDlg.h" />
@@ -199,6 +201,8 @@
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="CShaderSetDlg.h" />
     <ClInclude Include="CShaderSettingPane.h" />
+    <ClInclude Include="CTextureSelectDlg.h" />
+    <ClInclude Include="CTextureSelectPane.h" />
     <ClInclude Include="EffectTool.h" />
     <ClInclude Include="EffectToolApplication.h" />
     <ClInclude Include="EffectToolApplicationDoc.h" />
@@ -215,6 +219,8 @@
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDetails2Dlg.cpp" />
+    <ClCompile Include="CDetailsSpawnPane.cpp" />
     <ClCompile Include="CDockPaneExp.cpp" />
     <ClCompile Include="CEmitterListViewDlg.cpp" />
     <ClCompile Include="CEmitterSettingsDlg.cpp" />
@@ -222,6 +228,8 @@
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="CShaderSetDlg.cpp" />
     <ClCompile Include="CShaderSettingPane.cpp" />
+    <ClCompile Include="CTextureSelectDlg.cpp" />
+    <ClCompile Include="CTextureSelectPane.cpp" />
     <ClCompile Include="EffectTool.cpp" />
     <ClCompile Include="EffectToolApplication.cpp" />
     <ClCompile Include="EffectToolApplicationDoc.cpp" />

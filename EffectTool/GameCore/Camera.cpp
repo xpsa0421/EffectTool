@@ -84,12 +84,12 @@ bool Camera::Frame()
 	{
 		if (s_input.GetKey(VK_SPACE) == KEY_HOLD)
 		{
-			move_speed_ += g_spf * 100.0f;
+			move_speed_ += g_delta_time * 100.0f;
 			move_speed_ = min(100.0f, move_speed_);
 		}
 		else
 		{
-			move_speed_ -= g_spf * 100.0f;
+			move_speed_ -= g_delta_time * 100.0f;
 			move_speed_ = max(10.0f, move_speed_);
 		}
 	}
@@ -97,27 +97,27 @@ bool Camera::Frame()
 	// movement control
 	if (s_input.GetKey('W') == KEY_HOLD)
 	{
-		Move(look_, move_speed_ * g_spf);
+		Move(look_, move_speed_ * g_delta_time);
 	}
 	if (s_input.GetKey('S') == KEY_HOLD)
 	{
-		Move(look_, -move_speed_ * g_spf);
+		Move(look_, -move_speed_ * g_delta_time);
 	}
 	if (s_input.GetKey('A') == KEY_HOLD)
 	{
-		Move(right_, -move_speed_ * g_spf);
+		Move(right_, -move_speed_ * g_delta_time);
 	}
 	if (s_input.GetKey('D') == KEY_HOLD)
 	{
-		Move(right_, move_speed_ * g_spf);
+		Move(right_, move_speed_ * g_delta_time);
 	}
 	if (s_input.GetKey('Q') == KEY_HOLD)
 	{
-		Move(up_, -move_speed_ * g_spf);
+		Move(up_, -move_speed_ * g_delta_time);
 	}
 	if (s_input.GetKey('E') == KEY_HOLD)
 	{
-		Move(up_, move_speed_ * g_spf);
+		Move(up_, move_speed_ * g_delta_time);
 	}
 	UpdateVector();
 	return true;
