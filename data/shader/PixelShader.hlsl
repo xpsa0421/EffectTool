@@ -43,3 +43,10 @@ PixelOut AlphaNotTested(PixelIn p_in) : SV_Target
 	p_out.a = vColor * p_in.color;
 	return p_out;
 }
+
+float4 NoDualAlphaBlend(PixelIn p_in) : SV_Target
+{
+	float3 uvw = float3(p_in.tex, p_in.tex_idx);
+	float4 textureColour = g_textures.Sample(g_sampleWrap, uvw);
+	return p_in.color * textureColour;
+}

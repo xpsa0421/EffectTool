@@ -35,4 +35,8 @@ public:
 	afx_msg void OnBnClickedCheckWireframe();
 	CButton wireframe_button;
 	BOOL wireframe_enabled;
+	BOOL is_dual_blended;
+	afx_msg void OnBnClickedDualsource();
+	virtual BOOL OnInitDialog();
+	CButton dualsource_btn;
 };

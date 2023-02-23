@@ -400,6 +400,12 @@ void ParticleSystem::SetSizeOffset(XMFLOAT2 size_min, XMFLOAT2 size_max)
 {
 	initial_size_offset_min_ = size_min;
 	initial_size_offset_max_ = size_max;
+
+	for (int i = 0; i < num_alive_particles; i++)
+	{
+		particles_[i].size = { randstep(initial_size_offset_min_.x, initial_size_offset_max_.x),
+				randstep(initial_size_offset_min_.y, initial_size_offset_max_.y) };
+	}
 }
 
 void ParticleSystem::SetEmitterPos(XMFLOAT3 pos)

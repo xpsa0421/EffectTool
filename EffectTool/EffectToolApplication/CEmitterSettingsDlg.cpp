@@ -248,9 +248,9 @@ void CEmitterSettingsDlg::OnBnClickedGenEmitter()
 		AfxMessageBox(_T("Name already exists!"), MB_ICONSTOP);
 		return;
 	}
-	
-	app->effect_tool_.GenEmitterFromMultipleTex(tex_file_paths,
-		emitter_init_num, emitter_emit_cycle,
+	/*
+	app->effect_tool_.GenEmitterFromMultipleTex(
+		spawn_rate_,
 		{ emitter_x, emitter_y, emitter_z },
 		{ pos_offset_minX, pos_offset_minY, pos_offset_minZ },
 		{ pos_offset_maxX, pos_offset_maxY, pos_offset_maxZ },
@@ -259,7 +259,8 @@ void CEmitterSettingsDlg::OnBnClickedGenEmitter()
 		{ vel_min_x, vel_min_y, vel_min_z },
 		{ vel_max_x, vel_max_y, vel_max_z },
 		use_random_color,
-		LPCWSTR(emitter_name));
+		LPCWSTR(emitter_name),
+		tex_file_paths);*/
 
 	return;
 }

@@ -135,6 +135,8 @@
 #define IDC_EDIT1                       1040
 #define IDC_SPAWNRATE                   1040
 #define IDC_EMITTER_NAME                1041
+#define IDC_CHECK1                      1041
+#define IDC_DUALSOURCE                  1041
 #define IDC_VEL_MIN_X                   1042
 #define IDC_SIZE_MAX_Y2                 1042
 #define IDC_VEL_MIN_Y                   1043
@@ -155,7 +157,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        330
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1041
+#define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

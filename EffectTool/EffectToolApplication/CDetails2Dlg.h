@@ -23,4 +23,14 @@ protected:
 public:
 	float spawn_rate_;
 	afx_msg void OnEnKillfocusSpawnrate();
+	virtual BOOL OnInitDialog();
+	float size_min_x;
+	float size_min_y;
+	float size_max_x;
+	float size_max_y;
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
+	afx_msg void OnEnKillfocusSizeMinX();
+	afx_msg void OnEnKillfocusSizeMinY();
+	afx_msg void OnEnKillfocusSizeMaxX();
+	afx_msg void OnEnKillfocusSizeMaxY();
 };

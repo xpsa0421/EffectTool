@@ -26,6 +26,7 @@
     <ClCompile Include="GameCore.cpp" />
     <ClCompile Include="GlobalGameTimer.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="GameCore.h" />
     <ClInclude Include="GlobalGameTimer.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="JsonHelper.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Shader.h" />

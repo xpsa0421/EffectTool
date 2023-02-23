@@ -18,6 +18,7 @@ CShaderSetDlg::CShaderSetDlg(CWnd* pParent /*=nullptr*/)
 	, alpha_tested(FALSE)
 	, alpha_blended(FALSE)
 	, wireframe_enabled(FALSE)
+	, is_dual_blended(FALSE)
 {
 
 }
@@ -39,6 +40,8 @@ void CShaderSetDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_ALPHA_BLEND, alpha_blended);
 	DDX_Control(pDX, IDC_CHECK_WIREFRAME, wireframe_button);
 	DDX_Check(pDX, IDC_CHECK_WIREFRAME, wireframe_enabled);
+	DDX_Check(pDX, IDC_DUALSOURCE, is_dual_blended);
+	DDX_Control(pDX, IDC_DUALSOURCE, dualsource_btn);
 }
 
 
@@ -48,6 +51,7 @@ BEGIN_MESSAGE_MAP(CShaderSetDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_ALPHA_TEST, &CShaderSetDlg::OnBnClickedCheckAlphaTest)
 	ON_BN_CLICKED(IDC_CHECK_ALPHA_BLEND, &CShaderSetDlg::OnBnClickedCheckAlphaBlend)
 	ON_BN_CLICKED(IDC_CHECK_WIREFRAME, &CShaderSetDlg::OnBnClickedCheckWireframe)
+	ON_BN_CLICKED(IDC_DUALSOURCE, &CShaderSetDlg::OnBnClickedDualsource)
 END_MESSAGE_MAP()
 
 
@@ -96,4 +100,28 @@ void CShaderSetDlg::OnBnClickedCheckWireframe()
 	CEffectToolApplicationApp* app = (CEffectToolApplicationApp*)AfxGetApp();
 	app->effect_tool_.wireframe_enabled_ = wireframe_enabled;
 	return;
+}
+
+
+void CShaderSetDlg::OnBnClickedDualsource()
+{
+	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+	CEffectToolApplicationApp* app = (CEffectToolApplicationApp*)AfxGetApp();
+	app->effect_tool_.dualsource_blended_ = is_dual_blended;
+	return;
+}
+
+
+BOOL CShaderSetDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  Add extra initialization here
+	depth_compare_button.SetCheck(TRUE);
+	alpha_blend_button.SetCheck(TRUE);
+	dualsource_btn.SetCheck(TRUE);
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // EXCEPTION: OCX Property Pages should return FALSE
 }

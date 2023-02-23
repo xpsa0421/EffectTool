@@ -93,6 +93,9 @@
     <ClCompile Include="Object.cpp">
       <Filter>Object\Source</Filter>
     </ClCompile>
+    <ClCompile Include="JsonHelper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonHelper.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
