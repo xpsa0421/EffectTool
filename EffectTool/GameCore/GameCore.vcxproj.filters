@@ -94,7 +94,7 @@
       <Filter>Object\Source</Filter>
     </ClCompile>
     <ClCompile Include="JsonHelper.cpp">
-      <Filter>Source</Filter>
+      <Filter>Utility\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -150,7 +150,7 @@
       <Filter>Object\Header</Filter>
     </ClInclude>
     <ClInclude Include="JsonHelper.h">
-      <Filter>Header</Filter>
+      <Filter>Utility\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

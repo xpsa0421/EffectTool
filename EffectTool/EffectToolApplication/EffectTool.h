@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "ParticleSystem.h"
 #include "JsonHelper.h"
-#define EMITTER_PROPERTIES_COUNT 12
+#define EMITTER_PROPERTIES_COUNT 13
 
 struct CdPerFrame
 {
@@ -36,7 +36,9 @@ public:
 	void	SetSpawnRate(W_STR emitter_name, float spawn_rate);
 	void	UpdateSizeOffset(W_STR emitter_name, XMFLOAT2 size_min, XMFLOAT2 size_max);
 
-	bool	ReadEmitterFromFile(W_STR filepath);
+	bool	LoadParticleSystemFromFile(std::vector<ParticleSystem*>& particle_system, W_STR filename);
+	bool	SaveParticleSystemToFile(std::vector<ParticleSystem>& particle_system, W_STR filename);
+	
 
 public:
 	bool	depth_write_enabled_	= false;

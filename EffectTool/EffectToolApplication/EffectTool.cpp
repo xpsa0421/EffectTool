@@ -3,7 +3,9 @@
 
 bool EffectTool::Init()
 {
-    ReadEmitterFromFile(L"../../data/emitter/test.json");
+    std::vector<ParticleSystem> particle_system;
+    LoadEmittersFromFile(particle_system, L"../../data/emitter/test.json");
+    SaveEmittersToFile(particle_system, L"../../data/emitter/savetest.json");
 
     // initialise camera
     cam_ = new Camera;
@@ -224,17 +226,15 @@ void EffectTool::UpdateSizeOffset(W_STR emitter_name, XMFLOAT2 size_min, XMFLOAT
     }
 }
 
-bool EffectTool::ReadEmitterFromFile(W_STR filepath)
+bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& particle_systems, W_STR filepath)
 {
     rapidjson::Document emitter_data;
     
-    // load file and check validity
-    if (!JsonHelper::LoadJSON(filepath, emitter_data)) return false;
-
     // declare property variables
     W_STR               emitter_name;
     std::vector<W_STR>  tex_paths;
-    XMFLOAT2            tex_rows_cols;
+    int                 tex_cols;
+    int                 tex_rows;
     float               spawn_rate;
     XMFLOAT3            emitter_pos;
     XMFLOAT3            pos_offset_min;
@@ -246,8 +246,10 @@ bool EffectTool::ReadEmitterFromFile(W_STR filepath)
     XMFLOAT3            velocity_max;
     XMFLOAT4            color;
 
+    // load file and check validity
+    if (!JsonHelper::LoadJSON(filepath, emitter_data)) return false;
 
-    // iterate all emitters
+    // iterate all particle systems
     for (auto& emitter : emitter_data.GetObject())
     {
         rapidjson::Value& properties = emitter.value;
@@ -282,8 +284,14 @@ bool EffectTool::ReadEmitterFromFile(W_STR filepath)
             tex_paths.push_back(mtw(texpath_list[i].GetString()));
         }
 
-        // retrieve number of rows and columns in texture
-        if (!JsonHelper::GetFloat2(properties, "tex_rows_cols", tex_rows_cols))
+        // retrieve number of rows in texture
+        if (!JsonHelper::GetInt(properties, "tex_rows", tex_rows))
+        {
+            return false;
+        }
+
+        // retrieve number of rows in texture
+        if (!JsonHelper::GetInt(properties, "tex_cols", tex_cols))
         {
             return false;
         }
@@ -347,8 +355,34 @@ bool EffectTool::ReadEmitterFromFile(W_STR filepath)
         {
             return false;
         }
+
+
+        // set particle system's properties
+        ParticleSystem* emitter = new ParticleSystem();
+
+        if (tex_paths.size() > 1)
+        {
+            emitter->SetMultiTexAnimation(tex_paths);
+        }
+        else if ((tex_cols == 1) && (tex_rows == 1))
+        {
+            emitter->SetTexture(tex_paths[0]);
+        }
+        else
+        {
+            emitter->SetUVAnimation(tex_paths[0], tex_rows, tex_cols);
+        }
+        emitter->name_ = emitter_name;
+        emitter->SetSpawnRate(spawn_rate);
+        emitter->SetLifetimeOffset(lifetime.x, lifetime.y);
+        emitter->SetEmitterPos(emitter_pos);
+        emitter->SetPosOffset(pos_offset_min, pos_offset_max);
+        emitter->SetSizeOffset(initial_size_min, initial_size_max);
+        emitter->SetVelocity(velocity_max, velocity_max);
+        //particle_system.SetAdditiveColor();
+
+        particle_systems.push_back(emitter);
     }
 
-    // do something with the values
     return true;
 }

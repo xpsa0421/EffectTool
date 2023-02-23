@@ -109,6 +109,7 @@ public:
 	void	SetTexture(W_STR filepath);
 
 public:
+	W_STR	name_;
 	std::vector<Particle>		particles_;
 	int			num_requested_particles = 0;
 	int			num_textures;

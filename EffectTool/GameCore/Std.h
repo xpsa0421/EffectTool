@@ -44,6 +44,7 @@ typedef std::basic_string<char>					C_STR;
 typedef std::string								STR;
 typedef std::vector<std::basic_string<TCHAR>>	TSTR_VECTOR;
 typedef std::vector<DWORD>						DWORD_VECTOR;
+typedef std::vector<W_STR>						WSTR_VECTOR;
 typedef std::vector<float>						FLOAT_VECTOR;
 
 
