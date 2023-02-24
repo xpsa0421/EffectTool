@@ -16,6 +16,7 @@
 #include <DirectXMath.h>
 #include <dxtk\WICTextureLoader.h>
 
+
 //-----------------------------------------------------------------------------
 // Standard libraries
 //-----------------------------------------------------------------------------
@@ -36,7 +37,13 @@ extern UINT		g_fps;
 
 
 //-----------------------------------------------------------------------------
-// Type defines
+// Custom definitions
+//-----------------------------------------------------------------------------
+#define randstep(fMin,fMax) (fMin+((float)fMax-(float)fMin)*rand()/(float)RAND_MAX)
+
+
+//-----------------------------------------------------------------------------
+// Type definitions
 //-----------------------------------------------------------------------------
 typedef std::basic_string<TCHAR>				T_STR;
 typedef std::basic_string<wchar_t>				W_STR;
@@ -44,6 +51,7 @@ typedef std::basic_string<char>					C_STR;
 typedef std::string								STR;
 typedef std::vector<std::basic_string<TCHAR>>	TSTR_VECTOR;
 typedef std::vector<DWORD>						DWORD_VECTOR;
+typedef std::vector<W_STR>						WSTR_VECTOR;
 typedef std::vector<float>						FLOAT_VECTOR;
 
 

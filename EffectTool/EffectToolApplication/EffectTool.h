@@ -1,9 +1,9 @@
 #pragma once
 #include "GameCore.h"
 #include "Camera.h"
-#include "ParticleSystem.h"
+#include "ParticleEmitter.h"
 #include "JsonHelper.h"
-#define EMITTER_PROPERTIES_COUNT 13
+#define EMITTER_PROPERTIES_COUNT 14
 
 struct CdPerFrame
 {
@@ -36,8 +36,8 @@ public:
 	void	SetSpawnRate(W_STR emitter_name, float spawn_rate);
 	void	UpdateSizeOffset(W_STR emitter_name, XMFLOAT2 size_min, XMFLOAT2 size_max);
 
-	bool	LoadParticleSystemFromFile(std::vector<ParticleSystem*>& particle_system, W_STR filename);
-	bool	SaveParticleSystemToFile(std::vector<ParticleSystem>& particle_system, W_STR filename);
+	bool	LoadParticleSystemFromFile(std::vector<ParticleEmitter*>& particle_system, W_STR filename);
+	bool	SaveParticleSystemToFile(std::vector<ParticleEmitter>& particle_system, W_STR filename);
 	
 
 public:
@@ -49,7 +49,7 @@ public:
 	bool	dualsource_blended_		= true;
 
 private:
-	std::map<W_STR, ParticleSystem*> emitters;
+	std::vector<std::vector<ParticleEmitter*>> particle_systems;
 
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
 	CdPerFrame gs_cdata_per_frame_;

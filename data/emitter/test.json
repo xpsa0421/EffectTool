@@ -1,5 +1,6 @@
 {
-  "emitter_1": {
+  {
+    "name": "emitter_1",
     "tex_paths": [ "../../data/image/pf00.dds", "../../data/image/pf01.dds" ],
     "tex_rows": 1,
     "tex_cols": 1,
@@ -8,13 +9,13 @@
     "emitter_pos": [ 0, 0, 0 ],
     "pos_offset_min": [ 0, 0, 0 ],
     "pos_offset_max": [ 0, 0, 0 ],
-    "initial_size_min": [ 25, 25, 25 ],
-    "initial_size_max": [ 50, 50, 50 ],
+    "initial_size_min": [ 25, 25 ],
+    "initial_size_max": [ 50, 50 ],
     "initial_velocity_min": [ -2, 1, 0 ],
     "initial_velocity_max": [ 2, 3, 0 ],
     "color": [ 1, 1, 1, 1 ]
   },
-  "test_name2": {
+  {
     "tex_paths": [ "../../data/image/pf00.dds", "../../data/image/pf01.dds" ],
     "tex_rows_cols": [ 1, 1 ]
   }

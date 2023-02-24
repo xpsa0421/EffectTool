@@ -57,7 +57,7 @@
     <ClInclude Include="EffectTool.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
+    <ClInclude Include="ParticleEmitter.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="FileView.h">
@@ -93,6 +93,9 @@
     <ClInclude Include="CTextureSelectPane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EffectToolApplication.cpp">
@@ -125,7 +128,7 @@
     <ClCompile Include="EffectTool.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
+    <ClCompile Include="ParticleEmitter.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="FileView.cpp">
@@ -160,6 +163,9 @@
     </ClCompile>
     <ClCompile Include="CTextureSelectPane.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

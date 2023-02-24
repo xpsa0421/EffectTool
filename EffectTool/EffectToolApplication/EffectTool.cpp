@@ -3,9 +3,9 @@
 
 bool EffectTool::Init()
 {
-    std::vector<ParticleSystem> particle_system;
-    LoadEmittersFromFile(particle_system, L"../../data/emitter/test.json");
-    SaveEmittersToFile(particle_system, L"../../data/emitter/savetest.json");
+    std::vector<ParticleEmitter*> particle_system;
+    LoadParticleSystemFromFile(particle_system, L"../../data/emitter/test.json");
+    //SaveParticleSystemToFile(particle_system, L"../../data/emitter/savetest.json");
 
     // initialise camera
     cam_ = new Camera;
@@ -56,9 +56,14 @@ bool EffectTool::Frame()
     gs_cdata_per_frame_.view = cdata_view;
     gs_cdata_per_frame_.proj = cdata_proj;
    
-    for (auto emitter : emitters)
+    // for each particle system,
+    for (auto particle_system : particle_systems)
     {
-        emitter.second->Frame();
+        // loop through all emitters in the system
+        for (auto emitter : particle_system)
+        {
+            emitter->Frame();
+        }
     }
 
 	return true;
@@ -156,7 +161,7 @@ void    EffectTool::GenEmitterFromMultipleTex(float spawn_rate, XMFLOAT3 emitter
     XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax,
     XMFLOAT3 velocity_min, XMFLOAT3 velocity_max, BOOL use_random_color, W_STR emitter_name, std::vector<W_STR> tex_names)
 {
-    ParticleSystem* emitter = new ParticleSystem;
+    ParticleEmitter* emitter = new ParticleEmitter;
     emitter->Init();
     //emitter->SetSpawnRate(emit_cycle, num_particles);
     emitter->SetEmitterPos(emitter_pos);
@@ -180,7 +185,7 @@ bool EffectTool::NameExists(W_STR name)
 
 void EffectTool::CreateDefaultEmitter()
 {
-    ParticleSystem* emitter = new ParticleSystem;
+    ParticleEmitter* emitter = new ParticleEmitter;
     emitter->Init();
     emitter->SetSpawnRate(20);
     emitter->SetEmitterPos({ 0,0,0 });
@@ -226,9 +231,9 @@ void EffectTool::UpdateSizeOffset(W_STR emitter_name, XMFLOAT2 size_min, XMFLOAT
     }
 }
 
-bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& particle_systems, W_STR filepath)
+bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleEmitter*>& particle_systems, W_STR filepath)
 {
-    rapidjson::Document emitter_data;
+    rapidjson::Document particle_system_document;
     
     // declare property variables
     W_STR               emitter_name;
@@ -239,18 +244,18 @@ bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& partic
     XMFLOAT3            emitter_pos;
     XMFLOAT3            pos_offset_min;
     XMFLOAT3            pos_offset_max;
-    XMFLOAT3            initial_size_min;
-    XMFLOAT3            initial_size_max;
+    XMFLOAT2            initial_size_min;
+    XMFLOAT2            initial_size_max;
     XMFLOAT2            lifetime;
     XMFLOAT3            velocity_min;
     XMFLOAT3            velocity_max;
     XMFLOAT4            color;
 
     // load file and check validity
-    if (!JsonHelper::LoadJSON(filepath, emitter_data)) return false;
+    if (!JsonHelper::LoadJSON(filepath, particle_system_document)) return false;
 
-    // iterate all particle systems
-    for (auto& emitter : emitter_data.GetObject())
+    // iterate all particle emitters in the system
+    for (auto& emitter : particle_system_document.GetObject())
     {
         rapidjson::Value& properties = emitter.value;
 
@@ -260,10 +265,13 @@ bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& partic
             return false;
         }
 
-        // retrieve emitter name
-        emitter_name = mtw(emitter.name.GetString());
-
         // retrieve emitter properties
+        // retrieve number of rows in texture
+        if (!JsonHelper::GetWString(properties, "name", emitter_name))
+        {
+            return false;
+        }
+
         // retrieve texture paths
         auto texpath_itr = properties.FindMember("tex_paths");
         if (texpath_itr == properties.MemberEnd())
@@ -327,13 +335,13 @@ bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& partic
         }
         
         // retrieve minimum particle initial size
-        if (!JsonHelper::GetFloat3(properties, "initial_size_min", initial_size_min))
+        if (!JsonHelper::GetFloat2(properties, "initial_size_min", initial_size_min))
         {
             return false;
         }
 
         // retrieve maximum particle initial size
-        if (!JsonHelper::GetFloat3(properties, "initial_size_max", initial_size_max))
+        if (!JsonHelper::GetFloat2(properties, "initial_size_max", initial_size_max))
         {
             return false;
         }
@@ -358,7 +366,7 @@ bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& partic
 
 
         // set particle system's properties
-        ParticleSystem* emitter = new ParticleSystem();
+        ParticleEmitter* emitter = new ParticleEmitter();
 
         if (tex_paths.size() > 1)
         {
@@ -372,7 +380,7 @@ bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleSystem*>& partic
         {
             emitter->SetUVAnimation(tex_paths[0], tex_rows, tex_cols);
         }
-        emitter->name_ = emitter_name;
+        emitter->SetName(emitter_name);
         emitter->SetSpawnRate(spawn_rate);
         emitter->SetLifetimeOffset(lifetime.x, lifetime.y);
         emitter->SetEmitterPos(emitter_pos);
