@@ -10,7 +10,7 @@ struct CdPerParticleSystem
 class ParticleSystem
 {
 public:
-	bool	SetDeviceContext(ID3D11Device* device, ID3D11DeviceContext* context);
+	void	SetDeviceContext(ID3D11Device* device, ID3D11DeviceContext* context);
 	bool	Init();
 	bool	Frame();
 	bool	Render();

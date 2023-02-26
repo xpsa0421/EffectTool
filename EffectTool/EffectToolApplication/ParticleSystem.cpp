@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ParticleSystem.h"
 
-bool ParticleSystem::SetDeviceContext(ID3D11Device* device, ID3D11DeviceContext* context)
+void ParticleSystem::SetDeviceContext(ID3D11Device* device, ID3D11DeviceContext* context)
 {
     device_ = device;
     device_context_ = context;
@@ -16,6 +16,8 @@ bool ParticleSystem::Init()
     {
         AddDefaultEmitter();
     }
+
+    return true;
 }
 
 /**
@@ -27,6 +29,8 @@ bool ParticleSystem::Frame()
     {
         emitter->Frame();
     }
+
+    return true;
 }
 
 /**
@@ -38,6 +42,8 @@ bool ParticleSystem::Render()
     {
         emitter->Render();
     }
+
+    return true;
 }
 
 /**
@@ -51,6 +57,7 @@ bool ParticleSystem::Release()
         delete emitter;
     }
     emitters_.clear();
+    return true;
 }
 
 /**
@@ -105,7 +112,6 @@ ParticleSystem* ParticleSystem::LoadFromFile(ID3D11Device* device, W_STR filepat
     XMFLOAT3            velocity_min;
     XMFLOAT3            velocity_max;
     XMFLOAT4            color;
-
     // document to save particle system data
     rapidjson::Document particle_system_document;
 

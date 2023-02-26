@@ -3,10 +3,6 @@
 
 bool EffectTool::Init()
 {
-    std::vector<ParticleEmitter*> particle_system;
-    LoadParticleSystemFromFile(particle_system, L"../../data/emitter/test.json");
-    //SaveParticleSystemToFile(particle_system, L"../../data/emitter/savetest.json");
-
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
@@ -14,7 +10,8 @@ bool EffectTool::Init()
     cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
 
-    CreateDefaultEmitter();
+    // add default particle system upon launch
+    AddDefaultParticleSystem();
     
     // generate per frame geometry shader constant buffer
     D3D11_BUFFER_DESC constant_desc;
@@ -56,14 +53,10 @@ bool EffectTool::Frame()
     gs_cdata_per_frame_.view = cdata_view;
     gs_cdata_per_frame_.proj = cdata_proj;
    
-    // for each particle system,
-    for (auto particle_system : particle_systems)
+    // update all loaded particle systems
+    for (ParticleSystem* particle_system : particle_systems)
     {
-        // loop through all emitters in the system
-        for (auto emitter : particle_system)
-        {
-            emitter->Frame();
-        }
+        particle_system->Frame(); 
     }
 
 	return true;
@@ -95,52 +88,39 @@ bool EffectTool::Render()
     else
         DxState.ApplyBlendState(L"BS_dual_source_no_blend");
 
+    // TODO: To set properties by emitters and update independently
     // set alpha testing
-    if (!dualsource_blended_)
+    for (ParticleSystem* particle_system : particle_systems)
     {
-        for (auto emitter : emitters)
-            emitter.second->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"NoDualAlphaBlend");
+        for (ParticleEmitter* emitter : particle_system->emitters_)
+        {
+            if (!dualsource_blended_)
+                emitter->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"NoDualAlphaBlend");
+            else if (alpha_tested_)
+                emitter->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaTested");
+            else
+                emitter->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaNotTested");
+        }
     }
-    else if (alpha_tested_)
-    {
-        for (auto emitter : emitters)
-            emitter.second->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaTested");
-    }
-    else
-    {
-        for (auto emitter : emitters)
-            emitter.second->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaNotTested");
-    }
-
 
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
     
-    W_STR text = L"";
-    
-    for (auto emitter : emitters)
+    for (ParticleSystem* particle_system : particle_systems)
     {
-        emitter.second->Render();
-        text += L" " + std::to_wstring(emitter.second->num_alive_particles) + L"/" + 
-            std::to_wstring(emitter.second->num_requested_particles) + L"\n";
+        particle_system->Render();
     }
-
-    writer_.Draw(10, 5, text);
 
 	return true;
 }
 
 bool EffectTool::Release()
 {
-    for (auto emitter : emitters)
+    for (ParticleSystem* particle_system : particle_systems)
     {
-        emitter.second->Release();
-        delete emitter.second;
+        particle_system->Release();
+        delete particle_system;
     }
-    
-   // uv_anim_ps_->Release();
-   // delete uv_anim_ps_;
-
     gs_cbuffer_per_frame_ = nullptr;
 
     return true;
@@ -157,50 +137,21 @@ HRESULT EffectTool::CreateDXResource()
     return S_OK;
 }
 
-void    EffectTool::GenEmitterFromMultipleTex(float spawn_rate, XMFLOAT3 emitter_pos, XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max,
-    XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax,
-    XMFLOAT3 velocity_min, XMFLOAT3 velocity_max, BOOL use_random_color, W_STR emitter_name, std::vector<W_STR> tex_names)
+/**
+ * When the tool is launched, create a default particle system
+ */
+void EffectTool::AddDefaultParticleSystem()
 {
-    ParticleEmitter* emitter = new ParticleEmitter;
-    emitter->Init();
-    //emitter->SetSpawnRate(emit_cycle, num_particles);
-    emitter->SetEmitterPos(emitter_pos);
-    emitter->SetPosOffset(pos_offset_min, pos_offset_max);
-    emitter->SetSizeOffset(size_min, size_max);
-    emitter->SetLifetimeOffset(lifetime_minmax.x, lifetime_minmax.y);
-    emitter->SetVelocity(velocity_min, velocity_max);
-    emitter->SetAdditiveColor(use_random_color);
-    emitter->EmitParticle();
-    emitter->Create(device_.Get(), device_context_.Get());
-   // emitter->SetMultiTexAnimation(tex_names);
-    emitter->SetUVAnimation(tex_names[0], 4, 4);
-
-    emitters.insert(std::make_pair(emitter_name, emitter));
-}
-
-bool EffectTool::NameExists(W_STR name)
-{
-    return (emitters.find(name) != emitters.end());
-}
-
-void EffectTool::CreateDefaultEmitter()
-{
-    ParticleEmitter* emitter = new ParticleEmitter;
-    emitter->Init();
-    emitter->SetSpawnRate(20);
-    emitter->SetEmitterPos({ 0,0,0 });
-    emitter->SetSizeOffset({ 25,25 }, { 25,25 });
-    emitter->SetLifetimeOffset(1,1);
-    emitter->SetVelocity({ -30,50,-10 },{30,100,10});
-    emitter->Create(device_.Get(), device_context_.Get());
-    emitter->SetTexture(L"../../data/image/OrientParticle.PNG");
-    emitters.insert(std::make_pair(L"/default/", emitter));
+    ParticleSystem* default_particle_system = new ParticleSystem();
+    default_particle_system->SetDeviceContext(device_.Get(), device_context_.Get());
+    default_particle_system->Init();
+    particle_systems.push_back(default_particle_system);
 }
 
 void EffectTool::SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
     int num_rows, int num_cols)
 {
-    emitters.find(emitter_name)->second->SetUVAnimation(tex_path, num_rows, num_cols);
+    //emitters.find(emitter_name)->second->SetUVAnimation(tex_path, num_rows, num_cols);
 }
 
 void EffectTool::SetEmitterTexture(W_STR emitter_name, std::vector<W_STR>& tex_paths)
@@ -215,182 +166,18 @@ void EffectTool::SetEmitterTexture(W_STR emitter_name, W_STR tex_path)
 
 void EffectTool::SetSpawnRate(W_STR emitter_name, float spawn_rate)
 {
-    auto emitter = emitters.find(emitter_name);
+    /*auto emitter = emitters.find(emitter_name);
     if (emitter != emitters.end())
     {
         emitter->second->SetSpawnRate(spawn_rate);
-    }
+    }*/
 }
 
 void EffectTool::UpdateSizeOffset(W_STR emitter_name, XMFLOAT2 size_min, XMFLOAT2 size_max)
 {
-    auto emitter = emitters.find(emitter_name);
+    /*auto emitter = emitters.find(emitter_name);
     if (emitter != emitters.end())
     {
         emitter->second->SetSizeOffset(size_min, size_max);
-    }
-}
-
-bool EffectTool::LoadParticleSystemFromFile(std::vector<ParticleEmitter*>& particle_systems, W_STR filepath)
-{
-    rapidjson::Document particle_system_document;
-    
-    // declare property variables
-    W_STR               emitter_name;
-    std::vector<W_STR>  tex_paths;
-    int                 tex_cols;
-    int                 tex_rows;
-    float               spawn_rate;
-    XMFLOAT3            emitter_pos;
-    XMFLOAT3            pos_offset_min;
-    XMFLOAT3            pos_offset_max;
-    XMFLOAT2            initial_size_min;
-    XMFLOAT2            initial_size_max;
-    XMFLOAT2            lifetime;
-    XMFLOAT3            velocity_min;
-    XMFLOAT3            velocity_max;
-    XMFLOAT4            color;
-
-    // load file and check validity
-    if (!JsonHelper::LoadJSON(filepath, particle_system_document)) return false;
-
-    // iterate all particle emitters in the system
-    for (auto& emitter : particle_system_document.GetObject())
-    {
-        rapidjson::Value& properties = emitter.value;
-
-        // check for incorrect emitter data
-        if (!properties.IsObject() || properties.MemberCount() != EMITTER_PROPERTIES_COUNT)
-        {
-            return false;
-        }
-
-        // retrieve emitter properties
-        // retrieve number of rows in texture
-        if (!JsonHelper::GetWString(properties, "name", emitter_name))
-        {
-            return false;
-        }
-
-        // retrieve texture paths
-        auto texpath_itr = properties.FindMember("tex_paths");
-        if (texpath_itr == properties.MemberEnd())
-        {
-            return false;
-        }
-        rapidjson::Value& texpath_list = texpath_itr->value;
-        if (!texpath_list.IsArray() || texpath_list.Size() == 0)
-        {
-            return false;
-        }
-        for (rapidjson::SizeType i = 0; i < texpath_list.Size(); i++)
-        {
-            if (!texpath_list[i].IsString())
-            {
-                return false;
-            }
-            tex_paths.push_back(mtw(texpath_list[i].GetString()));
-        }
-
-        // retrieve number of rows in texture
-        if (!JsonHelper::GetInt(properties, "tex_rows", tex_rows))
-        {
-            return false;
-        }
-
-        // retrieve number of rows in texture
-        if (!JsonHelper::GetInt(properties, "tex_cols", tex_cols))
-        {
-            return false;
-        }
-
-        // retrieve spawn rate
-        if (!JsonHelper::GetFloat(properties, "spawn_rate", spawn_rate))
-        {
-            return false;
-        }
-        
-        // retrieve particle lifetime min and max
-        if (!JsonHelper::GetFloat2(properties, "lifetime", lifetime))
-        {
-            return false;
-        }
-        
-        // retrieve emitter position
-        if (!JsonHelper::GetFloat3(properties, "emitter_pos", emitter_pos))
-        {
-            return false;
-        }
-        
-        // retrieve minimum particle position offset 
-        if (!JsonHelper::GetFloat3(properties, "pos_offset_min", pos_offset_min))
-        {
-            return false;
-        }
-
-        // retrieve maximum particle position offset 
-        if (!JsonHelper::GetFloat3(properties, "pos_offset_max", pos_offset_max))
-        {
-            return false;
-        }
-        
-        // retrieve minimum particle initial size
-        if (!JsonHelper::GetFloat2(properties, "initial_size_min", initial_size_min))
-        {
-            return false;
-        }
-
-        // retrieve maximum particle initial size
-        if (!JsonHelper::GetFloat2(properties, "initial_size_max", initial_size_max))
-        {
-            return false;
-        }
-
-        // retrieve minimum particle initial velocity
-        if (!JsonHelper::GetFloat3(properties, "initial_velocity_min", velocity_min))
-        {
-            return false;
-        }
-
-        // retrieve maximum particle initial velocity
-        if (!JsonHelper::GetFloat3(properties, "initial_velocity_max", velocity_max))
-        {
-            return false;
-        }
-
-        // retrieve particle color
-        if (!JsonHelper::GetFloat4(properties, "color", color))
-        {
-            return false;
-        }
-
-
-        // set particle system's properties
-        ParticleEmitter* emitter = new ParticleEmitter();
-
-        if (tex_paths.size() > 1)
-        {
-            emitter->SetMultiTexAnimation(tex_paths);
-        }
-        else if ((tex_cols == 1) && (tex_rows == 1))
-        {
-            emitter->SetTexture(tex_paths[0]);
-        }
-        else
-        {
-            emitter->SetUVAnimation(tex_paths[0], tex_rows, tex_cols);
-        }
-        emitter->SetName(emitter_name);
-        emitter->SetSpawnRate(spawn_rate);
-        emitter->SetLifetimeOffset(lifetime.x, lifetime.y);
-        emitter->SetEmitterPos(emitter_pos);
-        emitter->SetPosOffset(pos_offset_min, pos_offset_max);
-        emitter->SetSizeOffset(initial_size_min, initial_size_max);
-        emitter->SetVelocity(velocity_max, velocity_max);
-        //particle_system.SetAdditiveColor();
-
-        particle_systems.push_back(emitter);
-    }
-
-    return true;
+    }*/
 }

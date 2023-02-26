@@ -1,9 +1,7 @@
 #pragma once
 #include "GameCore.h"
 #include "Camera.h"
-#include "ParticleEmitter.h"
-#include "JsonHelper.h"
-#define EMITTER_PROPERTIES_COUNT 14
+#include "ParticleSystem.h"
 
 struct CdPerFrame
 {
@@ -20,12 +18,8 @@ public:
 	bool	Render()	override;
 	bool	Release()	override;
 	HRESULT CreateDXResource() override;
-	void	GenEmitterFromMultipleTex(float spawn_rate, XMFLOAT3 emitter_pos, XMFLOAT3 pos_offset_min, XMFLOAT3 pos_offset_max,
-				XMFLOAT2 size_min, XMFLOAT2 size_max, XMFLOAT2 lifetime_minmax, 
-				XMFLOAT3 velocity_min, XMFLOAT3 velocity_max, BOOL use_random_color, W_STR emitter_name, std::vector<W_STR> tex_names);
 	
-	bool	NameExists(W_STR name);
-	void	CreateDefaultEmitter();
+	void	AddDefaultParticleSystem();
 
 
 	void	SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
@@ -33,11 +27,12 @@ public:
 	void SetEmitterTexture(W_STR emitter_name,
 		std::vector<W_STR>& tex_paths);
 	void SetEmitterTexture(W_STR emitter_name, W_STR tex_path);
+
 	void	SetSpawnRate(W_STR emitter_name, float spawn_rate);
 	void	UpdateSizeOffset(W_STR emitter_name, XMFLOAT2 size_min, XMFLOAT2 size_max);
 
-	bool	LoadParticleSystemFromFile(std::vector<ParticleEmitter*>& particle_system, W_STR filename);
-	bool	SaveParticleSystemToFile(std::vector<ParticleEmitter>& particle_system, W_STR filename);
+	bool	LoadParticleSystemFromFile(W_STR filename);
+	//bool	SaveParticleSystemToFile(std::vector<ParticleEmitter>& particle_system, W_STR filename);
 	
 
 public:
@@ -49,7 +44,7 @@ public:
 	bool	dualsource_blended_		= true;
 
 private:
-	std::vector<std::vector<ParticleEmitter*>> particle_systems;
+	std::vector<ParticleSystem*> particle_systems;
 
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
 	CdPerFrame gs_cdata_per_frame_;

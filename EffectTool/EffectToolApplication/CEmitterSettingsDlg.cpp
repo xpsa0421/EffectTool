@@ -242,12 +242,12 @@ void CEmitterSettingsDlg::OnBnClickedGenEmitter()
 		}
 	}
 
-	CEffectToolApplicationApp* app = (CEffectToolApplicationApp*)AfxGetApp();
+	/*CEffectToolApplicationApp* app = (CEffectToolApplicationApp*)AfxGetApp();
 	if (app->effect_tool_.NameExists(LPCWSTR(emitter_name)))
 	{
 		AfxMessageBox(_T("Name already exists!"), MB_ICONSTOP);
 		return;
-	}
+	}*/
 	/*
 	app->effect_tool_.GenEmitterFromMultipleTex(
 		spawn_rate_,
