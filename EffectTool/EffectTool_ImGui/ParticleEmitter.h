@@ -1,5 +1,4 @@
 #pragma once
-#include "Std.h"
 #include "Object.h"
 #include "DxState.h"
 

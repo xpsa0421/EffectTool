@@ -49,11 +49,23 @@ bool GameCore::CoreInit()
 	global_timer.Init();
 	CreateDXResource();
 
-	return Init();
+	Init();
+
+#ifdef USE_IMGUI
+	ImGui_ImplWin32_Init(window_->_hWnd);
+	ImGui_ImplDX11_Init(device_.Get(), device_context_.Get());
+#endif // USE_IMGUI
+
+	return true;
 }
 
 bool GameCore::CoreFrame()
 {
+#ifdef USE_IMGUI
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+#endif // USE_IMGUI
 	if (window_->_resizeWindow == true) 
 	{
 		ResizeWindow(window_->_clientWidth, window_->_clientHeight);
@@ -113,13 +125,19 @@ bool GameCore::CorePostRender()
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif // USE_IMGUI
-
+	
 	swapchain_->Present(0, 0);
 	return true;
 }
 
 bool GameCore::CoreRelease()
 {
+#ifdef USE_IMGUI
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+#endif // USE_IMGUI
+
 	Release();
 	if (cam_) delete cam_;
 	writer_.Release();
@@ -160,9 +178,12 @@ bool GameCore::RunMFC()
 	return true;
 }
 
-bool GameCore::RunImGui()
+bool GameCore::SetWindow(HINSTANCE hInstance, const WCHAR* title, UINT width, UINT height)
 {
-	// Setup Dear ImGui context
+	window_ = new Window;
+	window_->SetWindow(hInstance, title, width, height);
+
+#ifdef USE_IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -170,42 +191,8 @@ bool GameCore::RunImGui()
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	
-	// Initialisation
-	CoreInit();
-	ImGui_ImplWin32_Init(g_hWnd);
-	ImGui_ImplDX11_Init(device_.Get(), device_context_.Get());
-		
-	// Application main loop
-	while (game_active_)
-	{
-		if (window_->Run() == true)
-		{
-			ImGui_ImplDX11_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
-			CoreFrame();
+#endif // USE_IMGUI
 
-			CoreRender();
-		}
-		else {
-			game_active_ = false;
-		}
-	}
-
-	// Release
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-	CoreRelease();
-
-	return true;
-}
-
-bool GameCore::SetWindow(HINSTANCE hInstance, const WCHAR* title, UINT width, UINT height)
-{
-	window_ = new Window;
-	window_->SetWindow(hInstance, title, width, height);
 	return true;
 }
 

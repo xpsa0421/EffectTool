@@ -1,18 +1,27 @@
 #pragma once
 #define USE_IMGUI
+#define USE_RAPIDJSON
 
 //-----------------------------------------------------------------------------
 // Standard includes
 //-----------------------------------------------------------------------------
-#include <windows.h>
+// RapidJSON - File input and output
+#ifdef USE_RAPIDJSON
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <fstream>
+#endif 
 
+// ImGui - Advanced GUI rendering
 #ifdef USE_IMGUI
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
-#endif // USE_IMGUI
+#endif 
 
-
+// Other standard includes
+#include <windows.h>
 #include <string>
 #include <vector>
 #include <map>
