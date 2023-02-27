@@ -9,6 +9,7 @@
 #include "ShaderManager.h"
 #include "Camera.h"
 
+
 class GameCore : public Device
 {
 public:
@@ -40,6 +41,8 @@ protected:
 public:
 	bool			Run();
 	bool			RunMFC();
+	bool			RunImGui();
+
 	bool			SetWindow(HINSTANCE hInstance, const WCHAR* Title, UINT width, UINT height);
 	void			ResizeWindow(UINT width, UINT height);
 };

@@ -1,5 +1,5 @@
-#include "pch.h"
 #include "EffectTool.h"
+
 
 bool EffectTool::Init()
 {
@@ -110,6 +110,10 @@ bool EffectTool::Render()
     {
         particle_system->Render();
     }
+
+    bool show_demo_window = true;
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
 
 	return true;
 }

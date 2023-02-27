@@ -25,6 +25,13 @@
     <ClCompile Include="DxState.cpp" />
     <ClCompile Include="GameCore.cpp" />
     <ClCompile Include="GlobalGameTimer.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -44,6 +51,14 @@
     <ClInclude Include="DxState.h" />
     <ClInclude Include="GameCore.h" />
     <ClInclude Include="GlobalGameTimer.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="imgui\imgui_impl_win32.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="JsonHelper.h" />
     <ClInclude Include="Object.h" />
@@ -177,8 +192,9 @@
     </Lib>
     <PostBuildEvent>
       <Command>if exist "..\\..\\include\\core\\" rmdir /s/q "..\\..\\include\\core\\"
-mkdir "..\\..\\include\\core\\"
+mkdir "..\\..\\include\\core\\imgui\\"
 copy "*.h" "..\\..\\include\\core\\"
+copy "imgui\\" "..\\..\\include\\core\\imgui\\"
 copy "..\\..\\output\\GameCore\\output\\GameCore.lib" "..\\..\\lib\\GameCore.lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

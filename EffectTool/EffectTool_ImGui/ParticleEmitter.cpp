@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "ParticleEmitter.h"
 #define MAX_RENDER_COUNT 1000
 

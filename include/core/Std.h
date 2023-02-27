@@ -1,9 +1,18 @@
 #pragma once
+#define USE_IMGUI
 
 //-----------------------------------------------------------------------------
 // Standard includes
 //-----------------------------------------------------------------------------
 #include <windows.h>
+
+#ifdef USE_IMGUI
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
+#endif // USE_IMGUI
+
+
 #include <string>
 #include <vector>
 #include <map>
