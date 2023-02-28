@@ -1,19 +1,15 @@
 #include "Window.h"
 #include "Device.h" 
+#include "ImGuiLayer.h"
 
 HWND	g_hWnd;
 RECT	g_rectClient;
 Window* g_window = nullptr;
 
-#ifdef USE_IMGUI
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif // USE_IMGUI
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
-	//_ASSERT(g_window); 디버깅용 error검출
 #ifdef USE_IMGUI
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+	if (ImGuiLayer::MsgProcHandler(hWnd, message, wParam, lParam))
 		return true;
 #endif // USE_IMGUI
 	return g_window->MsgProc(hWnd, message, wParam, lParam);

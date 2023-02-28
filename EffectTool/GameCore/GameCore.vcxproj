@@ -19,19 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\EffectTool_ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\EffectTool_ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CoreMath.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DxState.cpp" />
     <ClCompile Include="GameCore.cpp" />
     <ClCompile Include="GlobalGameTimer.cpp" />
-    <ClCompile Include="imgui\imgui.cpp" />
-    <ClCompile Include="imgui\imgui_demo.cpp" />
-    <ClCompile Include="imgui\imgui_draw.cpp" />
-    <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="imgui\imgui_tables.cpp" />
-    <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="ImGuiLayer.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -45,20 +41,15 @@
     <ClCompile Include="Writer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\EffectTool_ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="..\EffectTool_ImGui\imgui_impl_win32.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CoreMath.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="DxState.h" />
     <ClInclude Include="GameCore.h" />
     <ClInclude Include="GlobalGameTimer.h" />
-    <ClInclude Include="imgui\imconfig.h" />
-    <ClInclude Include="imgui\imgui.h" />
-    <ClInclude Include="imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="imgui\imgui_impl_win32.h" />
-    <ClInclude Include="imgui\imgui_internal.h" />
-    <ClInclude Include="imgui\imstb_rectpack.h" />
-    <ClInclude Include="imgui\imstb_textedit.h" />
-    <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="ImGuiLayer.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="JsonHelper.h" />
     <ClInclude Include="Object.h" />
@@ -180,7 +171,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../include/;../../include/dxtk/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../include/;../../include/imgui/;../../include/dxtk/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -189,12 +180,12 @@
     </Link>
     <Lib>
       <OutputFile>../../output/GameCore/output/GameCore.lib</OutputFile>
+      <AdditionalLibraryDirectories>../../lib/</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>if exist "..\\..\\include\\core\\" rmdir /s/q "..\\..\\include\\core\\"
-mkdir "..\\..\\include\\core\\imgui\\"
+mkdir "..\\..\\include\\core\\"
 copy "*.h" "..\\..\\include\\core\\"
-copy "imgui\\" "..\\..\\include\\core\\imgui\\"
 copy "..\\..\\output\\GameCore\\output\\GameCore.lib" "..\\..\\lib\\GameCore.lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -52,8 +52,7 @@ bool GameCore::CoreInit()
 	Init();
 
 #ifdef USE_IMGUI
-	ImGui_ImplWin32_Init(window_->_hWnd);
-	ImGui_ImplDX11_Init(device_.Get(), device_context_.Get());
+	ImGuiLayer::Init(window_->_hWnd, device_.Get(), device_context_.Get());
 #endif // USE_IMGUI
 
 	return true;
@@ -61,11 +60,6 @@ bool GameCore::CoreInit()
 
 bool GameCore::CoreFrame()
 {
-#ifdef USE_IMGUI
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-#endif // USE_IMGUI
 	if (window_->_resizeWindow == true) 
 	{
 		ResizeWindow(window_->_clientWidth, window_->_clientHeight);
@@ -90,9 +84,6 @@ bool GameCore::CoreRender()
 	}
 #endif // DEBUG
 	Render();
-#ifdef _DEBUG
-	//if (cam_) PrintDebugInfo();
-#endif // DEBUG
 
 	CorePostRender();
 
@@ -121,21 +112,17 @@ bool GameCore::CorePostRender()
 	global_timer.Render();
 	writer_.Render();
 
-#ifdef USE_IMGUI
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-#endif // USE_IMGUI
-	
+#ifndef USE_IMGUI
 	swapchain_->Present(0, 0);
+#endif // !USE_IMGUI
+	
 	return true;
 }
 
 bool GameCore::CoreRelease()
 {
 #ifdef USE_IMGUI
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	ImGuiLayer::Release();
 #endif // USE_IMGUI
 
 	Release();
@@ -182,16 +169,6 @@ bool GameCore::SetWindow(HINSTANCE hInstance, const WCHAR* title, UINT width, UI
 {
 	window_ = new Window;
 	window_->SetWindow(hInstance, title, width, height);
-
-#ifdef USE_IMGUI
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-#endif // USE_IMGUI
 
 	return true;
 }

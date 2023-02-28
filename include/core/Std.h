@@ -13,13 +13,6 @@
 #include <fstream>
 #endif 
 
-// ImGui - Advanced GUI rendering
-#ifdef USE_IMGUI
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx11.h"
-#include "imgui/imgui_impl_win32.h"
-#endif 
-
 // Other standard includes
 #include <windows.h>
 #include <string>
@@ -34,6 +27,11 @@
 #include <DirectXMath.h>
 #include <dxtk\WICTextureLoader.h>
 
+// ImGui - Advanced GUI rendering
+#ifdef USE_IMGUI
+#pragma comment(lib, "ImGui.lib")
+#include "ImGuiLayer.h"
+#endif 
 
 //-----------------------------------------------------------------------------
 // Standard libraries
