@@ -46,6 +46,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 void ImGuiRender(EffectTool* effect_tool)
 {
+	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 	bool show_demo_window = true;
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);

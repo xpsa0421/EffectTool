@@ -151,7 +151,10 @@
       <OutputFile>../../output/ImGui/output/ImGui.lib</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>copy "..\\..\\output\\ImGui\\output\\ImGui.lib" "..\\..\\lib\\ImGui.lib"</Command>
+      <Command>copy "..\\..\\output\\ImGui\\output\\ImGui.lib" "..\\..\\lib\\ImGui.lib"
+if exist "..\\..\\include\imgui\\" rmdir /s/q "..\\..\\include\\imgui\\"
+mkdir "..\\..\\include\\imgui\\"
+copy "*.h" "..\\..\\include\\imgui\\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

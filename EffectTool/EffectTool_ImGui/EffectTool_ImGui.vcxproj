@@ -149,12 +149,14 @@
   <ItemGroup>
     <ClCompile Include="EffectTool.cpp" />
     <ClCompile Include="Entrypoint.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="ImGuiRenderer.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EffectTool.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="ImGuiRenderer.h" />
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="ParticleSystem.h" />
