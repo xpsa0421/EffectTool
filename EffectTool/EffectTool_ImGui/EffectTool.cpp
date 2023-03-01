@@ -3,6 +3,10 @@
 
 bool EffectTool::Init()
 {
+    // initialise rendertarget
+    render_target_ = new RenderTarget();
+    render_target_->Create(device_.Get());
+
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
@@ -62,7 +66,7 @@ bool EffectTool::Frame()
 	return true;
 }
 
-bool EffectTool::Render()
+void EffectTool::SetRenderStates()
 {
     // set wireframe properties
     if (wireframe_enabled_)
@@ -73,7 +77,7 @@ bool EffectTool::Render()
     // set depth stencil state
     if (depth_compared_)
     {
-        if (depth_write_enabled_) 
+        if (depth_write_enabled_)
             DxState.ApplyDepthStencilState(L"DS_depth_enable");
         else
             DxState.ApplyDepthStencilState(L"DS_depth_enable_no_write");
@@ -102,14 +106,21 @@ bool EffectTool::Render()
                 emitter->SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaNotTested");
         }
     }
+}
 
+bool EffectTool::Render()
+{
+    SetRenderStates();
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
-    
+
+    // render at render target
+    render_target_->Begin(device_context_.Get());
     for (ParticleSystem* particle_system : particle_systems)
     {
         particle_system->Render();
     }
+    render_target_->End(device_context_.Get());
 
 	return true;
 }
@@ -122,6 +133,7 @@ bool EffectTool::Release()
         delete particle_system;
     }
     gs_cbuffer_per_frame_ = nullptr;
+    render_target_->Release();
 
     return true;
 }

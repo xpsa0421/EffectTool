@@ -2,6 +2,7 @@
 #include "GameCore.h"
 #include "Camera.h"
 #include "ParticleSystem.h"
+#include "RenderTarget.h"
 
 struct CdPerFrame
 {
@@ -13,12 +14,15 @@ struct CdPerFrame
 class EffectTool : public GameCore
 {
 public:
+	RenderTarget* render_target_;
+public:
 	bool	Init()		override;
 	bool	Frame()		override;
 	bool	Render()	override;
 	bool	Release()	override;
 	HRESULT CreateDXResource() override;
 	
+	void	SetRenderStates();
 	void	AddDefaultParticleSystem();
 
 

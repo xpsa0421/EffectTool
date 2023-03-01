@@ -115,11 +115,7 @@ void ParticleSystem::AddDefaultEmitter()
 //    rapidjson::Document particle_system_document;
 //
 //    // load file and check validity
-//    if (!
-//        
-//        
-//        
-//        Helper::LoadJSON(filepath, particle_system_document)) return false;
+//    if (!JsonHelper::LoadJSON(filepath, particle_system_document)) return false;
 //
 //    // iterate all particle emitters in the system
 //    for (auto& emitter : particle_system_document.GetObject())

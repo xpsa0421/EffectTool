@@ -39,7 +39,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			effect_tool.game_active_ = false;
 		}
 	}
-
 	// Release
 	effect_tool.CoreRelease();
 }
@@ -51,4 +50,11 @@ void ImGuiRender(EffectTool* effect_tool)
 	bool show_demo_window = true;
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
+
+	ID3D11ShaderResourceView* main_rtv = effect_tool->render_target_->srv_.Get();
+	if (ImGui::Begin("RenderToTexture Test"))
+	{
+		ImGui::Image((void*)main_rtv, ImVec2(800, 600));
+	}
+	ImGui::End();
 }
