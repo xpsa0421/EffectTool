@@ -22,6 +22,7 @@ public:
 	bool	Release()	override;
 	HRESULT CreateDXResource() override;
 	
+	void	ResizeViewport(float width, float height);
 	void	SetRenderStates();
 	void	AddDefaultParticleSystem();
 
@@ -48,6 +49,7 @@ public:
 	bool	dualsource_blended_		= true;
 
 private:
+	XMFLOAT2 render_target_size;
 	std::vector<ParticleSystem*> particle_systems;
 
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;

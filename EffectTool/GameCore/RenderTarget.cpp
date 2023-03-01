@@ -2,6 +2,8 @@
 
 bool RenderTarget::Create(ID3D11Device* device, FLOAT width, FLOAT height)
 {
+    device->GetImmediateContext(device_context_.GetAddressOf());
+
     // Set clear color
     clear_color_[0] = 1.0f;
     clear_color_[1] = 1.0f;
@@ -79,38 +81,39 @@ bool RenderTarget::Create(ID3D11Device* device, FLOAT width, FLOAT height)
     return true;
 }
 
-bool RenderTarget::Begin(ID3D11DeviceContext* context)
+bool RenderTarget::Begin()
 {
-    ComPtr<ID3D11RenderTargetView> nullRtv = NULL;
+    ID3D11RenderTargetView* nullRtv = NULL;
     UINT num_vp = 1;
 
-    context->RSGetViewports(&num_vp, viewport_old_);
-    context->OMGetRenderTargets(1, rtv_old_.GetAddressOf(), dsv_old_.GetAddressOf());
-    context->OMSetRenderTargets(1, nullRtv.GetAddressOf(), NULL);
-    context->OMSetRenderTargets(1, rtv_.GetAddressOf(), dsv_.Get());
-    context->ClearRenderTargetView(rtv_.Get(), clear_color_);
-    context->ClearDepthStencilView(dsv_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0, 0);
-    context->RSSetViewports(1, &viewport_);
+    device_context_->RSGetViewports(&num_vp, viewport_old_);
+    device_context_->OMGetRenderTargets(1, &rtv_old_, &dsv_old_);
+    device_context_->OMSetRenderTargets(1, &nullRtv, NULL);
+    device_context_->OMSetRenderTargets(1, rtv_.GetAddressOf(), dsv_.Get());
+    device_context_->ClearRenderTargetView(rtv_.Get(), clear_color_);
+    device_context_->ClearDepthStencilView(dsv_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0, 0);
+    device_context_->RSSetViewports(1, &viewport_);
     return true;
 }
 
-void RenderTarget::End(ID3D11DeviceContext* context)
+void RenderTarget::End()
 {
-    context->OMSetRenderTargets(1, rtv_old_.GetAddressOf(), dsv_old_.Get());
-    context->RSSetViewports(1, viewport_old_);
-    rtv_old_ = nullptr;
-    dsv_old_ = nullptr;
+    device_context_->OMSetRenderTargets(1, &rtv_old_, dsv_old_);
+    device_context_->RSSetViewports(1, viewport_old_);
+    rtv_old_->Release();
+    dsv_old_->Release();
 }
 
 bool RenderTarget::Release()
 {
-    srv_        = nullptr;
-    rtv_        = nullptr;
-    dsv_        = nullptr;
-    depth_srv_  = nullptr;
-    texture2D_  = nullptr;
-    rtv_old_    = nullptr;
-    dsv_old_    = nullptr;
+    srv_            = nullptr;
+    rtv_            = nullptr;
+    dsv_            = nullptr;
+    depth_srv_      = nullptr;
+    texture2D_      = nullptr;
+    rtv_old_        = nullptr;
+    dsv_old_        = nullptr;
+    device_context_ = nullptr;
 
     return true;
 }

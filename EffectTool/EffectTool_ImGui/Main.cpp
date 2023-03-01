@@ -24,9 +24,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	{
 		if (effect_tool.window_->Run() == true)
 		{
-			// Render mainframe
 			effect_tool.CoreFrame();
-			effect_tool.CoreRender();
 
 			// Render ImGui
 			ImGuiLayer::Begin();
@@ -51,10 +49,22 @@ void ImGuiRender(EffectTool* effect_tool)
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
-	ID3D11ShaderResourceView* main_rtv = effect_tool->render_target_->srv_.Get();
-	if (ImGui::Begin("RenderToTexture Test"))
+	// Main viewport 
+	ImGui::SetNextWindowSize(ImVec2(450, 420), ImGuiCond_FirstUseEver);
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+	if (ImGui::Begin("Main viewport", NULL, window_flags))
 	{
-		ImGui::Image((void*)main_rtv, ImVec2(800, 600));
+		ImVec2 window_size = ImGui::GetWindowSize();
+		
+		// Render mainframe
+		effect_tool->ResizeViewport(window_size.x, window_size.y);
+		effect_tool->CoreRender();
+		ComPtr<ID3D11ShaderResourceView> main_rtv = effect_tool->render_target_->srv_.Get();
+		ImGui::Image((void*)main_rtv.Get(), window_size);
+		
 	}
 	ImGui::End();
+	ImGui::PopStyleVar();
 }

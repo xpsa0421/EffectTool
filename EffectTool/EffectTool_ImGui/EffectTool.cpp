@@ -5,14 +5,15 @@ bool EffectTool::Init()
 {
     // initialise rendertarget
     render_target_ = new RenderTarget();
-    render_target_->Create(device_.Get());
+    render_target_->Create(device_.Get(), 450, 420);
 
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
-    cam_->SetView(XMFLOAT3(0, 0, -200), XMFLOAT3(0, 50, 0));
+    cam_->SetView(XMFLOAT3(0, 0, -180), XMFLOAT3(0, 50, 0));
     cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
         (float)g_rectClient.right / (float)g_rectClient.bottom);
+    render_target_size = { (float)g_rectClient.right, (float)g_rectClient.bottom };
 
     // add default particle system upon launch
     AddDefaultParticleSystem();
@@ -113,14 +114,17 @@ bool EffectTool::Render()
     SetRenderStates();
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
-
-    // render at render target
-    render_target_->Begin(device_context_.Get());
     for (ParticleSystem* particle_system : particle_systems)
     {
         particle_system->Render();
     }
-    render_target_->End(device_context_.Get());
+    // render at render target
+    render_target_->Begin();
+    for (ParticleSystem* particle_system : particle_systems)
+    {
+        particle_system->Render();
+    }
+    render_target_->End();
 
 	return true;
 }
@@ -147,6 +151,13 @@ HRESULT EffectTool::CreateDXResource()
             (float)g_rectClient.right / (float)g_rectClient.bottom);
     }
     return S_OK;
+}
+
+void EffectTool::ResizeViewport(float width, float height)
+{
+    render_target_size = { width, height };
+    //  
+    render_target_->Resize(width, height);
 }
 
 /**
