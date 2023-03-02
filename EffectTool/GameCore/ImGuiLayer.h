@@ -9,4 +9,7 @@ public:
 	static void	End();
 	static void	Release();
 	static bool	MsgProcHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	static void	SetDarkTheme();
+	static void	SetGreyTheme();
 };

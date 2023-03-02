@@ -132,7 +132,7 @@ HRESULT EffectTool::CreateDXResource()
     if (cam_)
     {
         cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
-            (float)g_rectClient.right / (float)g_rectClient.bottom);
+            1 / 1);// (float)g_rectClient.right / (float)g_rectClient.bottom);
     }
     return S_OK;
 }

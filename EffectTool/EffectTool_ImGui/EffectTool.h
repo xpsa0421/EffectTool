@@ -6,6 +6,7 @@
 
 struct CdPerFrame
 {
+	XMFLOAT4X4  world;
 	XMFLOAT4X4	billboard;
 	XMFLOAT4X4	view;
 	XMFLOAT4X4	proj;
@@ -13,8 +14,6 @@ struct CdPerFrame
 
 class EffectTool : public GameCore
 {
-public:
-	RenderTarget* render_target_;
 public:
 	bool	Init()		override;
 	bool	Frame()		override;
@@ -38,8 +37,9 @@ public:
 
 	bool	LoadParticleSystemFromFile(W_STR filename);
 	//bool	SaveParticleSystemToFile(std::vector<ParticleEmitter>& particle_system, W_STR filename);
-	
 
+	ID3D11ShaderResourceView*	GetRenderedTexture();
+	
 public:
 	bool	depth_write_enabled_	= false;
 	bool	depth_compared_			= true;
@@ -49,10 +49,12 @@ public:
 	bool	dualsource_blended_		= true;
 
 private:
-	XMFLOAT2 render_target_size;
 	std::vector<ParticleSystem*> particle_systems;
 
 	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
 	CdPerFrame gs_cdata_per_frame_;
+
+	RenderTarget* render_target_;
+	XMFLOAT2 render_target_size;
 };
 

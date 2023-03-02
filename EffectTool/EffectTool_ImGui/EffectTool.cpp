@@ -1,19 +1,21 @@
 #include "EffectTool.h"
 
-
 bool EffectTool::Init()
 {
     // initialise rendertarget
+    //render_plane_ = new Object();
+    //render_plane_->Init();
+    //render_plane_->Create(device_.Get(), device_context_.Get());
+
     render_target_ = new RenderTarget();
-    render_target_->Create(device_.Get(), 450, 420);
+    render_target_->Create(device_.Get(), 500, 500);
 
     // initialise camera
     cam_ = new Camera;
     cam_->Init();
     cam_->SetView(XMFLOAT3(0, 0, -180), XMFLOAT3(0, 50, 0));
-    cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
-        (float)g_rectClient.right / (float)g_rectClient.bottom);
-    render_target_size = { (float)g_rectClient.right, (float)g_rectClient.bottom };
+    cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f, 500/500);
+    render_target_size = { 500, 500 };
 
     // add default particle system upon launch
     AddDefaultParticleSystem();
@@ -114,17 +116,16 @@ bool EffectTool::Render()
     SetRenderStates();
     device_context_->UpdateSubresource(gs_cbuffer_per_frame_.Get(), 0, 0, &gs_cdata_per_frame_, 0, 0);
     device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_frame_.GetAddressOf());
-    for (ParticleSystem* particle_system : particle_systems)
-    {
-        particle_system->Render();
-    }
-    // render at render target
+   
     render_target_->Begin();
     for (ParticleSystem* particle_system : particle_systems)
     {
         particle_system->Render();
     }
     render_target_->End();
+    
+    //render_plane_->SetTextureSRV(render_target_->srv_.Get());
+    //render_plane_->Render();
 
 	return true;
 }
@@ -138,8 +139,14 @@ bool EffectTool::Release()
     }
     gs_cbuffer_per_frame_ = nullptr;
     render_target_->Release();
+    //render_plane_->Release();
 
     return true;
+}
+
+ID3D11ShaderResourceView* EffectTool::GetRenderedTexture()
+{
+    return render_target_->GetSRV();
 }
 
 HRESULT EffectTool::CreateDXResource()
@@ -148,7 +155,7 @@ HRESULT EffectTool::CreateDXResource()
     if (cam_)
     {
         cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f,
-            (float)g_rectClient.right / (float)g_rectClient.bottom);
+            render_target_size.x / render_target_size.y);
     }
     return S_OK;
 }
@@ -156,8 +163,8 @@ HRESULT EffectTool::CreateDXResource()
 void EffectTool::ResizeViewport(float width, float height)
 {
     render_target_size = { width, height };
-    //  
     render_target_->Resize(width, height);
+    cam_->SetLens(1.0f, 10000.0f, XM_PI * 0.25f, render_target_size.x / render_target_size.y);
 }
 
 /**

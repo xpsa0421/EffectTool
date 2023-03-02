@@ -9,10 +9,13 @@ public:
 	void End();
 	bool Release();
 
-	void Resize(FLOAT width, FLOAT height);
+	bool Resize(FLOAT width, FLOAT height);
 	void SetClearColor(const FLOAT color[4]);
+	ID3D11ShaderResourceView* GetSRV();
 
 private:
+	ComPtr<ID3D11ShaderResourceView>	srv_;
+	ComPtr<ID3D11Device>				device;
 	ComPtr<ID3D11DeviceContext>			device_context_;
 	ComPtr<ID3D11RenderTargetView>		rtv_;
 	ComPtr<ID3D11DepthStencilView>		dsv_;
@@ -22,11 +25,8 @@ private:
 
 	ID3D11RenderTargetView*		rtv_old_;
 	ID3D11DepthStencilView*		dsv_old_;
-	D3D11_VIEWPORT						viewport_old_[D3D11_VIEWPORT_AND_SCISSORRECT_MAX_INDEX];
+	D3D11_VIEWPORT				viewport_old_[D3D11_VIEWPORT_AND_SCISSORRECT_MAX_INDEX];
 
 	FLOAT clear_color_[4];
-
-public:
-	ComPtr<ID3D11ShaderResourceView>	srv_;
 };
 

@@ -94,6 +94,10 @@ bool Object::Create(ID3D11Device* device, ID3D11DeviceContext* context)
 	BuildVertexBuffer();
 	BuildIndexBuffer();
 
+	// set default shaders
+	SetVertexShader(L"../../data/shader/BasicShader.hlsl", L"VSMain");
+	SetPixelShader(L"../../data/shader/BasicShader.hlsl", L"PSMain");
+	
 	// generate input layout
 	BuildInputLayout();
 
