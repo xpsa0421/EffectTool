@@ -63,6 +63,11 @@
     <ClInclude Include="Window.h" />
     <ClInclude Include="Writer.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ImGui\ImGui.vcxproj">
+      <Project>{12c7340f-ce79-4fe0-9d58-27cbb5449345}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
