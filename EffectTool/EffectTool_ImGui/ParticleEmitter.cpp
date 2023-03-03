@@ -188,7 +188,7 @@ bool ParticleEmitter::Frame()
 		if (emit_timer > emit_interval_)
 		{
 			EmitParticle();
-			emit_timer -= emit_interval_;
+			emit_timer = 0;
 		}
 	}
 	EnhanceParticles();

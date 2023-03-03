@@ -17414,7 +17414,7 @@ ImGuiID ImGui::DockSpaceOverViewport(const ImGuiViewport* viewport, ImGuiDockNod
 
 //-----------------------------------------------------------------------------
 // Docking: Builder Functions
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------- 
 // Very early end-user API to manipulate dock nodes.
 // Only available in imgui_internal.h. Expect this API to change/break!
 // It is expected that those functions are all called _before_ the dockspace node submission.
