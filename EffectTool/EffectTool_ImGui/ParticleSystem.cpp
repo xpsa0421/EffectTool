@@ -6,9 +6,39 @@ void ParticleSystem::SetDeviceContext(ID3D11Device* device, ID3D11DeviceContext*
     device_context_ = context;
 }
 
+void ParticleSystem::SetCamera(Camera* cam)
+{
+    cam_ = cam;
+}
+
+void ParticleSystem::SetCameraLens(float nearZ, float farZ, float fov, float aspect_ratio)
+{
+    cam_->SetLens(nearZ, farZ, fov, aspect_ratio);
+}
+
+int ParticleSystem::GetNumEmitters()
+{
+    return emitters_.size();
+}
+
 bool ParticleSystem::Init()
 {
-    // TODO: initialise variables
+    cam_ = nullptr;
+
+    // Generate per particle system vertex shader constant buffer
+    D3D11_BUFFER_DESC constant_desc;
+    ZeroMemory(&constant_desc, sizeof(constant_desc));
+    constant_desc.ByteWidth = sizeof(VSConstantDataPerSystem) * 1;
+    constant_desc.Usage = D3D11_USAGE_DEFAULT;
+    constant_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+    HRESULT result = device_->CreateBuffer(&constant_desc, nullptr, gs_cbuffer_per_ps_.GetAddressOf());
+#ifdef _DEBUG
+    if (FAILED(result))
+    {
+        printf("[ParticleSystem] Failed to build per system VS constant buffer\n");
+    }
+#endif // _DEBUG
 
     // create default emitter if this is a new particle system
     if (emitters_.empty())
@@ -24,10 +54,32 @@ bool ParticleSystem::Init()
  */
 bool ParticleSystem::Frame()
 {
+    // Update all emitters
     for (ParticleEmitter* emitter : emitters_)
     {
         emitter->Frame();
     }
+
+    // Update camera
+    cam_->Frame();
+
+    // Calculate new billboard matrix with updated camera view
+    // Update constant data accordingly
+    XMFLOAT4X4 cam_view_in;
+    XMStoreFloat4x4(&cam_view_in, XMMatrixInverse(nullptr, XMLoadFloat4x4(&cam_->view_)));
+    cam_view_in._41 = cam_view_in._42 = cam_view_in._43 = 0.0f;
+
+    XMFLOAT4X4 cdata_billboard;
+    XMFLOAT4X4 cdata_view;
+    XMFLOAT4X4 cdata_proj;
+
+    XMStoreFloat4x4(&cdata_billboard, XMMatrixTranspose(XMLoadFloat4x4(&cam_view_in)));
+    XMStoreFloat4x4(&cdata_view, XMMatrixTranspose(XMLoadFloat4x4(&cam_->view_)));
+    XMStoreFloat4x4(&cdata_proj, XMMatrixTranspose(XMLoadFloat4x4(&cam_->proj_)));
+
+    gs_cdata_per_ps_.billboard = cdata_billboard;
+    gs_cdata_per_ps_.view = cdata_view;
+    gs_cdata_per_ps_.proj = cdata_proj;
 
     return true;
 }
@@ -37,6 +89,12 @@ bool ParticleSystem::Frame()
  */
 bool ParticleSystem::Render()
 {
+    // Update vertex shader constant buffer
+    device_context_->UpdateSubresource(gs_cbuffer_per_ps_.Get(), 0, 0, &gs_cdata_per_ps_, 0, 0);
+    device_context_->GSSetConstantBuffers(0, 1, gs_cbuffer_per_ps_.GetAddressOf());
+
+    // Render all active emitters
+    // TODO: ONLY RENDER ACTIVE EMITTERS
     for (ParticleEmitter* emitter : emitters_)
     {
         emitter->Render();
@@ -56,6 +114,10 @@ bool ParticleSystem::Release()
         delete emitter;
     }
     emitters_.clear();
+
+    delete cam_;
+    gs_cbuffer_per_ps_ = nullptr;
+
     return true;
 }
 

@@ -91,6 +91,7 @@ public:
 
 	void	SetAlphaTesting(bool is_alpha_tested);
 	void	SetAlphaBlending(bool is_alpha_blended);
+	void	SetDualBlending(bool is_dual_blended);
 
 	void	InitialiseParticle(Particle& p);
 	void	EmitParticle();
@@ -125,9 +126,12 @@ private:
 	bool	is_uv_animated_;
 	float	anim_offset = 0.1f;
 	bool	use_random_color_;
-	ComPtr<ID3D11Buffer>		gs_cbuffer_;
 	
-
+	bool	dual_blended_;
+	bool	alpha_tested_;
+	bool	alpha_blended_;
+	
+	ComPtr<ID3D11Buffer>		gs_cbuffer_;
 	CdPerParticleEmitter		cd_per_system_;
 	std::vector<ParticleVertex> particle_vertices_;
 	std::vector<ParticleVertex> init_particle_vertices_;

@@ -4,14 +4,6 @@
 #include "ParticleSystem.h"
 #include "RenderTarget.h"
 
-struct CdPerFrame
-{
-	XMFLOAT4X4  world;
-	XMFLOAT4X4	billboard;
-	XMFLOAT4X4	view;
-	XMFLOAT4X4	proj;
-};
-
 class EffectTool : public GameCore
 {
 public:
@@ -19,12 +11,11 @@ public:
 	bool	Frame()		override;
 	bool	Render()	override;
 	bool	Release()	override;
-	HRESULT CreateDXResource() override;
 	
-	void	ResizeViewport(float width, float height);
+	void	ResizeViewport(int ps_idx, float width, float height);
 	void	SetRenderStates();
-	void	AddDefaultParticleSystem();
-
+	void	CreateParticleSystem();
+	void	SetPSWindowState(int ps_idx, bool state);
 
 	void	SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
 		int num_rows, int num_cols);
@@ -38,8 +29,9 @@ public:
 	bool	LoadParticleSystemFromFile(W_STR filename);
 	//bool	SaveParticleSystemToFile(std::vector<ParticleEmitter>& particle_system, W_STR filename);
 
-	ID3D11ShaderResourceView*	GetRenderedTexture();
-	
+	ID3D11ShaderResourceView*	GetRenderedTexture(int ps_idx);
+	int		GetNumEmittersInPS(int ps_idx);
+
 public:
 	bool	depth_write_enabled_	= false;
 	bool	depth_compared_			= true;
@@ -49,12 +41,8 @@ public:
 	bool	dualsource_blended_		= true;
 
 private:
-	std::vector<ParticleSystem*> particle_systems;
-
-	ComPtr<ID3D11Buffer> gs_cbuffer_per_frame_;
-	CdPerFrame gs_cdata_per_frame_;
-
-	RenderTarget* render_target_;
-	XMFLOAT2 render_target_size;
+	std::vector<ParticleSystem*>	particle_systems_;
+	std::vector<RenderTarget*>		render_targets_;
+	std::vector<bool>				ps_window_is_active_;
 };
 

@@ -28,5 +28,6 @@ private:
 	D3D11_VIEWPORT				viewport_old_[D3D11_VIEWPORT_AND_SCISSORRECT_MAX_INDEX];
 
 	FLOAT clear_color_[4];
+	XMFLOAT2 size_;
 };
 

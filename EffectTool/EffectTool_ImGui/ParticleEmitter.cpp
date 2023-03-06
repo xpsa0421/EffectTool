@@ -8,6 +8,10 @@ bool ParticleEmitter::Init()
 	tex_coords[2] = { 0.0, 0.1 };
 	tex_coords[3] = { 1.0, 1.0 };
 
+	dual_blended_ = false;
+	alpha_tested_ = false;
+	alpha_blended_ = true;
+
 	cd_per_system_.axis_lock_type = 0;
 	gs_cbuffer_ = nullptr;
 	is_uv_animated_ = true; // TO CHANGE
@@ -34,23 +38,6 @@ bool ParticleEmitter::Release()
 	return Object::Release();
 }
 	 
-bool ParticleEmitter::PreRender()
-{
-	UINT stride = sizeof(ParticleVertex);
-	UINT offset = 0;
-
-	device_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-	device_context_->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(), &stride, &offset);
-	device_context_->IASetInputLayout(input_layout_.Get());
-	device_context_->VSSetShader(vertex_shader_->shader_.Get(), NULL, 0);
-	device_context_->GSSetShader(geo_shader_->shader_.Get(), NULL, 0);
-	device_context_->GSSetConstantBuffers(1, 1, gs_cbuffer_.GetAddressOf());
-	device_context_->PSSetShader(pixel_shader_->shader_.Get(), NULL, 0);
-	if (texture_srv_) device_context_->PSSetShaderResources(0, 1, texture_srv_.GetAddressOf());
-
-	return true;
-}
-
 void ParticleEmitter::BuildVertexBuffer()
 {
 	// generate vertex buffer
@@ -197,6 +184,45 @@ bool ParticleEmitter::Frame()
 	return true;
 }
 
+bool ParticleEmitter::PreRender()
+{
+	dual_blended_ = false;
+	alpha_tested_ = false;
+	alpha_blended_ = true;
+	// Set blend state and pixel shader according to blend options
+	if (!dual_blended_)
+	{
+		DxState.ApplyBlendState(L"BS_alpha");
+		SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"NoDualAlphaBlend");
+	}
+	else
+	{
+		if (alpha_blended_)
+			DxState.ApplyBlendState(L"BS_dual_source_blend");
+		else
+			DxState.ApplyBlendState(L"BS_dual_source_no_blend");
+
+		if (alpha_tested_)
+			SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaTested");
+		else
+			SetPixelShader(L"../../data/shader/PixelShader.hlsl", L"AlphaNotTested");
+	}
+
+	UINT stride = sizeof(ParticleVertex);
+	UINT offset = 0;
+
+	device_context_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	device_context_->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(), &stride, &offset);
+	device_context_->IASetInputLayout(input_layout_.Get());
+	device_context_->VSSetShader(vertex_shader_->shader_.Get(), NULL, 0);
+	device_context_->GSSetShader(geo_shader_->shader_.Get(), NULL, 0);
+	device_context_->GSSetConstantBuffers(1, 1, gs_cbuffer_.GetAddressOf());
+	device_context_->PSSetShader(pixel_shader_->shader_.Get(), NULL, 0);
+	if (texture_srv_) device_context_->PSSetShaderResources(0, 1, texture_srv_.GetAddressOf());
+
+	return true;
+}
+
 bool ParticleEmitter::Render()
 {
 	if (num_alive_particles == 0) return false;
@@ -288,11 +314,19 @@ void ParticleEmitter::SetUVAnimation(W_STR filename, int num_rows, int num_cols)
 void ParticleEmitter::SetAlphaTesting(bool is_alpha_tested)
 {
 	cd_per_system_.is_alpha_tested = is_alpha_tested;
+	alpha_tested_ = is_alpha_tested;
+
 }
 
 void ParticleEmitter::SetAlphaBlending(bool is_alpha_blended)
 {
 	cd_per_system_.is_alpha_tested = is_alpha_blended;
+	alpha_blended_ = is_alpha_blended;
+}
+
+void ParticleEmitter::SetDualBlending(bool is_dual_blended)
+{
+	dual_blended_ = is_dual_blended;
 }
 
 void ParticleEmitter::SetLifetimeOffset(float min_lifetime, float max_lifetime)

@@ -5,6 +5,9 @@ bool RenderTarget::Create(ID3D11Device* device, FLOAT width, FLOAT height)
     this->device = device;
     device->GetImmediateContext(device_context_.GetAddressOf());
 
+    // Set size
+    size_ = { width, height };
+
     // Set clear color
     clear_color_[0] = 1.0f;
     clear_color_[1] = 1.0f;
@@ -122,6 +125,7 @@ bool RenderTarget::Release()
 
 bool RenderTarget::Resize(FLOAT width, FLOAT height)
 {
+    size_ = { width, height };
     viewport_.Width = width;
     viewport_.Height = height;
 
@@ -131,7 +135,6 @@ bool RenderTarget::Resize(FLOAT width, FLOAT height)
     dsv_ = nullptr;
     depth_srv_ = nullptr;
     texture2D_ = nullptr;
-
 
     D3D11_TEXTURE2D_DESC texture_desc;
     texture_desc.Width = (UINT)width;

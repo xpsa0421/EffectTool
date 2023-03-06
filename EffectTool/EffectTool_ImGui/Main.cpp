@@ -33,6 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		if (effect_tool.window_->Run() == true)
 		{
 			effect_tool.CoreFrame();
+			effect_tool.CoreRender();
 
 			// Render
 			ImGuiLayer::Begin();
@@ -139,10 +140,16 @@ void ImGuiCreatePSWindow(EffectTool* effect_tool, int ps_idx)
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove;
 
-	ImGui::Begin("PS Window##" + ps_idx, NULL, window_flags);
+	bool window_active = ImGui::Begin("PS Window##" + ps_idx, NULL, window_flags);
+	effect_tool->SetPSWindowState(ps_idx, window_active);
+
+	ImGuiDockNodeFlags dock_node_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+	if (!window_active)
+		dock_node_flags |= ImGuiDockNodeFlags_KeepAliveOnly;
+
 	ImVec2 emitter_content_size = ImGui::GetContentRegionAvail();
 	ImGuiID main_dockspace = ImGui::GetID("PS DockSpace##" + ps_idx);
-	ImGui::DockSpace(main_dockspace, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::DockSpace(main_dockspace, ImVec2(0.0f, 0.0f), dock_node_flags);
 
 	static auto first_time = true;
 	if (first_time)
@@ -169,22 +176,21 @@ void ImGuiCreatePSWindow(EffectTool* effect_tool, int ps_idx)
 	ImGui::End();
 
 	window_flags = ImGuiWindowFlags_NoCollapse;
-
 	if (ImGui::Begin("Preview##" + ps_idx), NULL, window_flags)
 	{
-		ImVec2 content_size = ImGui::GetContentRegionAvail();
-
-		// Render mainframe
-		effect_tool->ResizeViewport(content_size.x, content_size.y);
-		effect_tool->CoreRender();
-		ImGui::Image((void*)effect_tool->GetRenderedTexture(), content_size);
-
+		if (window_active)
+		{
+			// Render mainframe
+			ImVec2 content_size = ImGui::GetContentRegionAvail();
+			effect_tool->ResizeViewport(ps_idx, content_size.x, content_size.y);
+			ImGui::Image((void*)effect_tool->GetRenderedTexture(ps_idx), content_size);
+		}
 		ImGui::End();
 	}
 
 	window_flags = ImGuiWindowFlags_HorizontalScrollbar;
-	int numEmitters = 5;
-	ImGui::SetNextWindowContentSize(ImVec2(numEmitters * 200 + 5, 0));
+	int num_emitters = effect_tool->GetNumEmittersInPS(ps_idx);
+	ImGui::SetNextWindowContentSize(ImVec2(num_emitters * 200 + 5, 0));
 
 	static bool display_emitters = true;
 	if (ImGui::Begin("Emitters##" + ps_idx, &display_emitters, ImGuiWindowFlags_HorizontalScrollbar))
@@ -194,7 +200,7 @@ void ImGuiCreatePSWindow(EffectTool* effect_tool, int ps_idx)
 		const ImVec2 layoutSize{ 200, 0 };
 		const ImGuiWindowFlags layoutFlags = ImGuiWindowFlags_NoMove;
 
-		for (int emitter_idx = 0; emitter_idx < numEmitters; emitter_idx++) {
+		for (int emitter_idx = 0; emitter_idx < num_emitters; emitter_idx++) {
 			std::string layoutName{ std::string("Emitter ") + std::to_string(emitter_idx) + "##" + std::to_string(ps_idx) };
 			ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.f);
 
