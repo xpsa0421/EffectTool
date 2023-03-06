@@ -2,9 +2,6 @@
 
 bool EffectTool::Init()
 {
-    // Add default particle system upon launch
-    CreateParticleSystem();
-
     return true;
 }
 
@@ -78,9 +75,24 @@ ID3D11ShaderResourceView* EffectTool::GetRenderedTexture(int ps_idx)
     return render_targets_[ps_idx]->GetSRV();
 }
 
+int EffectTool::GetNumParticleSystems()
+{
+    return particle_systems_.size();
+}
+
 int EffectTool::GetNumEmittersInPS(int ps_idx)
 {
     return particle_systems_[ps_idx]->GetNumEmitters();
+}
+
+W_STR EffectTool::GetPSName(int ps_idx)
+{
+    return particle_systems_[ps_idx]->name_;
+}
+
+void EffectTool::SetPSName(int ps_idx, W_STR name)
+{
+    particle_systems_[ps_idx]->name_ = name;
 }
 
 void EffectTool::ResizeViewport(int ps_idx, float width, float height)
@@ -97,12 +109,13 @@ void EffectTool::SetPSWindowState(int ps_idx, bool state)
 /**
  * Creates and adds a default particle system, render target, and camera
  */
-void EffectTool::CreateParticleSystem()
+void EffectTool::CreateParticleSystem(W_STR name)
 {
     // Initialise particle system
     particle_systems_.push_back(new ParticleSystem());
     particle_systems_.back()->SetDeviceContext(device_.Get(), device_context_.Get());
     particle_systems_.back()->Init();
+    particle_systems_.back()->name_ = name;
 
     // Initialise rendertarget
     render_targets_.push_back(new RenderTarget());

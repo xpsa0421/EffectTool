@@ -37,7 +37,9 @@ private:
 	Camera* cam_;
 	//TODO : active and inactive emitters
 
-private:
 	std::vector<ParticleEmitter*>	emitters_;
+
+public:
+	W_STR name_;
 };
 

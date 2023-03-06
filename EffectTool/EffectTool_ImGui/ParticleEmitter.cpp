@@ -186,7 +186,7 @@ bool ParticleEmitter::Frame()
 
 bool ParticleEmitter::PreRender()
 {
-	dual_blended_ = false;
+	dual_blended_ = true;
 	alpha_tested_ = false;
 	alpha_blended_ = true;
 	// Set blend state and pixel shader according to blend options

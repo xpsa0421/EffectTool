@@ -14,7 +14,7 @@ public:
 	
 	void	ResizeViewport(int ps_idx, float width, float height);
 	void	SetRenderStates();
-	void	CreateParticleSystem();
+	void	CreateParticleSystem(W_STR name = NULL);
 	void	SetPSWindowState(int ps_idx, bool state);
 
 	void	SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
@@ -30,7 +30,10 @@ public:
 	//bool	SaveParticleSystemToFile(std::vector<ParticleEmitter>& particle_system, W_STR filename);
 
 	ID3D11ShaderResourceView*	GetRenderedTexture(int ps_idx);
+	int		GetNumParticleSystems();
 	int		GetNumEmittersInPS(int ps_idx);
+	W_STR	GetPSName(int ps_idx);
+	void	SetPSName(int ps_idx, W_STR name);
 
 public:
 	bool	depth_write_enabled_	= false;
