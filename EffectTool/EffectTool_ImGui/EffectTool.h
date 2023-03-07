@@ -15,6 +15,7 @@ public:
 	void	ResizeViewport(int ps_idx, float width, float height);
 	void	SetRenderStates();
 	void	CreateParticleSystem(W_STR name = NULL);
+	void	AddEmitterToPS(int ps_idx);
 	void	SetPSWindowState(int ps_idx, bool state);
 
 	void	SetEmitterTexture(W_STR emitter_name, W_STR tex_path,

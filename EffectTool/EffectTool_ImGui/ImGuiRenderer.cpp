@@ -113,15 +113,25 @@ void ImGuiRenderer::CreateParticleWindow(int ps_idx)
 	if (window_active)
 	{
 		// Render mainframe
+		// If window is created for the first time or is resized, resize render target 
 		ImVec2 content_size = ImGui::GetContentRegionAvail();
-		effect_tool_->ResizeViewport(ps_idx, content_size.x, content_size.y);
+		if (prev_particle_window_sizes_.size() <= ps_idx)
+		{
+			prev_particle_window_sizes_.push_back({ content_size.x, content_size.y });
+			effect_tool_->ResizeViewport(ps_idx, content_size.x, content_size.y);
+		}
+		if ((prev_particle_window_sizes_[ps_idx].x != content_size.x) ||
+			(prev_particle_window_sizes_[ps_idx].y != content_size.y))
+		{
+			effect_tool_->ResizeViewport(ps_idx, content_size.x, content_size.y);
+		}
 		ImGui::Image((void*)effect_tool_->GetRenderedTexture(ps_idx), content_size);
 	}
 	ImGui::End();
 
 	window_flags = ImGuiWindowFlags_HorizontalScrollbar;
 	int num_emitters = effect_tool_->GetNumEmittersInPS(ps_idx);
-	ImGui::SetNextWindowContentSize(ImVec2(num_emitters * 200 + 5, 0));
+	ImGui::SetNextWindowContentSize(ImVec2(num_emitters * 200 + 10, 0));
 
 	if (ImGui::Begin(("Emitters##" + ps_idx_str).c_str(), NULL, ImGuiWindowFlags_HorizontalScrollbar))
 	{
@@ -129,6 +139,7 @@ void ImGuiRenderer::CreateParticleWindow(int ps_idx)
 		static std::vector<int> selected(numProps, -1);
 		const ImVec2 layoutSize{ 200, 0 };
 		const ImGuiWindowFlags layoutFlags = ImGuiWindowFlags_NoMove;
+		bool emitter_hovered = false;
 
 		for (int emitter_idx = 0; emitter_idx < num_emitters; emitter_idx++) {
 			std::string layoutName{ std::string("Emitter ") + std::to_string(emitter_idx) + "##" + ps_idx_str };
@@ -142,10 +153,32 @@ void ImGuiRenderer::CreateParticleWindow(int ps_idx)
 					if (ImGui::Selectable(name.c_str(), selected[emitter_idx] == prop_idx))
 						selected[emitter_idx] = prop_idx;
 				}
+
+				if (ImGui::IsWindowHovered()) emitter_hovered = true;
 			}
 			ImGui::PopStyleVar();
 			ImGui::EndChild();
 			ImGui::SameLine(0, 0);
+		}
+
+		// handle mouse click
+		ImGuiID emitter_window_id =  ImGui::GetID(("Emitters##" + ps_idx_str).c_str());
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImGui::IsWindowHovered() && !emitter_hovered)
+		{
+			ImGui::OpenPopup(("New Emitter##" + ps_idx_str).c_str());
+		}
+		if (ImGui::BeginPopup(("New Emitter##" + ps_idx_str).c_str()))
+		{
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(15, 10));
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 15));
+			ImGui::SeparatorText("Particle Sprite Emitter");
+			if (ImGui::Selectable("New Emitter"))
+				effect_tool_->AddEmitterToPS(ps_idx);
+			if (ImGui::Selectable("Load Emitter"))
+				int i = 0; //TODO
+			ImGui::PopStyleVar();
+			ImGui::EndPopup();
+			
 		}
 	}
 	ImGui::End();

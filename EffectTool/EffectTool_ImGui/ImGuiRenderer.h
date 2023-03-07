@@ -21,6 +21,7 @@ private:
 	EffectTool* effect_tool_;
 
 	std::vector<bool> dock_initialised_;
+	std::vector<XMFLOAT2> prev_particle_window_sizes_;
 
 	bool	open_new_ps_popup_;
 	bool	open_ps_options_popup_;
@@ -30,5 +31,6 @@ private:
 	bool	wireframe_;
 
 	char	ps_name_[128];
+
 };
 

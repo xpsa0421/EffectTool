@@ -97,7 +97,7 @@ void EffectTool::SetPSName(int ps_idx, W_STR name)
 
 void EffectTool::ResizeViewport(int ps_idx, float width, float height)
 {
-    render_targets_[ps_idx]->Resize(width, height);
+    render_targets_[ps_idx]->Resize(width, height); // TODO:: fix flickering
     particle_systems_[ps_idx]->SetCameraLens(1.0f, 10000.0f, XM_PI * 0.25f, width / height);
 }
 
@@ -129,6 +129,11 @@ void EffectTool::CreateParticleSystem(W_STR name)
 
     particle_systems_.back()->SetCamera(cam);
     ps_window_is_active_.push_back(true);
+}
+
+void EffectTool::AddEmitterToPS(int ps_idx)
+{
+    particle_systems_[ps_idx]->AddDefaultEmitter();
 }
 
 void EffectTool::SetEmitterTexture(W_STR emitter_name, W_STR tex_path,
