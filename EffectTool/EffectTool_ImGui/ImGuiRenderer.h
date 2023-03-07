@@ -20,6 +20,8 @@ public:
 private:
 	EffectTool* effect_tool_;
 
+	std::vector<bool> dock_initialised_;
+
 	bool	open_new_ps_popup_;
 	bool	open_ps_options_popup_;
 
